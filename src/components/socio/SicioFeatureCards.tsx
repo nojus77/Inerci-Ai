@@ -487,7 +487,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
         <div className="relative w-6 h-6 rounded-full overflow-hidden">
           <Image src="/socio/chat-female.png" alt="Inerci" fill className="object-cover" />
         </div>
-        <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Inerci padarė.</span>
+        <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
       </motion.div>
       {/* Person 1 (male) - same person as first, reacts, pushed right */}
       <motion.div
@@ -770,17 +770,15 @@ function FeatureCard({
               {titleSuffix ? (
                 <span className="block">
                   <span className="block">{title}</span>
-                  <span className="block">
-                    <motion.span
-                      className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
-                      animate={{ scale: isHovered ? 1.05 : 1 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ display: "inline-block" }}
-                    >
-                      {bigBold}
-                    </motion.span>{" "}
-                    {titleSuffix}
-                  </span>
+                  <motion.span
+                    className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
+                    animate={{ scale: isHovered ? 1.05 : 1 }}
+                    transition={{ duration: 0.3 }}
+                    style={{ display: "inline-block" }}
+                  >
+                    {bigBold}
+                  </motion.span>{" "}
+                  <span className="text-lg md:text-xl">{titleSuffix}</span>
                 </span>
               ) : (
                 title
