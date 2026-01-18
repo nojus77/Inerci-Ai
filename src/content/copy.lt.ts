@@ -44,7 +44,7 @@ export const features = {
     transparent: {
       bigBold: "Viskas vienoje vietoje",
       title: "",
-      descriptionLine1: "Visi procesai ir įrankiai tampa viena patogia sistema.",
+      descriptionLine1: "Visi įrankiai tampa viena patogia sistema.",
       descriptionLine2: "Mažiau chaoso — daugiau kontrolės.",
     },
     scalable: {
