@@ -791,10 +791,10 @@ function FeatureCard({
             </p>
           </div>
 
-          {/* Bottom graphic for wide cards - centered vertically for transparent card */}
+          {/* Bottom graphic for wide cards - centered vertically for transparent and scalable cards */}
           {isWide && bottomGraphic && (
             <div className={`hidden md:flex flex-shrink-0 ${
-              cardKey === "transparent"
+              cardKey === "transparent" || cardKey === "scalable"
                 ? "w-36 items-center justify-center self-center"
                 : "w-48 items-end"
             }`}>
