@@ -84,7 +84,7 @@ export const services = {
     title: "Sprendimų Įgyvendinimas",
     timeline: "Nuolatinė",
     description:
-      "Įdiegiame AI automatizacijas taip, kad jūsų verslas augtų net kai jūsų darbuotojai miega. Tai nėra ateitis - tai standatas kurio jums trūksta.",
+      "Įdiegiame AI automatizacijas taip, kad jūsų verslas augtų net kai jūsų darbuotojai miega. Tai nėra ateitis - tai standartas kurio jums trūksta.",
     features: [
       { text: "Ekspertų strateginis planavimas" },
       { text: "Efektyvus įgyvendinimas" },
