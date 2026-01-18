@@ -72,8 +72,8 @@ export const services = {
   platform: {
     title: "Prototipas Per Kelias Dienas",
     timeline: "2–4 savaitės",
-    description:
-      "Pirmą versiją padarome greitai ir atiduodame realiam bandymui. Jei nematysite vertės – mokėti nereikės.",
+    descriptionLine1: "Pirmą versiją padarome greitai ir atiduodame realiam bandymui.",
+    descriptionLine2: "Jei nematysite vertės – mokėti nereikės.",
     features: [
       { text: "Vieningas dashboard'as" },
       { text: "Centralizuota komunikacija" },

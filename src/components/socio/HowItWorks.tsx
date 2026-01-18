@@ -93,7 +93,15 @@ export default function HowItWorks() {
                     {service.title}
                   </h3>
                   <p className="text-foreground/70 leading-relaxed mb-10">
-                    {service.description}
+                    {"descriptionLine1" in service ? (
+                      <>
+                        {service.descriptionLine1}
+                        <br />
+                        {service.descriptionLine2}
+                      </>
+                    ) : (
+                      service.description
+                    )}
                   </p>
 
                   {/* Small print for platform */}
