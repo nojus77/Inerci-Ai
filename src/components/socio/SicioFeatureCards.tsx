@@ -466,37 +466,37 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-36 flex flex-col items-end justify-end gap-2 pb-0">
-      {/* Person 1 (male) - asks, pushed right */}
+    <div className="relative w-full h-36 flex flex-col items-end justify-end gap-2 pb-0 pr-2">
+      {/* Person 1 (male) - asks */}
       <motion.div
-        className="flex items-center gap-2 -mr-4"
+        className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0 }}
       >
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Padarei?</span>
-        <div className="relative w-6 h-6 rounded-full overflow-hidden">
+        <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
           <Image src="/socio/chat-male.png" alt="User" fill className="object-cover" />
         </div>
       </motion.div>
-      {/* Person 2 (female/Inerci) - responds, pushed left */}
+      {/* Person 2 (female/Inerci) - responds */}
       <motion.div
-        className="flex items-center gap-2 mr-8"
+        className="flex items-center gap-2 mr-6"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
-        <div className="relative w-6 h-6 rounded-full overflow-hidden">
+        <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
           <Image src="/socio/chat-female.png" alt="Inerci" fill className="object-cover" />
         </div>
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
       </motion.div>
-      {/* Person 1 (male) - same person as first, reacts, pushed right */}
+      {/* Person 1 (male) - same person as first, reacts */}
       <motion.div
-        className="flex items-center gap-2 -mr-4"
+        className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Nice!</span>
-        <div className="relative w-6 h-6 rounded-full overflow-hidden">
+        <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
           <Image src="/socio/chat-male.png" alt="User" fill className="object-cover" />
         </div>
       </motion.div>
@@ -814,7 +814,6 @@ function FeatureCard({
                   <span className="block">{(features.cards.scalable as { descriptionLine1?: string }).descriptionLine1}</span>
                   <span className="block">{(features.cards.scalable as { descriptionLine2?: string }).descriptionLine2}</span>
                   <span className="block">{(features.cards.scalable as { descriptionLine3?: string }).descriptionLine3}</span>
-                  <span className="block">{(features.cards.scalable as { descriptionLine4?: string }).descriptionLine4}</span>
                 </span>
               ) : (
                 description
