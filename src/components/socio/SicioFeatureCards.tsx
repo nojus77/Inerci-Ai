@@ -786,7 +786,7 @@ function FeatureCard({
                 title
               )}
             </motion.h3>
-            <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-auto" : ""}`}>
+            <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-6" : ""}`}>
               {description}
             </p>
           </div>
