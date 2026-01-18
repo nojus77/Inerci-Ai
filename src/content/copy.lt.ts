@@ -52,7 +52,7 @@ export const features = {
       titleLine1: "Verslai naudojantys AI auga",
       titleLine2: "greičiau!",
       descriptionLine1: "Dėl automatizacijos augimas",
-      descriptionLine2: "nepriklauso nuo darbuotojų skaičiaus.",
+      descriptionLine2: "nebepriklauso nuo darbuotojų.",
     },
   },
 };
