@@ -24,7 +24,7 @@ export const features = {
   cards: {
     custom: {
       bigBold: "100% pagal jus",
-      title: "Personalizuotos Automatizacijos",
+      title: "Jūsų Automatizacijos",
       description:
         "Kuriame sprendimus pagal jūsų verslo procesus, pritaikytus tik jūsų komandai.",
     },
@@ -43,13 +43,13 @@ export const features = {
     },
     transparent: {
       bigBold: "Viskas vienoje vietoje",
-      title: "Sujungti įrankiai ir aiškus vaizdas",
-      description:
-        "Sujungiame el. paštą, CRM, Excel/Sheets, kalendorių, sąskaitas. Vienas vaizdas — mažiau chaoso.",
+      title: "",
+      descriptionLine1: "Visi procesai ir įrankiai tampa viena patogia sistema.",
+      descriptionLine2: "Mažiau chaoso — daugiau kontrolės.",
     },
     scalable: {
       bigBold: "5×",
-      titleLine1: "Verslai naudojantys AI auga",
+      titleLine1: "Verslai naudojantys AI auga —",
       titleLine2: "kartus greičiau!",
       description:
         "Kai didėja srautas, automatizacijos auga kartu. Daugiau klientų ir užduočių — be papildomo rankinio darbo.",

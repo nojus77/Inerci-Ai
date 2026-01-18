@@ -768,16 +768,16 @@ function FeatureCard({
               {cardKey === "scalable" ? (
                 <span className="block">
                   <span className="block">{title}</span>
-                  <span className="block">
+                  <span className="flex items-center gap-1">
                     <motion.span
-                      className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
+                      className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
                       animate={{ scale: isHovered ? 1.05 : 1 }}
                       transition={{ duration: 0.3 }}
                       style={{ display: "inline-block" }}
                     >
                       {bigBold}
-                    </motion.span>{" "}
-                    {(features.cards.scalable as { titleLine2?: string }).titleLine2 || ""}
+                    </motion.span>
+                    <span>{(features.cards.scalable as { titleLine2?: string }).titleLine2 || ""}</span>
                   </span>
                 </span>
               ) : (
@@ -787,10 +787,10 @@ function FeatureCard({
             <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-6" : ""}`}>
               {cardKey === "fast" && bigBold ? (
                 <span className="flex flex-col items-center text-center">
-                  <span className="block whitespace-nowrap">
-                    {(features.cards.fast as { descriptionLine1?: string }).descriptionLine1}{" "}
+                  <span className="flex items-center justify-center gap-1 whitespace-nowrap">
+                    <span>{(features.cards.fast as { descriptionLine1?: string }).descriptionLine1}</span>
                     <motion.span
-                      className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
+                      className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
                       animate={{ scale: isHovered ? 1.05 : 1 }}
                       transition={{ duration: 0.3 }}
                       style={{ display: "inline-block" }}
@@ -802,17 +802,26 @@ function FeatureCard({
                     {(features.cards.fast as { descriptionLine2?: string }).descriptionLine2}
                   </span>
                 </span>
+              ) : cardKey === "transparent" ? (
+                <span className="flex flex-col">
+                  <span className="block whitespace-nowrap">
+                    {(features.cards.transparent as { descriptionLine1?: string }).descriptionLine1}
+                  </span>
+                  <span className="block mt-1">
+                    {(features.cards.transparent as { descriptionLine2?: string }).descriptionLine2}
+                  </span>
+                </span>
               ) : (
                 description
               )}
             </p>
           </div>
 
-          {/* Bottom graphic for wide cards - centered vertically for transparent, at bottom for scalable */}
+          {/* Bottom graphic for wide cards */}
           {isWide && bottomGraphic && (
             <div className={`hidden md:flex flex-shrink-0 ${
               cardKey === "transparent"
-                ? "w-36 items-center justify-center self-center"
+                ? "w-32 items-end justify-start self-end -ml-12 mb-6"
                 : cardKey === "scalable"
                 ? "w-40 items-end justify-center self-end"
                 : "w-48 items-end"
@@ -859,7 +868,7 @@ export default function SicioFeatureCards() {
       key: "transparent",
       bigBold: features.cards.transparent.bigBold,
       title: features.cards.transparent.title,
-      description: features.cards.transparent.description,
+      description: "", // Rendered separately with two lines
       bottomGraphic: <HubConnectedIcon isHovered={hoveredCard === "transparent"} />,
     },
     {
