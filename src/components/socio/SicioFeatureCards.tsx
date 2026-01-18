@@ -787,7 +787,7 @@ function FeatureCard({
             <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-6" : ""}`}>
               {cardKey === "fast" && bigBold ? (
                 <span className="flex flex-col items-center text-center">
-                  <span className="block">{(features.cards.fast as { descriptionLine1?: string }).descriptionLine1}</span>
+                  <span className="block whitespace-nowrap">{(features.cards.fast as { descriptionLine1?: string }).descriptionLine1}</span>
                   <span className="block mt-1">
                     <motion.span
                       className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
