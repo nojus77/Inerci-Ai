@@ -752,7 +752,7 @@ function FeatureCard({
                 animate={{ scale: isHovered ? 1.02 : 1 }}
                 transition={{ duration: 0.3 }}
               >
-                <span className="text-2xl md:text-3xl font-bold text-white/90 tracking-tight">
+                <span className="text-xl md:text-2xl font-bold text-white/90 tracking-tight">
                   {bigBold}
                 </span>
               </motion.div>
