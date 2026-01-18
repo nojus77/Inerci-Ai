@@ -821,7 +821,7 @@ function FeatureCard({
           {isWide && bottomGraphic && (
             <div className={`hidden md:flex flex-shrink-0 ${
               cardKey === "transparent"
-                ? "w-32 items-end justify-start self-end -ml-12 -mb-4"
+                ? "w-32 items-center justify-start self-center -ml-12"
                 : cardKey === "scalable"
                 ? "w-40 items-end justify-center self-end"
                 : "w-48 items-end"
