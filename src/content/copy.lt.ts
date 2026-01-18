@@ -30,9 +30,9 @@ export const features = {
     },
     secure: {
       bigBold: "Duomenys saugūs",
-      title: "Saugumas pagal nutylėjimą",
+      title: "Užtikrintas Saugumas",
       description:
-        "Prieigos, log'ai, leidimai ir duomenų apsauga. Jūsų informacija lieka jūsų sistemose — viskas atsekama.",
+        "Apsauga nuo įsilaužimų ir nutekėjimų. Jūsų duomenys lieka jūsų rankose.",
     },
     fast: {
       bigBold: "3× greičiau",
