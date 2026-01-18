@@ -134,7 +134,7 @@ export const testimonials = {
     },
     {
       quote:
-        "AI sprendimas tvarko mūsų užklausas 24/7. Klientai patenkinti, mes ramūs.",
+        "Inerci komanda padėjo lengvai automatizuoti užklausas. Mes ramūs nes žinome, kad mūsų klientais pasirūpinta 24/7!",
       author: "Laura Grikšienė",
       role: "Performance Creative, Vilra Media",
       avatar: "/socio/avatar-2.png",
