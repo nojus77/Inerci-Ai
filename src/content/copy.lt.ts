@@ -59,7 +59,7 @@ export const features = {
 
 export const services = {
   voiceAgent: {
-    title: "Verslo procesų auditas",
+    title: "Verslo Procesų Auditas",
     timeline: "1–3 dienos",
     description:
       "Įvertiname jūsų procesų struktūrą, identifikuojame didžiausius neefektyvumo taškus.",
@@ -71,7 +71,7 @@ export const services = {
     ],
   },
   platform: {
-    title: "Prototipas per kelias dienas",
+    title: "Prototipas Per Kelias Dienas",
     timeline: "2–4 savaitės",
     description:
       "Jokių teorijų. Tik realus sprendimas, kuris veikia jūsų versle. Per kelias dienas parodome, ką automatizacija gali padaryti praktiškai.",
@@ -83,7 +83,7 @@ export const services = {
     ],
   },
   consulting: {
-    title: "Pilnas automatizacijos įgyvendinimas",
+    title: "Pilnas Automatizacijos Įgyvendinimas",
     timeline: "Nuolatinė",
     description:
       "Paleidžiame automatizacijas taip, kad jos kasdien dirbtų už jūsų komandą: 24/7 veikimas, mažesni kaštai, mažiau klaidų ir daugiau kontrolės visame versle.",
