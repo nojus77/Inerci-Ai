@@ -768,18 +768,21 @@ function FeatureCard({
               transition={{ duration: 0.3 }}
             >
               {titleSuffix ? (
-                <>
-                  {title}{" "}
-                  <motion.span
-                    className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
-                    animate={{ scale: isHovered ? 1.05 : 1 }}
-                    transition={{ duration: 0.3 }}
-                    style={{ display: "inline-block" }}
-                  >
-                    {bigBold}
-                  </motion.span>{" "}
-                  {titleSuffix}
-                </>
+                <span className="block">
+                  <span className="block">{title}</span>
+                  <span className="block">
+                    {(cardKey === "scalable" && (features.cards.scalable as { titleLine2?: string }).titleLine2) || ""}{" "}
+                    <motion.span
+                      className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
+                      animate={{ scale: isHovered ? 1.05 : 1 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ display: "inline-block" }}
+                    >
+                      {bigBold}
+                    </motion.span>
+                  </span>
+                  <span className="block">{titleSuffix}</span>
+                </span>
               ) : (
                 title
               )}
@@ -845,7 +848,7 @@ export default function SicioFeatureCards() {
     {
       key: "scalable",
       bigBold: features.cards.scalable.bigBold,
-      title: features.cards.scalable.title,
+      title: (features.cards.scalable as { titleLine1?: string }).titleLine1 || "",
       titleSuffix: (features.cards.scalable as { titleSuffix?: string }).titleSuffix,
       description: features.cards.scalable.description,
       bottomGraphic: <ChatBubbles isHovered={hoveredCard === "scalable"} />,

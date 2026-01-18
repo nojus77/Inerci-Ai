@@ -48,7 +48,8 @@ export const features = {
     },
     scalable: {
       bigBold: "5×",
-      title: "Verslai kurie naudoja AI automatizacijas auga",
+      titleLine1: "Verslai kurie naudoja AI",
+      titleLine2: "automatizacijas auga",
       titleSuffix: "kartus greičiau!",
       description:
         "Kai didėja srautas, automatizacijos auga kartu. Daugiau klientų ir užduočių — be papildomo rankinio darbo.",
