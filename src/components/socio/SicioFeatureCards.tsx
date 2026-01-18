@@ -746,7 +746,7 @@ function FeatureCard({
           )}
 
           {/* Text content */}
-          <div className={isWide ? "flex-1" : ""}>
+          <div className={isWide ? "flex-1" : "flex flex-col flex-1"}>
             {/* Big bold stat for wide cards - except scalable which shows it in corner */}
             {isWide && bigBold && cardKey !== "scalable" && (
               <motion.div
@@ -786,7 +786,7 @@ function FeatureCard({
                 title
               )}
             </motion.h3>
-            <p className="text-sm md:text-base text-white/50 leading-relaxed">
+            <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-auto" : ""}`}>
               {description}
             </p>
           </div>
