@@ -5,7 +5,7 @@ export const navigation = {
   features: "Sprendimai",
   services: "Paslaugos",
   faq: "DUK",
-  bookCall: "Rezervuoti skambutį",
+  bookCall: "Nemokamas auditas",
   login: "Prisijungti",
 };
 
