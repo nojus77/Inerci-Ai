@@ -89,7 +89,7 @@ export const services = {
       { text: "Aiškus komandos supažindinimas su naujais įrankiais" },
       { text: "Sklandus integravimas į esamas sistemas" },
       { text: "Nuolatinė priežiūra ir optimizavimas" },
-      { text: "Matuojami rezultatai nuo pirmos dienos" },
+      { text: "Matomi rezultatai nuo pirmos dienos" },
     ],
   },
 };
