@@ -61,8 +61,8 @@ export const services = {
   voiceAgent: {
     title: "Problemų Identifikavimas",
     timeline: "1–3 dienos",
-    description:
-      "Peržiūrime jūsų pasikartojančius darbus, bei surandame kur dirbtinis intelektas padidins efektyvumą.",
+    descriptionLine1: "Peržiūrime jūsų pasikartojančius darbus, bei surandame",
+    descriptionLine2: "kur dirbtinis intelektas padidins efektyvumą.",
     features: [
       { text: "Kasdienių procesų peržiūra" },
       { text: "Prioritetų plano parengimas" },
