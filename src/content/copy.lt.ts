@@ -62,7 +62,7 @@ export const services = {
     title: "Problemų Identifikavimas",
     timeline: "1–3 dienos",
     description:
-      "Įvertiname jūsų procesų struktūrą, identifikuojame didžiausius neefektyvumo taškus.",
+      "Peržiūrime jūsų pasikartojančius darbus, bei surandame efektyvų spendimą.",
     features: [
       { text: "Kasdienių procesų peržiūra" },
       { text: "Prioritetų plano parengimas" },
