@@ -51,9 +51,8 @@ export const features = {
       bigBold: "5×",
       titleLine1: "Verslai naudojantys AI auga",
       titleLine2: "greičiau!",
-      descriptionLine1: "Dėl automatizacijos augimas",
-      descriptionLine2: "nepriklauso nuo darbuotojų",
-      descriptionLine3: "skaičiaus.",
+      descriptionLine1: "Dėl automatizacijos augimas nepriklauso",
+      descriptionLine2: "nuo darbuotojų skaičiaus.",
     },
   },
 };
