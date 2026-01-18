@@ -92,7 +92,7 @@ export default function HowItWorks() {
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     {service.title}
                   </h3>
-                  <p className="text-foreground/70 leading-relaxed mb-6">
+                  <p className="text-foreground/70 leading-relaxed mb-10">
                     {service.description}
                   </p>
 
