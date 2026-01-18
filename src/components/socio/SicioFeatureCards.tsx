@@ -466,10 +466,10 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-start justify-end gap-2 pb-0 -mb-4">
+    <div className="relative w-full h-full flex flex-col items-end justify-end gap-2 pb-0 -mb-4 pr-4">
       {/* Person 1 (male) - asks */}
       <motion.div
-        className="flex items-center gap-2 ml-12"
+        className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0 }}
       >
@@ -480,7 +480,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
       </motion.div>
       {/* Person 2 (female/Inerci) - responds */}
       <motion.div
-        className="flex items-center gap-2 ml-8"
+        className="flex items-center gap-2 mr-12"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
@@ -491,7 +491,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
       </motion.div>
       {/* Person 1 (male) - same person as first, reacts - aligned with first bubble */}
       <motion.div
-        className="flex items-center gap-2 ml-12"
+        className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >
