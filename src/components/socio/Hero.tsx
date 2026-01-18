@@ -141,7 +141,7 @@ export default function Hero() {
         >
           <HeroKpi
             hoursTotal={3461}
-            eurPerHour={11}
+            eurPerHour={13}
             initialDuration={4}
             hoursDuration={3}
             eurosDuration={1.5}
