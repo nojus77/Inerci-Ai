@@ -43,7 +43,7 @@ export default function Testimonials() {
               </div>
 
               {/* Quote */}
-              <p className="text-foreground/80 text-sm md:text-base leading-relaxed mb-6 relative z-10 flex-grow">
+              <p className="text-foreground/80 text-sm md:text-base leading-relaxed mb-6 relative z-10 flex-grow whitespace-pre-line">
                 {testimonial.quote}
               </p>
 
