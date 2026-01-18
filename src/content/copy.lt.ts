@@ -141,7 +141,7 @@ export const testimonials = {
     },
     {
       quote:
-        "Įgyvendinimas buvo sklandus, rezultatai — akimirksniu. Dabar galime fokusuotis į tai, kas tikrai svarbu.",
+        "Įgyvendinimas buvo sklandus, \nrezultatai — akimirksniu. Dabar galime \nfokusuotis į tai, kas tikrai svarbu.\nMūsų komanda patenkinta 😉",
       author: "Marius Lukošiūnas",
       role: "COO, Arbitrage Media",
       avatar: "/socio/avatar-3.png",
