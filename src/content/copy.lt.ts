@@ -24,7 +24,7 @@ export const features = {
   cards: {
     custom: {
       bigBold: "100% pagal jus",
-      title: "Personalizuota automatizacija",
+      title: "Personalizuotos Automatizacijos",
       description:
         "Kuriame sprendimus pagal jūsų verslo procesus, pritaikytus tik jūsų komandai.",
     },
@@ -36,7 +36,7 @@ export const features = {
     },
     fast: {
       bigBold: "3×",
-      title: "Optimalus efektyvumas",
+      title: "Greitesni Procesai",
       descriptionLine1: "Kasdieniai procesai tampa įgyvendinami",
       descriptionLine2: "greičiau be papildomų resursų reikalavimo.",
     },
