@@ -480,7 +480,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
       </motion.div>
       {/* Person 2 (female/Inerci) - responds */}
       <motion.div
-        className="flex items-center gap-2 ml-6"
+        className="flex items-center gap-2 ml-8"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
@@ -489,9 +489,9 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
         </div>
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
       </motion.div>
-      {/* Person 1 (male) - same person as first, reacts */}
+      {/* Person 1 (male) - same person as first, reacts - aligned with first bubble */}
       <motion.div
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 ml-[52px]"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >
