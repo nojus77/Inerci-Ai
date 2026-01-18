@@ -466,7 +466,7 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-28 flex flex-col items-end justify-end gap-2">
+    <div className="relative w-full h-36 flex flex-col items-end justify-end gap-2 pb-0">
       {/* Person 1 (male) - asks, pushed right */}
       <motion.div
         className="flex items-center gap-2 -mr-4"
@@ -789,11 +789,13 @@ function FeatureCard({
             </p>
           </div>
 
-          {/* Bottom graphic for wide cards - centered vertically for transparent and scalable cards */}
+          {/* Bottom graphic for wide cards - centered vertically for transparent, at bottom for scalable */}
           {isWide && bottomGraphic && (
             <div className={`hidden md:flex flex-shrink-0 ${
-              cardKey === "transparent" || cardKey === "scalable"
+              cardKey === "transparent"
                 ? "w-36 items-center justify-center self-center"
+                : cardKey === "scalable"
+                ? "w-40 items-end justify-center self-end"
                 : "w-48 items-end"
             }`}>
               {bottomGraphic}
