@@ -49,7 +49,7 @@ export const features = {
     },
     scalable: {
       bigBold: "5×",
-      titleLine1: "Verslai naudojantys AI auga —",
+      titleLine1: "Verslai naudojantys AI auga",
       titleLine2: "greičiau!",
       descriptionLine1: "Automatizacija nuima rutiną —",
       descriptionLine2: "todėl augimas neatsiremia",
