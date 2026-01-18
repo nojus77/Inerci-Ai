@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { services } from "@/content/copy.lt";
-import { servicesMotion, scrollReveal, easing } from "@/content/socioMotion";
+import { services, hero } from "@/content/copy.lt";
+import { servicesMotion, scrollReveal, easing, buttonMotion } from "@/content/socioMotion";
+import { useCalModal } from "@/components/cal/CalContext";
 
 const serviceKeys = ["voiceAgent", "platform", "consulting"] as const;
 
@@ -14,6 +15,8 @@ const serviceImages: Record<string, string> = {
 };
 
 export default function HowItWorks() {
+  const { openCalModal } = useCalModal();
+
   return (
     <section id="services" className="py-20 md:py-32">
       <div className="mx-auto max-w-6xl px-6">
@@ -147,6 +150,36 @@ export default function HowItWorks() {
                       </motion.li>
                     ))}
                   </ul>
+
+                  {/* CTA Button for consulting (3rd section) */}
+                  {key === "consulting" && (
+                    <motion.button
+                      onClick={openCalModal}
+                      className="mt-8 relative inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
+                      whileHover={buttonMotion.hover}
+                      whileTap={buttonMotion.tap}
+                      transition={buttonMotion.transition}
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary via-[#ac9cfc] to-primary transition-opacity duration-300 group-hover:opacity-0" />
+                      <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <span className="relative z-10 flex items-center gap-2">
+                        {hero.bookCall}
+                        <svg
+                          className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          />
+                        </svg>
+                      </span>
+                    </motion.button>
+                  )}
                 </motion.div>
 
                 {/* Image */}
