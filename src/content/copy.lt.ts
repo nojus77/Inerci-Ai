@@ -51,8 +51,10 @@ export const features = {
       bigBold: "5×",
       titleLine1: "Verslai naudojantys AI auga —",
       titleLine2: "greičiau!",
-      description:
-        "Kai didėja srautas, automatizacijos auga kartu. Daugiau klientų ir užduočių — be papildomo rankinio darbo.",
+      descriptionLine1: "Kai didėja srautas,",
+      descriptionLine2: "automatizacijos auga kartu.",
+      descriptionLine3: "Daugiau klientų ir užduočių —",
+      descriptionLine4: "be papildomo rankinio darbo.",
     },
   },
 };

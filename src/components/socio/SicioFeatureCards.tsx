@@ -809,6 +809,13 @@ function FeatureCard({
                     {(features.cards.transparent as { descriptionLine2?: string }).descriptionLine2}
                   </span>
                 </span>
+              ) : cardKey === "scalable" ? (
+                <span className="flex flex-col">
+                  <span className="block">{(features.cards.scalable as { descriptionLine1?: string }).descriptionLine1}</span>
+                  <span className="block">{(features.cards.scalable as { descriptionLine2?: string }).descriptionLine2}</span>
+                  <span className="block">{(features.cards.scalable as { descriptionLine3?: string }).descriptionLine3}</span>
+                  <span className="block">{(features.cards.scalable as { descriptionLine4?: string }).descriptionLine4}</span>
+                </span>
               ) : (
                 description
               )}
