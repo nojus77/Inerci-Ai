@@ -77,6 +77,18 @@ export default function HowItWorks() {
                   {...servicesMotion.content}
                   className={isReversed ? "lg:order-2" : "lg:order-1"}
                 >
+                  {/* Step number */}
+                  <span
+                    className="text-6xl md:text-7xl font-bold mb-4 block"
+                    style={{
+                      background: "linear-gradient(180deg, rgba(139, 92, 246, 0.6) 0%, rgba(139, 92, 246, 0.1) 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     {service.title}
                   </h3>
