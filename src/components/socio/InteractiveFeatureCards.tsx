@@ -221,7 +221,9 @@ export default function InteractiveFeatureCards() {
 
                 {/* Description */}
                 <p className="text-foreground/60 text-sm leading-relaxed flex-grow">
-                  {card.data.description}
+                  {card.key === "fast"
+                    ? `${(card.data as { descriptionBefore?: string }).descriptionBefore} ${(card.data as { bigBold?: string }).bigBold} ${(card.data as { descriptionAfter?: string }).descriptionAfter}`
+                    : (card.data as { description?: string }).description}
                 </p>
               </div>
             </TiltCard>

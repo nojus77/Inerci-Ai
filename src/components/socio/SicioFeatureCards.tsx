@@ -507,7 +507,6 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
 // Premium Feature card component with 3D tilt and glow
 function FeatureCard({
   title,
-  titleSuffix,
   description,
   heroIcon,
   bottomGraphic,
@@ -518,7 +517,6 @@ function FeatureCard({
   cardKey,
 }: {
   title: string;
-  titleSuffix?: string;
   description: string;
   heroIcon?: React.ReactNode;
   bottomGraphic?: React.ReactNode;
@@ -789,11 +787,18 @@ function FeatureCard({
             <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-6" : ""}`}>
               {cardKey === "fast" && bigBold ? (
                 <>
-                  {description.split("3×")[0]}
-                  <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent">
-                    {bigBold}
+                  <span className="block">{(features.cards.fast as { descriptionBefore?: string }).descriptionBefore}</span>
+                  <span className="block">
+                    <motion.span
+                      className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
+                      animate={{ scale: isHovered ? 1.05 : 1 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ display: "inline-block" }}
+                    >
+                      {bigBold}
+                    </motion.span>{" "}
+                    {(features.cards.fast as { descriptionAfter?: string }).descriptionAfter}
                   </span>
-                  {description.split("3×")[1]}
                 </>
               ) : (
                 description
@@ -840,7 +845,7 @@ export default function SicioFeatureCards() {
     {
       key: "fast",
       title: features.cards.fast.title,
-      description: features.cards.fast.description,
+      description: "", // Rendered separately with styled 3×
       bigBold: features.cards.fast.bigBold,
       heroIcon: <SpeedBoltIcon isHovered={hoveredCard === "fast"} />,
     },
@@ -897,7 +902,6 @@ export default function SicioFeatureCards() {
           >
             <FeatureCard
               title={card.title}
-              titleSuffix={card.titleSuffix}
               description={card.description}
               bottomGraphic={card.bottomGraphic}
               bigBold={card.bigBold}
