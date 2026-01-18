@@ -59,7 +59,7 @@ export const features = {
 
 export const services = {
   voiceAgent: {
-    title: "Verslo Procesų Auditas",
+    title: "Problemų Identifikavimas",
     timeline: "1–3 dienos",
     description:
       "Įvertiname jūsų procesų struktūrą, identifikuojame didžiausius neefektyvumo taškus.",
