@@ -73,7 +73,7 @@ export const services = {
     title: "Prototipas Per Kelias Dienas",
     timeline: "2–4 savaitės",
     description:
-      "Jokių teorijų. Tik realus sprendimas, kuris veikia jūsų versle. Per kelias dienas parodome, ką automatizacija gali padaryti praktiškai.",
+      "Pirmą versiją padarome greitai ir atiduodame realiam bandymui. Jei nematysite vertės – mokėti nereikės.",
     features: [
       { text: "Vieningas dashboard'as" },
       { text: "Centralizuota komunikacija" },
