@@ -86,10 +86,10 @@ export const services = {
     description:
       "Įdiegiame AI automatizacijas taip, kad jūsų verslas augtų net kai jūsų darbuotojai miega. Tai nėra ateitis - tai standartas kurio jums trūksta.",
     features: [
-      { text: "Ekspertų strateginis planavimas" },
-      { text: "Efektyvus įgyvendinimas" },
-      { text: "Nuolatinis rezultatų sekimas" },
-      { text: "Dedikuota pagalba" },
+      { text: "Aiškus komandos supažindinimas su naujais įrankiais" },
+      { text: "Sklandus integravimas į esamas sistemas" },
+      { text: "Nuolatinė priežiūra ir optimizavimas" },
+      { text: "Matuojami rezultatai nuo pirmos dienos" },
     ],
   },
 };
