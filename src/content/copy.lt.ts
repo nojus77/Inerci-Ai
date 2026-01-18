@@ -50,7 +50,7 @@ export const features = {
     scalable: {
       bigBold: "5×",
       titleLine1: "Verslai naudojantys AI auga —",
-      titleLine2: "kartus greičiau!",
+      titleLine2: "greičiau!",
       description:
         "Kai didėja srautas, automatizacijos auga kartu. Daugiau klientų ir užduočių — be papildomo rankinio darbo.",
     },

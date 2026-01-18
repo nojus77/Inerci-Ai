@@ -766,19 +766,17 @@ function FeatureCard({
               transition={{ duration: 0.3 }}
             >
               {cardKey === "scalable" ? (
-                <span className="block">
-                  <span className="block">{title}</span>
-                  <span className="flex items-center gap-1">
-                    <motion.span
-                      className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
-                      animate={{ scale: isHovered ? 1.05 : 1 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ display: "inline-block" }}
-                    >
-                      {bigBold}
-                    </motion.span>
-                    <span>{(features.cards.scalable as { titleLine2?: string }).titleLine2 || ""}</span>
-                  </span>
+                <span className="flex items-center gap-1 whitespace-nowrap">
+                  <span>{title}</span>
+                  <motion.span
+                    className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
+                    animate={{ scale: isHovered ? 1.05 : 1 }}
+                    transition={{ duration: 0.3 }}
+                    style={{ display: "inline-block" }}
+                  >
+                    {bigBold}
+                  </motion.span>
+                  <span>{(features.cards.scalable as { titleLine2?: string }).titleLine2 || ""}</span>
                 </span>
               ) : (
                 title
