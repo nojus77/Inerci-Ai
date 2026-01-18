@@ -75,8 +75,6 @@ export const services = {
     timeline: "2–4 savaitės",
     description:
       "Jokių teorijų. Tik realus sprendimas, kuris veikia jūsų versle. Per kelias dienas parodome, ką automatizacija gali padaryti praktiškai.",
-    smallPrint:
-      "Kai kurios funkcijos vis dar kuriamos. Nuolat dirbame, kad pagerintume platformą.",
     features: [
       { text: "Vieningas dashboard'as" },
       { text: "Centralizuota komunikacija" },
