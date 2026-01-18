@@ -37,8 +37,8 @@ export const features = {
     fast: {
       bigBold: "3×",
       title: "Greitesni Procesai",
-      descriptionLine1: "Kasdieniai procesai tampa įgyvendinami",
-      descriptionLine2: "greičiau be papildomų resursų reikalavimo.",
+      descriptionLine1: "Kasdieniai procesai vyksta",
+      descriptionLine2: "greičiau — be papildomų resursų.",
     },
     transparent: {
       bigBold: "Viskas vienoje vietoje",
