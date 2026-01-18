@@ -59,10 +59,10 @@ export const features = {
 
 export const services = {
   voiceAgent: {
-    title: "Greitos automatizacijos",
+    title: "Verslo procesų auditas",
     timeline: "1–3 dienos",
     description:
-      "Mūsų specialiai sukurti sprendimai skirti atsakyti į skambučius, rezervuoti susitikimus ir tvarkyti su jūsų verslu susijusius klausimus. Gali siųsti SMS, sekti el. laiškus ir dar daugiau. Dieną ar naktį — jūsų klientai visada pasitinkami ir aptarnaujami.",
+      "Įvertiname jūsų procesų struktūrą, identifikuojame didžiausius neefektyvumo taškus.",
     features: [
       { text: "Užklausų apdorojimas 24/7" },
       { text: "Realaus laiko analitika" },
@@ -71,10 +71,10 @@ export const services = {
     ],
   },
   platform: {
-    title: "Procesų sistema",
+    title: "Prototipas per kelias dienas",
     timeline: "2–4 savaitės",
     description:
-      "Matykite visus skambučius, rezervacijas ir lead'us vienoje vietoje su mūsų gražiai suprojektuota platforma. Sukurta nuo nulio, kad padėtų valdyti viską per vieną lengvai naudojamą sąsają. Aiškus vaizdas apie jūsų operacijas.",
+      "Jokių teorijų. Tik realus sprendimas, kuris veikia jūsų versle. Per kelias dienas parodome, ką automatizacija gali padaryti praktiškai.",
     smallPrint:
       "Kai kurios funkcijos vis dar kuriamos. Nuolat dirbame, kad pagerintume platformą.",
     features: [
@@ -85,10 +85,10 @@ export const services = {
     ],
   },
   consulting: {
-    title: "Mėnesinė priežiūra",
+    title: "Pilnas automatizacijos įgyvendinimas",
     timeline: "Nuolatinė",
     description:
-      "Verslo valdymas neturėtų būti nuolatinė kova. Kartu apžvelgsime, kas jus stabdo, ir sukursime pritaikytą veiksmų planą. Suprojektuosime ir įgyvendinsime AI sprendimus, kurie taupo laiką, supaprastina operacijas ir padeda lengvai augti.",
+      "Paleidžiame automatizacijas taip, kad jos kasdien dirbtų už jūsų komandą: 24/7 veikimas, mažesni kaštai, mažiau klaidų ir daugiau kontrolės visame versle.",
     features: [
       { text: "Ekspertų strateginis planavimas" },
       { text: "Efektyvus įgyvendinimas" },
