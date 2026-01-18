@@ -75,10 +75,9 @@ export const services = {
     descriptionLine1: "Pirmą versiją padarome greitai ir atiduodame realiam bandymui.",
     descriptionLine2: "Jei nematysite vertės – mokėti nereikės.",
     features: [
-      { text: "Vieningas dashboard'as" },
-      { text: "Centralizuota komunikacija" },
-      { text: "Greitos ataskaitos" },
-      { text: "Pritaikyti workflow'ai" },
+      { text: "Išsamus sprendimo pristatymas" },
+      { text: "Svabiausių įrankių integracija" },
+      { text: "Testavimas be įsipareigojimų" },
     ],
   },
   consulting: {
