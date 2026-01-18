@@ -786,9 +786,9 @@ function FeatureCard({
             </motion.h3>
             <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-6" : ""}`}>
               {cardKey === "fast" && bigBold ? (
-                <>
-                  <span className="block">{(features.cards.fast as { descriptionBefore?: string }).descriptionBefore}</span>
-                  <span className="block">
+                <span className="flex flex-col items-center text-center">
+                  <span className="block">{(features.cards.fast as { descriptionLine1?: string }).descriptionLine1}</span>
+                  <span className="block mt-1">
                     <motion.span
                       className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent"
                       animate={{ scale: isHovered ? 1.05 : 1 }}
@@ -797,9 +797,10 @@ function FeatureCard({
                     >
                       {bigBold}
                     </motion.span>{" "}
-                    {(features.cards.fast as { descriptionAfter?: string }).descriptionAfter}
+                    {(features.cards.fast as { descriptionLine2?: string }).descriptionLine2}
                   </span>
-                </>
+                  <span className="block">{(features.cards.fast as { descriptionLine3?: string }).descriptionLine3}</span>
+                </span>
               ) : (
                 description
               )}
