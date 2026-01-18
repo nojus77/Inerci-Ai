@@ -827,7 +827,7 @@ function FeatureCard({
               cardKey === "transparent"
                 ? "w-32 items-center justify-start self-center -ml-12"
                 : cardKey === "scalable"
-                ? "w-64 items-end justify-start self-end -ml-8"
+                ? "w-64 items-end justify-start self-end -ml-24"
                 : "w-48 items-end"
             }`}>
               {bottomGraphic}
