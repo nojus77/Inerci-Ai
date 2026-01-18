@@ -155,7 +155,7 @@ export default function HowItWorks() {
                   {key === "consulting" && (
                     <motion.button
                       onClick={openCalModal}
-                      className="mt-12 relative inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
+                      className="mt-6 relative inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
                       whileHover={buttonMotion.hover}
                       whileTap={buttonMotion.tap}
                       transition={buttonMotion.transition}
