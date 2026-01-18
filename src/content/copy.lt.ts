@@ -26,7 +26,7 @@ export const features = {
       bigBold: "100% pagal jus",
       title: "Personalizuota automatizacija",
       description:
-        "Kuriame sprendimus pagal jūsų verslo procesus, pritaikytus jūsų komandai.",
+        "Kuriame sprendimus pagal jūsų verslo procesus, pritaikytus tik jūsų komandai.",
     },
     secure: {
       bigBold: "Duomenys saugūs",
