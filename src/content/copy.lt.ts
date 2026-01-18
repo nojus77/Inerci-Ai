@@ -64,10 +64,9 @@ export const services = {
     description:
       "Įvertiname jūsų procesų struktūrą, identifikuojame didžiausius neefektyvumo taškus.",
     features: [
-      { text: "Užklausų apdorojimas 24/7" },
-      { text: "Realaus laiko analitika" },
-      { text: "Integracija su esamais įrankiais" },
-      { text: "Pritaikyti scenarijai" },
+      { text: "Kasdienių procesų peržiūra" },
+      { text: "Prioritetų plano parengimas" },
+      { text: "Automatizacijos naudos skaičiavimas" },
     ],
   },
   platform: {
