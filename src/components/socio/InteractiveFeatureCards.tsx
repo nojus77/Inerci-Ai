@@ -216,7 +216,7 @@ export default function InteractiveFeatureCards() {
 
                 {/* Title */}
                 <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {card.key === "custom" ? "100% Custom" : card.data.title}
+                  {card.key === "custom" ? "100% Custom" : (card.data as { title?: string }).title}
                 </h3>
 
                 {/* Description */}
@@ -257,7 +257,9 @@ export default function InteractiveFeatureCards() {
 
                 {/* Title */}
                 <h3 className="text-xl font-semibold text-foreground mb-3">
-                  {card.data.title}
+                  {card.key === "scalable"
+                    ? (card.data as { titleLine1?: string }).titleLine1
+                    : (card.data as { title?: string }).title}
                 </h3>
 
                 {/* Description */}
