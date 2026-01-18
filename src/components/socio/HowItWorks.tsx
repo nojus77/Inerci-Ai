@@ -87,7 +87,7 @@ export default function HowItWorks() {
                       backgroundClip: "text",
                     }}
                   >
-                    {String(index + 1).padStart(2, "0")}
+                    {index + 1}
                   </span>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                     {service.title}
