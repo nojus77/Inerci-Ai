@@ -83,16 +83,16 @@ export default function Hero() {
           {hero.description}
         </motion.p>
 
-        {/* CTA Buttons - more visual weight with increased spacing */}
+        {/* CTA Button - centered */}
         <motion.div
           initial={heroMotion.buttons.initial}
           animate={heroMotion.buttons.animate}
           transition={heroMotion.buttons.transition}
-          className="mt-40 md:mt-52 flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="mt-40 md:mt-52 flex items-center justify-center"
         >
           <motion.button
             onClick={handleAuditClick}
-            className="relative inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-semibold text-primary-foreground overflow-hidden group w-full sm:w-auto cursor-pointer"
+            className="relative inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
             whileHover={buttonMotion.hover}
             whileTap={buttonMotion.tap}
             transition={buttonMotion.transition}
@@ -118,28 +118,6 @@ export default function Hero() {
               </svg>
             </span>
           </motion.button>
-
-          <motion.a
-            href="#features"
-            className="inline-flex items-center justify-center px-8 py-4 rounded-xl text-base font-semibold border border-foreground/20 text-foreground hover:bg-foreground/5 transition-colors w-full sm:w-auto"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            {hero.learnMore}
-            <svg
-              className="w-5 h-5 ml-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </motion.a>
         </motion.div>
 
         {/* Hero KPI - Below CTA buttons */}
