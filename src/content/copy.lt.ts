@@ -81,7 +81,7 @@ export const services = {
     ],
   },
   consulting: {
-    title: "Pilnas Automatizacijos Įgyvendinimas",
+    title: "Automatizacijos Įgyvendinimas",
     timeline: "Nuolatinė",
     description:
       "Paleidžiame automatizacijas taip, kad jos kasdien dirbtų už jūsų komandą: 24/7 veikimas, mažesni kaštai, mažiau klaidų ir daugiau kontrolės visame versle.",
