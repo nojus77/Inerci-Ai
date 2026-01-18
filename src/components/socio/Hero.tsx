@@ -34,7 +34,7 @@ function FlipWords({ words }: { words: string[] }) {
           transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
           className="inline-block"
           style={{
-            background: "linear-gradient(135deg, #c4b5fd 0%, #a78bfa 30%, #8b5cf6 60%, #c4b5fd 100%)",
+            background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
             backgroundSize: "200% 200%",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
