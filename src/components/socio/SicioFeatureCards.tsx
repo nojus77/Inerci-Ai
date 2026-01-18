@@ -466,8 +466,8 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-start justify-end gap-2 pb-0 -mb-4">
-      {/* Person 1 (male) - asks */}
+    <div className="relative w-full h-full flex flex-col items-end justify-end gap-2 pb-0 -mb-4">
+      {/* Person 1 (male) - asks - avatar on right */}
       <motion.div
         className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
@@ -478,10 +478,10 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
           <Image src="/socio/chat-male.png" alt="User" fill className="object-cover" />
         </div>
       </motion.div>
-      {/* Person 2 (female/Inerci) - responds */}
+      {/* Person 2 (female/Inerci) - responds - avatar on left */}
       <motion.div
-        className="flex items-center gap-2 ml-8"
-        animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
+        className="flex items-center gap-2 mr-8"
+        animate={{ x: isHovered ? 0 : -5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
         <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
@@ -489,9 +489,9 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
         </div>
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
       </motion.div>
-      {/* Person 1 (male) - same person as first, reacts - aligned with first bubble */}
+      {/* Person 1 (male) - reacts - avatar on right, aligned with first */}
       <motion.div
-        className="flex items-center gap-2 ml-[52px]"
+        className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >
