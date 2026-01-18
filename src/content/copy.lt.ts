@@ -38,8 +38,7 @@ export const features = {
       bigBold: "3×",
       title: "Optimalus efektyvumas",
       descriptionLine1: "Kasdieniai procesai tampa įgyvendinami",
-      descriptionLine2: "greičiau",
-      descriptionLine3: "be papildomų resursų reikalavimo.",
+      descriptionLine2: "greičiau be papildomų resursų reikalavimo.",
     },
     transparent: {
       bigBold: "Viskas vienoje vietoje",

@@ -799,7 +799,6 @@ function FeatureCard({
                     </motion.span>{" "}
                     {(features.cards.fast as { descriptionLine2?: string }).descriptionLine2}
                   </span>
-                  <span className="block">{(features.cards.fast as { descriptionLine3?: string }).descriptionLine3}</span>
                 </span>
               ) : (
                 description
