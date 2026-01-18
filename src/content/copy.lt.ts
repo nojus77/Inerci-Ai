@@ -127,7 +127,7 @@ export const testimonials = {
   items: [
     {
       quote:
-        "Per pirmąją savaitę sutaupėme virš 30\nvalandų rankinio darbo. Automatizacijos\nveikia nepriekaištingai. Rekomenduoju.",
+        "Per pirmąją savaitę sutaupėme \nvirš 30 valandų rankinio darbo.\nAutomatizacijos veikia nepriekaištingai. \nRekomenduoju pabandyti.",
       author: "Tadas Samuolis",
       role: "CMO, Ateities Vizija",
       avatar: "/socio/avatar-1.png",
