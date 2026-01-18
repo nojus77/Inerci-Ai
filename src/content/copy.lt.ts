@@ -129,21 +129,21 @@ export const testimonials = {
       quote:
         "Per savaitę sutaupėme 15 valandų rankinio darbo. Automatizacija veikia nepriekaištingai.",
       author: "Tadas Samuolis",
-      role: "Operacijų vadovas, TechFlow",
+      role: "CMO, Ateities Vizija",
       avatar: "/socio/avatar-1.png",
     },
     {
       quote:
         "AI sprendimas tvarko mūsų užklausas 24/7. Klientai patenkinti, mes ramūs.",
       author: "Laura Grikšienė",
-      role: "Įkūrėja, HealthFirst",
+      role: "Performance Creative, Vilra Media",
       avatar: "/socio/avatar-2.png",
     },
     {
       quote:
         "Įgyvendinimas buvo sklandus, rezultatai — akimirksniu. Dabar galime fokusuotis į tai, kas tikrai svarbu.",
       author: "Marius Lukošiūnas",
-      role: "COO, ScaleUp Ventures",
+      role: "COO",
       avatar: "/socio/avatar-3.png",
     },
   ],
