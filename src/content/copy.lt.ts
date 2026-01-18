@@ -143,7 +143,7 @@ export const testimonials = {
       quote:
         "Įgyvendinimas buvo sklandus, rezultatai — akimirksniu. Dabar galime fokusuotis į tai, kas tikrai svarbu.",
       author: "Marius Lukošiūnas",
-      role: "COO",
+      role: "COO, Arbitrage Media",
       avatar: "/socio/avatar-3.png",
     },
   ],
