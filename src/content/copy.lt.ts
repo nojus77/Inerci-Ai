@@ -35,10 +35,10 @@ export const features = {
         "Apsauga nuo įsilaužimų ir nutekėjimų. Jūsų duomenys lieka jūsų rankose.",
     },
     fast: {
-      bigBold: "3× greičiau",
-      title: "Greitis, kurį pajus komanda",
+      bigBold: "3×",
+      title: "Optimalus efektyvumas",
       description:
-        "Rutininiai veiksmai vyksta automatiškai: užklausos, follow-up'ai, sąskaitos, priminimai. Mažiau vėlavimų — daugiau padaryta.",
+        "Kasdieniai procesai tampa įgyvendinami 3× greičiau be papildomų resursų reikalavimo.",
     },
     transparent: {
       bigBold: "Viskas vienoje vietoje",

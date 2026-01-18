@@ -788,7 +788,17 @@ function FeatureCard({
               )}
             </motion.h3>
             <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-6" : ""}`}>
-              {description}
+              {cardKey === "fast" && bigBold ? (
+                <>
+                  {description.split("3×")[0]}
+                  <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent">
+                    {bigBold}
+                  </span>
+                  {description.split("3×")[1]}
+                </>
+              ) : (
+                description
+              )}
             </p>
           </div>
 
@@ -832,6 +842,7 @@ export default function SicioFeatureCards() {
       key: "fast",
       title: features.cards.fast.title,
       description: features.cards.fast.description,
+      bigBold: features.cards.fast.bigBold,
       heroIcon: <SpeedBoltIcon isHovered={hoveredCard === "fast"} />,
     },
   ];
@@ -869,8 +880,10 @@ export default function SicioFeatureCards() {
               title={card.title}
               description={card.description}
               heroIcon={card.heroIcon}
+              bigBold={(card as { bigBold?: string }).bigBold}
               delay={index * 0.1}
               index={index}
+              cardKey={card.key}
             />
           </div>
         ))}
