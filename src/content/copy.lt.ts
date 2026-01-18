@@ -24,7 +24,7 @@ export const features = {
   cards: {
     custom: {
       bigBold: "100% pagal jus",
-      title: "Jūsų Automatizacijos",
+      title: "Personalizuotos Automatizacijos",
       description:
         "Kuriame sprendimus pagal jūsų verslo procesus, pritaikytus tik jūsų komandai.",
     },
