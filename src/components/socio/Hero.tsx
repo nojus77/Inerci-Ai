@@ -25,15 +25,22 @@ function FlipWords({ words }: { words: string[] }) {
 
   return (
     <span className="relative inline-block min-w-[180px] md:min-w-[240px]">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="popLayout">
         <motion.span
           key={currentIndex}
-          initial={flipWordsMotion.enter.initial}
-          animate={flipWordsMotion.enter.animate}
-          exit={flipWordsMotion.enter.exit}
-          transition={flipWordsMotion.enter.transition}
-          className="inline-block text-primary"
-          style={{ transformStyle: "preserve-3d" }}
+          initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -20, filter: "blur(8px)", position: "absolute" }}
+          transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+          className="inline-block"
+          style={{
+            background: "linear-gradient(135deg, #c4b5fd 0%, #a78bfa 30%, #8b5cf6 60%, #c4b5fd 100%)",
+            backgroundSize: "200% 200%",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+            animation: "shimmer 3s ease-in-out infinite",
+          }}
         >
           {words[currentIndex]}
         </motion.span>
