@@ -39,6 +39,7 @@ export const features = {
       title: "Greitesni Procesai",
       descriptionLine1: "Kasdieniai procesai vyksta",
       descriptionLine2: "greičiau — be papildomų resursų.",
+      bigBoldPosition: "end", // 3× at end of line 1
     },
     transparent: {
       bigBold: "Viskas vienoje vietoje",
