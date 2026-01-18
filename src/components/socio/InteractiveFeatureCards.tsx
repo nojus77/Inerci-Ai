@@ -266,7 +266,9 @@ export default function InteractiveFeatureCards() {
 
                 {/* Description */}
                 <p className="text-foreground/60 text-sm leading-relaxed flex-grow">
-                  {card.data.description}
+                  {card.key === "transparent"
+                    ? `${(card.data as { descriptionLine1?: string }).descriptionLine1} ${(card.data as { descriptionLine2?: string }).descriptionLine2}`
+                    : (card.data as { description?: string }).description}
                 </p>
               </div>
             </TiltCard>
