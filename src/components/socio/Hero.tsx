@@ -23,8 +23,25 @@ function FlipWords({ words }: { words: string[] }) {
     return () => clearInterval(interval);
   }, [words.length]);
 
+  // Find the longest word to set consistent width
+  const longestWord = words.reduce((a, b) => a.length > b.length ? a : b, "");
+
   return (
-    <span className="relative inline-block min-w-[180px] md:min-w-[240px]">
+    <span className="relative inline-flex justify-center">
+      {/* Invisible longest word to maintain consistent width */}
+      <span
+        className="invisible whitespace-nowrap"
+        style={{
+          background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+        aria-hidden="true"
+      >
+        {longestWord}
+      </span>
+      {/* Actual animated word positioned absolutely */}
       <AnimatePresence mode="wait">
         <motion.span
           key={currentIndex}
@@ -37,7 +54,7 @@ function FlipWords({ words }: { words: string[] }) {
             opacity: { duration: 0.4 },
             filter: { duration: 0.4 }
           }}
-          className="inline-block"
+          className="absolute inset-0 flex items-center justify-center"
           style={{
             background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
             backgroundSize: "200% 200%",
@@ -142,7 +159,7 @@ export default function Hero() {
           <HeroKpi
             hoursTotal={3461}
             eurPerHour={13}
-            initialDuration={4}
+            initialDuration={5}
             hoursDuration={3}
             eurosDuration={1.5}
           />
