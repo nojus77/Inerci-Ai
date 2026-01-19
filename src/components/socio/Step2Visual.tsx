@@ -555,16 +555,25 @@ export default function Step2Visual() {
   const smoothProgress = useSpring(progress, { stiffness: 120, damping: 20 });
 
   const [displayProgress, setDisplayProgress] = useState(0);
+  const [rawProgress, setRawProgress] = useState(0);
   const [isInView, setIsInView] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  // Sync motion value to state for child components
+  // Sync smoothProgress to state for content transitions (opacity fades)
   useEffect(() => {
     const unsubscribe = smoothProgress.on("change", (v) => {
       setDisplayProgress(v);
     });
     return () => unsubscribe();
   }, [smoothProgress]);
+
+  // Sync raw progress for snappy UI elements (scanline, progress bar)
+  useEffect(() => {
+    const unsubscribe = progress.on("change", (v) => {
+      setRawProgress(v);
+    });
+    return () => unsubscribe();
+  }, [progress]);
 
   // Reduced motion check
   useEffect(() => {
@@ -640,6 +649,7 @@ export default function Step2Visual() {
   }, [beforeOpacity, afterOpacity]);
 
   const finalProgress = prefersReducedMotion ? 1 : displayProgress;
+  const snappyProgress = prefersReducedMotion ? 1 : rawProgress;
 
   return (
     <div className="relative aspect-[4/3]">
@@ -703,12 +713,12 @@ export default function Step2Visual() {
         <AfterState opacity={prefersReducedMotion ? 1 : afterOp} progress={finalProgress} />
 
         {/* Scanline */}
-        {!prefersReducedMotion && finalProgress > 0.01 && finalProgress < 0.99 && (
-          <Scanline progress={finalProgress} />
+        {!prefersReducedMotion && snappyProgress > 0.01 && snappyProgress < 0.99 && (
+          <Scanline progress={snappyProgress} />
         )}
 
         {/* Progress bar */}
-        <ProgressBar progress={finalProgress} />
+        <ProgressBar progress={snappyProgress} />
 
         {/* Header badge - always visible above all content */}
         <div
@@ -745,20 +755,20 @@ export default function Step2Visual() {
           }}
         >
           <span
-            className="font-bold transition-opacity duration-200"
-            style={{ opacity: Math.max(0.4, 1 - finalProgress), color: finalProgress < 0.5 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)" }}
+            className="font-bold"
+            style={{ opacity: Math.max(0.4, 1 - snappyProgress), color: snappyProgress < 0.5 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)" }}
           >
             PRIEŠ
           </span>
           <div className="w-10 h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full bg-primary rounded-full"
-              style={{ width: `${finalProgress * 100}%` }}
+              style={{ width: `${snappyProgress * 100}%` }}
             />
           </div>
           <span
-            className="font-bold transition-opacity duration-200"
-            style={{ opacity: Math.max(0.4, finalProgress), color: finalProgress > 0.5 ? "#a78bfa" : "rgba(255,255,255,0.4)" }}
+            className="font-bold"
+            style={{ opacity: Math.max(0.4, snappyProgress), color: snappyProgress > 0.5 ? "#a78bfa" : "rgba(255,255,255,0.4)" }}
           >
             PO
           </span>
