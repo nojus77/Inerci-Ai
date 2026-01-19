@@ -878,7 +878,7 @@ export default function SicioFeatureCards() {
       key: "scalable",
       bigBold: features.cards.scalable.bigBold,
       title: (features.cards.scalable as { titleLine1?: string }).titleLine1 || "",
-      description: features.cards.scalable.description,
+      description: `${features.cards.scalable.descriptionLine1} ${features.cards.scalable.descriptionLine2}`,
       bottomGraphic: <ChatBubbles isHovered={hoveredCard === "scalable"} />,
     },
   ];

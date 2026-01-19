@@ -98,19 +98,19 @@ export default function HowItWorks() {
                   <p className="text-foreground/70 leading-relaxed mb-10">
                     {"descriptionLine1" in service ? (
                       <>
-                        {service.descriptionLine1}
+                        {(service as { descriptionLine1: string }).descriptionLine1}
                         <br />
-                        {service.descriptionLine2}
+                        {(service as { descriptionLine2: string }).descriptionLine2}
                       </>
                     ) : (
-                      service.description
+                      (service as { description: string }).description
                     )}
                   </p>
 
                   {/* Small print for platform */}
-                  {"smallPrint" in service && service.smallPrint && (
+                  {"smallPrint" in service && (service as { smallPrint?: string }).smallPrint && (
                     <p className="text-xs text-foreground/50 italic mb-6">
-                      {service.smallPrint}
+                      {(service as { smallPrint: string }).smallPrint}
                     </p>
                   )}
 
