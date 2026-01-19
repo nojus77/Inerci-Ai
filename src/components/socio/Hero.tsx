@@ -23,40 +23,32 @@ function FlipWords({ words }: { words: string[] }) {
     return () => clearInterval(interval);
   }, [words.length]);
 
-  // Find the longest word to set consistent width
-  const longestWord = words.reduce((a, b) => a.length > b.length ? a : b, "");
-
   return (
-    <span className="relative inline-block">
-      {/* Invisible longest word to maintain consistent width */}
-      <span className="invisible">{longestWord}</span>
-      {/* Actual animated word positioned absolutely, centered */}
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={currentIndex}
-          initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
-          transition={{
-            duration: 0.5,
-            ease: [0.4, 0, 0.2, 1],
-            opacity: { duration: 0.4 },
-            filter: { duration: 0.4 }
-          }}
-          className="absolute inset-0 flex items-center justify-center"
-          style={{
-            background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
-            backgroundSize: "200% 200%",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            backgroundClip: "text",
-            animation: "shimmer 3s ease-in-out infinite",
-          }}
-        >
-          {words[currentIndex]}
-        </motion.span>
-      </AnimatePresence>
-    </span>
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={currentIndex}
+        initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+        exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+        transition={{
+          duration: 0.5,
+          ease: [0.4, 0, 0.2, 1],
+          opacity: { duration: 0.4 },
+          filter: { duration: 0.4 }
+        }}
+        className="inline-block"
+        style={{
+          background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
+          backgroundSize: "200% 200%",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+          animation: "shimmer 3s ease-in-out infinite",
+        }}
+      >
+        {words[currentIndex]}
+      </motion.span>
+    </AnimatePresence>
   );
 }
 
