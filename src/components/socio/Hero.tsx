@@ -27,10 +27,10 @@ function FlipWords({ words }: { words: string[] }) {
   const longestWord = words.reduce((a, b) => a.length > b.length ? a : b, "");
 
   return (
-    <span className="relative inline-block text-left">
+    <span className="relative inline-block">
       {/* Invisible longest word to maintain consistent width */}
       <span className="invisible">{longestWord}</span>
-      {/* Actual animated word positioned absolutely, left-aligned */}
+      {/* Actual animated word positioned absolutely, centered */}
       <AnimatePresence mode="wait">
         <motion.span
           key={currentIndex}
@@ -43,7 +43,7 @@ function FlipWords({ words }: { words: string[] }) {
             opacity: { duration: 0.4 },
             filter: { duration: 0.4 }
           }}
-          className="absolute left-0 top-0"
+          className="absolute inset-0 flex items-center justify-center"
           style={{
             background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
             backgroundSize: "200% 200%",
