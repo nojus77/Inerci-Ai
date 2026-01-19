@@ -5,6 +5,10 @@ import { motion } from "framer-motion";
 import { services, hero } from "@/content/copy.lt";
 import { servicesMotion, scrollReveal, easing, buttonMotion } from "@/content/socioMotion";
 import { useCalModal } from "@/components/cal/CalContext";
+import Step1Visual from "@/components/socio/Step1Visual";
+import Step1AuditVisual from "@/components/socio/Step1AuditVisual";
+import Step3DeployVisual from "@/components/socio/Step3DeployVisual";
+import ScrollConnector from "@/components/socio/ScrollConnector";
 
 const serviceKeys = ["voiceAgent", "platform", "consulting"] as const;
 
@@ -62,14 +66,20 @@ export default function HowItWorks() {
         </motion.div>
 
         {/* Services */}
-        <div className="space-y-24 md:space-y-32">
+        <div className="space-y-0">
           {serviceKeys.map((key, index) => {
             const service = services[key];
             const isReversed = index % 2 === 1;
+            const isLast = index === serviceKeys.length - 1;
 
             return (
-              <motion.div
-                key={key}
+              <div key={key}>
+                {/* Connector from previous section */}
+                {index > 0 && (
+                  <ScrollConnector isReversed={index % 2 === 0} />
+                )}
+
+                <motion.div
                 {...servicesMotion.section}
                 className={`grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center ${
                   isReversed ? "lg:flex-row-reverse" : ""
@@ -182,27 +192,41 @@ export default function HowItWorks() {
                   )}
                 </motion.div>
 
-                {/* Image */}
+                {/* Image or Custom Visual */}
                 <motion.div
                   {...servicesMotion.image}
                   className={`relative ${isReversed ? "lg:order-1" : "lg:order-2"}`}
                 >
-                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden glass-card">
-                    <Image
-                      src={serviceImages[key]}
-                      alt={service.title}
-                      fill
-                      className="object-cover"
-                    />
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-secondary/10" />
-                  </div>
+                  {key === "voiceAgent" ? (
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                      <Step1Visual />
+                    </div>
+                  ) : key === "consulting" ? (
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                      <Step1AuditVisual />
+                    </div>
+                  ) : (
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden glass-card">
+                      <Image
+                        src={serviceImages[key]}
+                        alt={service.title}
+                        fill
+                        className="object-cover"
+                      />
+                      {/* Gradient overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-secondary/10" />
+                    </div>
+                  )}
 
                   {/* Decorative elements */}
                   <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl" />
                   <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-secondary/10 rounded-full blur-2xl" />
                 </motion.div>
               </motion.div>
+
+              {/* Spacing after each section */}
+              <div className="h-24 md:h-32" />
+              </div>
             );
           })}
         </div>
