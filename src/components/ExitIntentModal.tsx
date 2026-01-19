@@ -245,28 +245,60 @@ export default function ExitIntentModal({ enabled = true }: ExitIntentModalProps
 
                 {/* Headline */}
                 <h2 className="text-2xl md:text-3xl font-bold text-white mb-3 leading-tight">
-                  Nepaleisk nemokamos konsultacijos
+                  Nepaleisk{" "}
+                  <span
+                    className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 via-violet-200 to-cyan-200 whitespace-nowrap"
+                    style={{ filter: "drop-shadow(0 0 8px rgba(167, 139, 250, 0.3))" }}
+                  >
+                    nemokamos
+                  </span>{" "}
+                  konsultacijos
                 </h2>
 
                 {/* Subtext */}
                 <p className="text-white/60 text-sm md:text-base mb-6 leading-relaxed">
-                  Per 15 min parodysim, kur AI gali sutaupyti laiką ir pinigus tavo versle.
+                  Per 15 min parodysim, kur{" "}
+                  <span
+                    className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 via-violet-200 to-cyan-200 whitespace-nowrap"
+                    style={{ filter: "drop-shadow(0 0 8px rgba(167, 139, 250, 0.3))" }}
+                  >
+                    dirbtinis intelektas
+                  </span>{" "}
+                  gali{" "}
+                  <span
+                    className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 via-violet-200 to-cyan-200 whitespace-nowrap"
+                    style={{ filter: "drop-shadow(0 0 8px rgba(167, 139, 250, 0.3))" }}
+                  >
+                    sutaupyti laiką ir pinigus
+                  </span>{" "}
+                  tavo versle.
                 </p>
 
                 {/* Bullet points */}
                 <ul className="space-y-3 mb-8">
-                  {[
-                    { icon: "⚡", text: "Greitas procesų auditas" },
-                    { icon: "💰", text: "Aiškūs sutaupymai € ir valandomis" },
-                    { icon: "✓", text: "0 įsipareigojimų" },
-                  ].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-sm">
-                        {item.icon}
-                      </span>
-                      <span className="text-white/80 text-sm">{item.text}</span>
-                    </li>
-                  ))}
+                  <li className="flex items-center gap-3">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-sm">
+                      ⚡
+                    </span>
+                    <span className="text-white/80 text-sm">Greitas procesų auditas</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-sm">
+                      💰
+                    </span>
+                    <span className="text-white/80 text-sm">Aiškus sutaupymo apskaičiavimas</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-sm">
+                      ✓
+                    </span>
+                    <span
+                      className="text-transparent bg-clip-text bg-gradient-to-r from-violet-300 via-fuchsia-300 to-cyan-300 font-semibold text-sm whitespace-nowrap"
+                      style={{ filter: "drop-shadow(0 0 12px rgba(167, 139, 250, 0.5))" }}
+                    >
+                      0 įsipareigojimų
+                    </span>
+                  </li>
                 </ul>
 
                 {/* CTA buttons */}
@@ -289,7 +321,7 @@ export default function ExitIntentModal({ enabled = true }: ExitIntentModalProps
                       }}
                     />
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                      Rezervuoti laiką
+                      Pabandyti konsultaciją
                       <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
@@ -301,7 +333,7 @@ export default function ExitIntentModal({ enabled = true }: ExitIntentModalProps
                     onClick={handleClose}
                     className="w-full py-2.5 text-sm text-white/40 hover:text-white/60 transition-colors"
                   >
-                    Ne dabar
+                    Kitą kartą
                   </button>
                 </div>
               </div>
