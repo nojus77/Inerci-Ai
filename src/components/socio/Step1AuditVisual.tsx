@@ -612,10 +612,10 @@ export default function Step1AuditVisual() {
       {/* CRM - Top Left */}
       <div
         data-node="crm"
-        className="absolute top-4 left-2 w-14 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 backdrop-blur-sm border border-green-400/30 flex flex-col items-center justify-center z-20"
+        className="absolute top-4 left-2 w-16 h-14 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 backdrop-blur-sm border border-green-400/30 flex flex-col items-center justify-center gap-1 z-20"
       >
         <svg
-          className="w-4 h-4 text-green-400"
+          className="w-5 h-5 text-green-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -627,16 +627,16 @@ export default function Step1AuditVisual() {
             d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
           />
         </svg>
-        <span className="text-[7px] text-green-300/80 font-medium">CRM</span>
+        <span className="text-[9px] text-green-300 font-extrabold">CRM</span>
       </div>
 
       {/* Email - Top Center */}
       <div
         data-node="email"
-        className="absolute top-2 left-1/2 -translate-x-1/2 w-14 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 backdrop-blur-sm border border-blue-400/30 flex flex-col items-center justify-center z-20"
+        className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 backdrop-blur-sm border border-blue-400/30 flex flex-col items-center justify-center gap-1 z-20"
       >
         <svg
-          className="w-4 h-4 text-blue-400"
+          className="w-5 h-5 text-blue-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -648,16 +648,16 @@ export default function Step1AuditVisual() {
             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
           />
         </svg>
-        <span className="text-[7px] text-blue-300/80 font-medium">EMAIL</span>
+        <span className="text-[9px] text-blue-300 font-extrabold">EMAIL</span>
       </div>
 
       {/* Sheets - Bottom Left */}
       <div
         data-node="sheets"
-        className="absolute bottom-4 left-2 w-14 h-12 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 backdrop-blur-sm border border-amber-400/30 flex flex-col items-center justify-center z-20"
+        className="absolute bottom-4 left-2 w-16 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 backdrop-blur-sm border border-amber-400/30 flex flex-col items-center justify-center gap-1 z-20"
       >
         <svg
-          className="w-4 h-4 text-amber-400"
+          className="w-5 h-5 text-amber-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -669,16 +669,16 @@ export default function Step1AuditVisual() {
             d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
           />
         </svg>
-        <span className="text-[7px] text-amber-300/80 font-medium">SHEETS</span>
+        <span className="text-[9px] text-amber-300 font-extrabold">SHEETS</span>
       </div>
 
       {/* Calendar - Bottom Right */}
       <div
         data-node="calendar"
-        className="absolute bottom-4 right-2 w-14 h-12 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 backdrop-blur-sm border border-pink-400/30 flex flex-col items-center justify-center z-20"
+        className="absolute bottom-4 right-2 w-16 h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 backdrop-blur-sm border border-pink-400/30 flex flex-col items-center justify-center gap-1 z-20"
       >
         <svg
-          className="w-4 h-4 text-pink-400"
+          className="w-5 h-5 text-pink-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -690,16 +690,16 @@ export default function Step1AuditVisual() {
             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
-        <span className="text-[7px] text-pink-300/80 font-medium">CALENDAR</span>
+        <span className="text-[9px] text-pink-300 font-extrabold">CALENDAR</span>
       </div>
 
       {/* Slack - Middle Left */}
       <div
         data-node="slack"
-        className="absolute top-1/2 -translate-y-1/2 left-2 w-12 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-purple-500/5 backdrop-blur-sm border border-purple-400/30 flex flex-col items-center justify-center z-20"
+        className="absolute top-1/2 -translate-y-1/2 left-2 w-14 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 backdrop-blur-sm border border-purple-400/30 flex flex-col items-center justify-center gap-1 z-20"
       >
         <svg
-          className="w-3.5 h-3.5 text-purple-400"
+          className="w-4 h-4 text-purple-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -711,16 +711,16 @@ export default function Step1AuditVisual() {
             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
           />
         </svg>
-        <span className="text-[6px] text-purple-300/80 font-medium">SLACK</span>
+        <span className="text-[9px] text-purple-300 font-extrabold">SLACK</span>
       </div>
 
       {/* API - Middle Right */}
       <div
         data-node="api"
-        className="absolute top-1/2 -translate-y-1/2 right-2 w-12 h-10 rounded-lg bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 backdrop-blur-sm border border-cyan-400/30 flex flex-col items-center justify-center z-20"
+        className="absolute top-1/2 -translate-y-1/2 right-2 w-14 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 backdrop-blur-sm border border-cyan-400/30 flex flex-col items-center justify-center gap-1 z-20"
       >
         <svg
-          className="w-3.5 h-3.5 text-cyan-400"
+          className="w-4 h-4 text-cyan-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -732,16 +732,16 @@ export default function Step1AuditVisual() {
             d="M13 10V3L4 14h7v7l9-11h-7z"
           />
         </svg>
-        <span className="text-[6px] text-cyan-300/80 font-medium">API</span>
+        <span className="text-[9px] text-cyan-300 font-extrabold">API</span>
       </div>
 
       {/* Excel - Bottom Center */}
       <div
         data-node="excel"
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 w-14 h-12 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 backdrop-blur-sm border border-emerald-400/30 flex flex-col items-center justify-center z-20"
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 w-16 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 backdrop-blur-sm border border-emerald-400/30 flex flex-col items-center justify-center gap-1 z-20"
       >
         <svg
-          className="w-4 h-4 text-emerald-400"
+          className="w-5 h-5 text-emerald-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -753,7 +753,7 @@ export default function Step1AuditVisual() {
             d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
           />
         </svg>
-        <span className="text-[7px] text-emerald-300/80 font-medium">EXCEL</span>
+        <span className="text-[9px] text-emerald-300 font-extrabold">EXCEL</span>
       </div>
 
       {/* Live Integration Showcase Card */}
