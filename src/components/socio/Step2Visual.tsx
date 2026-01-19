@@ -589,42 +589,35 @@ export default function Step2Visual() {
     return () => observer.disconnect();
   }, []);
 
-  // Automatic endless loop: 0 -> 1 -> pause -> 1 -> 0 -> pause -> repeat (smooth continuous feel)
+  // Automatic endless loop: 0 -> 1 (animate) -> pause 4s -> instant reset to 0 -> repeat
   useEffect(() => {
     if (!isInView || prefersReducedMotion) return;
 
     let timeoutId: NodeJS.Timeout;
     let intervalId: NodeJS.Timeout;
-    let direction = 1; // 1 = forward, -1 = backward
 
-    const animate = () => {
+    const animateForward = () => {
       intervalId = setInterval(() => {
         const current = progress.get();
 
-        if (direction === 1 && current >= 1) {
-          // Reached end, pause then go backward
+        if (current >= 1) {
+          // Reached 100%, stop and pause for 4 seconds
           clearInterval(intervalId);
           timeoutId = setTimeout(() => {
-            direction = -1;
-            animate();
-          }, 2500); // Pause at "after" state
-        } else if (direction === -1 && current <= 0) {
-          // Reached start, pause then go forward
-          clearInterval(intervalId);
-          timeoutId = setTimeout(() => {
-            direction = 1;
-            animate();
-          }, 1500); // Shorter pause at "before" state
+            // Instant reset to 0 (no animation)
+            progress.jump(0);
+            // Start animating forward again after a brief moment
+            timeoutId = setTimeout(animateForward, 100);
+          }, 4000); // 4 second pause at "after" state
         } else {
-          // Smoother speed: slower when going back
-          const speed = direction === 1 ? 0.003 : 0.004;
-          progress.set(Math.max(0, Math.min(1, current + direction * speed)));
+          // Animate forward
+          progress.set(Math.min(1, current + 0.003));
         }
       }, 25);
     };
 
     // Start with a small delay
-    timeoutId = setTimeout(animate, 500);
+    timeoutId = setTimeout(animateForward, 500);
 
     return () => {
       clearTimeout(timeoutId);
