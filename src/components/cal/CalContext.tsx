@@ -2,6 +2,9 @@
 
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 
+// Session storage key for CTA tracking (shared with ExitIntentModal)
+const SESSION_KEY_CTA_CLICKED = "inerci_cta_clicked";
+
 interface CalContextType {
   isOpen: boolean;
   openCalModal: () => void;
@@ -26,6 +29,10 @@ export function CalProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const openCalModal = useCallback(() => {
+    // Mark CTA as clicked so exit-intent modal won't trigger
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(SESSION_KEY_CTA_CLICKED, "1");
+    }
     setIsOpen(true);
   }, []);
 

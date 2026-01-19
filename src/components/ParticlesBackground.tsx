@@ -1,5 +1,13 @@
 "use client";
 
+/**
+ * Canvas-based particle background
+ * - Renders drifting dots with mouse parallax
+ * - Respects prefers-reduced-motion
+ * - IntersectionObserver to pause when not visible (saves CPU)
+ * - Full viewport coverage with proper DPR handling
+ */
+
 import { useEffect, useRef, useState, useCallback } from "react";
 
 interface Particle {
@@ -18,13 +26,6 @@ interface ParticlesBackgroundProps {
   minOpacity?: number;
   debug?: boolean;
 }
-
-/**
- * Canvas-based particle background
- * - Renders drifting dots with mouse parallax
- * - Respects prefers-reduced-motion
- * - Full viewport coverage with proper DPR handling
- */
 export default function ParticlesBackground({
   particleCount = 100,
   baseColor = [150, 130, 230],
@@ -32,10 +33,12 @@ export default function ParticlesBackground({
   debug = false,
 }: ParticlesBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const animationRef = useRef<number | null>(null);
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isInView, setIsInView] = useState(true);
 
   // Check reduced motion preference
   useEffect(() => {
@@ -44,6 +47,22 @@ export default function ParticlesBackground({
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  // IntersectionObserver to pause animation when not visible
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { threshold: 0.01 } // Trigger when even 1% is visible
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
   }, []);
 
   // Initialize particles distributed across viewport
@@ -84,7 +103,7 @@ export default function ParticlesBackground({
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Main animation loop
+  // Main animation loop - pauses when not in view
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -130,6 +149,12 @@ export default function ParticlesBackground({
 
     const draw = () => {
       if (!isRunning) return;
+
+      // Skip animation frame if not in view (but still schedule next check)
+      if (!isInView) {
+        animationRef.current = requestAnimationFrame(draw);
+        return;
+      }
 
       // Clear canvas
       ctx.clearRect(0, 0, width, height);
@@ -200,17 +225,19 @@ export default function ParticlesBackground({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [initParticles, prefersReducedMotion, baseColor, minOpacity, debug]);
+  }, [initParticles, prefersReducedMotion, baseColor, minOpacity, debug, isInView]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full"
-      style={{
-        // Debug: show canvas border
-        ...(debug && { border: "3px solid lime" }),
-      }}
-      aria-hidden="true"
-    />
+    <div ref={containerRef} className="absolute inset-0 w-full h-full">
+      <canvas
+        ref={canvasRef}
+        className="absolute inset-0 w-full h-full"
+        style={{
+          // Debug: show canvas border
+          ...(debug && { border: "3px solid lime" }),
+        }}
+        aria-hidden="true"
+      />
+    </div>
   );
 }

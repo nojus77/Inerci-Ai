@@ -1,5 +1,12 @@
 "use client";
 
+/**
+ * Hero KPI counter with animated count-up
+ * - One-time RAF animation for count-up (stops when complete)
+ * - IntersectionObserver to only start animation when visible
+ * - Respects prefers-reduced-motion
+ */
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { heroKpi } from "@/content/copy.lt";
@@ -61,8 +68,10 @@ export default function HeroKpi({
   const [initialAnimationComplete, setInitialAnimationComplete] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [hasStartedAnimation, setHasStartedAnimation] = useState(false);
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const eurosTotal = hoursTotal * eurPerHour;
 
@@ -79,6 +88,26 @@ export default function HeroKpi({
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // IntersectionObserver to start animation only when visible (once)
+  useEffect(() => {
+    if (!mounted || hasStartedAnimation) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasStartedAnimation) {
+          setHasStartedAnimation(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [mounted, hasStartedAnimation]);
 
   // Initial count-up animation
   const animate = useCallback(
@@ -104,7 +133,7 @@ export default function HeroKpi({
   );
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !hasStartedAnimation) return;
 
     if (prefersReducedMotion) {
       setDisplayValue(hoursTotal);
@@ -122,7 +151,7 @@ export default function HeroKpi({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [mounted, animate, prefersReducedMotion, hoursTotal]);
+  }, [mounted, hasStartedAnimation, animate, prefersReducedMotion, hoursTotal]);
 
   // Alternate between hours and euros after initial animation
   // Hours show for hoursDuration, euros show for eurosDuration
@@ -181,6 +210,7 @@ export default function HeroKpi({
 
   return (
     <motion.div
+      ref={containerRef}
       className="relative group cursor-default"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}

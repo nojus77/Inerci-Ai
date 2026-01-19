@@ -1,5 +1,11 @@
 "use client";
 
+/**
+ * Feature cards with premium 3D tilt effects
+ * - CSS keyframes for floating animation (no RAF loops)
+ * - IntersectionObserver for visibility-gated animations
+ */
+
 import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
@@ -475,7 +481,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
       >
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Padarei?</span>
         <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-          <Image src="/socio/chat-male.png" alt="User" fill className="object-cover" />
+          <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="24px" />
         </div>
       </motion.div>
       {/* Person 2 (female/Inerci) - responds */}
@@ -485,7 +491,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
         transition={{ duration: 0.3, delay: 0.1 }}
       >
         <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-          <Image src="/socio/chat-female.png" alt="Inerci" fill className="object-cover" />
+          <Image src="/socio/chat-female-opt.png" alt="Inerci" fill className="object-cover" sizes="24px" />
         </div>
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
       </motion.div>
@@ -497,7 +503,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
       >
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Nice!</span>
         <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-          <Image src="/socio/chat-male.png" alt="User" fill className="object-cover" />
+          <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="24px" />
         </div>
       </motion.div>
     </div>
@@ -546,10 +552,6 @@ function FeatureCard({
     springConfig
   );
 
-  // Subtle floating animation offset based on card index
-  const floatY = useMotionValue(0);
-  const floatYSpring = useSpring(floatY, { stiffness: 100, damping: 20 });
-
   // Check reduced motion preference and mobile
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -568,23 +570,8 @@ function FeatureCard({
     };
   }, []);
 
-  // Subtle floating animation
-  useEffect(() => {
-    if (prefersReducedMotion || isMobile) return;
-
-    let animationId: number;
-    const floatAnimation = () => {
-      const time = Date.now() / 1000;
-      // Each card has slightly different phase based on index
-      const phase = index * 0.7;
-      const value = Math.sin(time * 0.4 + phase) * 4;
-      floatY.set(value);
-      animationId = requestAnimationFrame(floatAnimation);
-    };
-
-    animationId = requestAnimationFrame(floatAnimation);
-    return () => cancelAnimationFrame(animationId);
-  }, [index, prefersReducedMotion, isMobile, floatY]);
+  // CSS animation class for floating - each card gets a different delay based on index
+  const floatAnimationDelay = `${index * 0.5}s`;
 
   // Handle mouse move for tilt (throttled)
   const handleMouseMove = useCallback(
@@ -628,10 +615,10 @@ function FeatureCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative group h-full"
+      className={`relative group h-full ${shouldAnimate3D ? 'animate-card-float' : ''}`}
       style={{
         perspective: shouldAnimate3D ? `${tiltMotion.perspective}px` : undefined,
-        y: shouldAnimate3D ? floatYSpring : undefined,
+        animationDelay: shouldAnimate3D ? floatAnimationDelay : undefined,
       }}
     >
       {/* Outer glow on hover - stronger effect */}
@@ -927,6 +914,26 @@ export default function SicioFeatureCards() {
           </div>
         ))}
       </div>
+
+      {/* CSS keyframe animation for floating cards - replaces RAF loop */}
+      <style jsx global>{`
+        @keyframes card-float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-4px);
+          }
+        }
+        .animate-card-float {
+          animation: card-float 5s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-card-float {
+            animation: none;
+          }
+        }
+      `}</style>
     </div>
   );
 }

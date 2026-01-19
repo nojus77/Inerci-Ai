@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import GlobalParticles from "@/components/GlobalParticles";
 import CalWrapper from "@/components/cal/CalWrapper";
+import ExitIntentModal from "@/components/ExitIntentModal";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,10 @@ export default function RootLayout({
           <div className="relative" style={{ zIndex: 2 }}>
             {children}
           </div>
+
+          {/* Exit-intent modal - shows consultation offer when user tries to leave */}
+          {/* To disable: remove this line or set enabled={false} */}
+          <ExitIntentModal />
         </CalWrapper>
       </body>
     </html>

@@ -1,22 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { services, hero } from "@/content/copy.lt";
 import { servicesMotion, scrollReveal, easing, buttonMotion } from "@/content/socioMotion";
 import { useCalModal } from "@/components/cal/CalContext";
 import Step1Visual from "@/components/socio/Step1Visual";
 import Step1AuditVisual from "@/components/socio/Step1AuditVisual";
+import Step2Visual from "@/components/socio/Step2Visual";
 import Step3DeployVisual from "@/components/socio/Step3DeployVisual";
 import ScrollConnector from "@/components/socio/ScrollConnector";
 
 const serviceKeys = ["voiceAgent", "platform", "consulting"] as const;
-
-const serviceImages: Record<string, string> = {
-  voiceAgent: "/socio/ai-consulting.webp",
-  platform: "/socio/platform.webp",
-  consulting: "/socio/ai-consulting.webp",
-};
 
 export default function HowItWorks() {
   const { openCalModal } = useCalModal();
@@ -201,20 +195,12 @@ export default function HowItWorks() {
                     <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
                       <Step1Visual />
                     </div>
-                  ) : key === "consulting" ? (
+                  ) : key === "platform" ? (
+                    /* Step 2: Drag-to-scrub Before/After prototype preview */
+                    <Step2Visual />
+                  ) : (
                     <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
                       <Step1AuditVisual />
-                    </div>
-                  ) : (
-                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden glass-card">
-                      <Image
-                        src={serviceImages[key]}
-                        alt={service.title}
-                        fill
-                        className="object-cover"
-                      />
-                      {/* Gradient overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-secondary/10" />
                     </div>
                   )}
 
