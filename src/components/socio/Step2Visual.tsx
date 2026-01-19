@@ -915,8 +915,8 @@ export default function Step2Visual() {
       }, 25);
     };
 
-    // Start with a small delay
-    timeoutId = setTimeout(animateForward, 500);
+    // Start with a delay (1.5s to show "before" state)
+    timeoutId = setTimeout(animateForward, 1500);
 
     return () => {
       clearTimeout(timeoutId);
