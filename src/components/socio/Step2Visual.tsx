@@ -589,7 +589,7 @@ export default function Step2Visual() {
     return () => observer.disconnect();
   }, []);
 
-  // Automatic endless loop: 0 -> 1 (animate) -> pause 4s -> instant reset to 0 -> repeat
+  // Automatic endless loop: 0 -> 1 (animate) -> pause 5s -> instant reset to 0 -> repeat
   useEffect(() => {
     if (!isInView || prefersReducedMotion) return;
 
@@ -601,14 +601,15 @@ export default function Step2Visual() {
         const current = progress.get();
 
         if (current >= 1) {
-          // Reached 100%, stop and pause for 4 seconds
+          // Reached 100%, stop and pause for 5 seconds
           clearInterval(intervalId);
           timeoutId = setTimeout(() => {
-            // Instant reset to 0 (no animation)
+            // Instant reset to 0 - jump both progress and smoothProgress
             progress.jump(0);
+            smoothProgress.jump(0);
             // Start animating forward again after a brief moment
             timeoutId = setTimeout(animateForward, 100);
-          }, 4000); // 4 second pause at "after" state
+          }, 5000); // 5 second pause at "after" state
         } else {
           // Animate forward
           progress.set(Math.min(1, current + 0.003));
@@ -623,7 +624,7 @@ export default function Step2Visual() {
       clearTimeout(timeoutId);
       clearInterval(intervalId);
     };
-  }, [isInView, prefersReducedMotion, progress]);
+  }, [isInView, prefersReducedMotion, progress, smoothProgress]);
 
   // Calculate opacities for states
   const beforeOpacity = useTransform(smoothProgress, [0, 0.4], [1, 0]);
