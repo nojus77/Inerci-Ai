@@ -504,12 +504,13 @@ function TransitionElements({ progress }: { progress: number }) {
 }
 
 // Helper: Calculate overlay opacity based on progress (piecewise linear)
-// Fade in: 0.40→0.43, visible: 0.43→0.62, fade out: 0.62→0.65
+// Fade in: 0.38→0.41, visible: 0.41→0.67, fade out: 0.67→0.70
+// ~4 seconds total (32% of 12.5s transformation)
 function getOverlayOpacity(progress: number): number {
-  if (progress < 0.40 || progress > 0.65) return 0;
-  if (progress < 0.43) return (progress - 0.40) / 0.03; // fade in
-  if (progress < 0.62) return 1; // fully visible
-  return (0.65 - progress) / 0.03; // fade out
+  if (progress < 0.38 || progress > 0.70) return 0;
+  if (progress < 0.41) return (progress - 0.38) / 0.03; // fade in
+  if (progress < 0.67) return 1; // fully visible
+  return (0.70 - progress) / 0.03; // fade out
 }
 
 // Mid-transition automation overlay
