@@ -752,7 +752,7 @@ export default function Step2Visual() {
           </span>
           <div className="w-10 h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary rounded-full transition-all duration-75"
+              className="h-full bg-primary rounded-full"
               style={{ width: `${finalProgress * 100}%` }}
             />
           </div>
