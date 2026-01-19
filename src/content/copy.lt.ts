@@ -10,7 +10,8 @@ export const navigation = {
 };
 
 export const hero = {
-  headline: "AI automatizacijos, kurios sutaupo",
+  headlineLine1: "AI automatizacijos",
+  headlineLine2: "kurios sutaupo",
   flipWords: ["valandas", "laiką", "resursus", "pinigus", "pastangas"],
   description:
     "Identifikuojame, kur šiuo metu prarandate laiką — ir kaip to išvengti su dirbtinio intelekto pagalba.",

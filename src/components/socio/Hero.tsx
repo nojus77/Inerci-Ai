@@ -87,7 +87,9 @@ export default function Hero() {
           transition={heroMotion.headline.transition}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-tight"
         >
-          {hero.headline}{" "}
+          {hero.headlineLine1}
+          <br />
+          {hero.headlineLine2}{" "}
           <FlipWords words={hero.flipWords} />
         </motion.h1>
 
