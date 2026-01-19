@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useRef, useState, useCallback, useEffect, useLayoutEffect } from "react";
+import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
+import { useRef, useState, useCallback, useEffect, useLayoutEffect, useMemo } from "react";
 
 // DEBUG MODE: Set to true to see thick solid lines for debugging
 const DEBUG_LINES = false;
@@ -56,11 +56,192 @@ const NODE_COLORS: Record<string, string> = {
 const REQUIRED_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "excel", "bottleneck"] as const;
 const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "excel"] as const;
 
-// Dot animation configs - slower, calmer with bigger gaps between dots
-const DOT_CONFIGS = [
-  { dur: "4.5s", delay: "0s", size: 4 },
-  { dur: "5s", delay: "2.5s", size: 3 },
+// Dot animation configs - base values, actual durations randomized per flow
+const DOT_BASE_CONFIGS = [
+  { baseDur: 4.5, delay: 0, size: 4 },
+  { baseDur: 5, delay: 2.5, size: 3 },
 ];
+
+// Generate slightly randomized durations for each flow (subtle variation: ±1s)
+// API flows are faster (multiplier applied)
+const getRandomDuration = (baseDur: number, flowIndex: number, dotIndex: number, flowFrom?: string, flowTo?: string) => {
+  // Use flow and dot indices as seed for consistent but varied values
+  const seed = (flowIndex * 7 + dotIndex * 3) % 10;
+  const variation = (seed - 5) * 0.2; // -1s to +1s range
+  let duration = baseDur + variation;
+
+  // Make API-related flows faster
+  if (flowFrom === "api" || flowTo === "api") {
+    duration *= 0.6; // 40% faster
+  }
+
+  return duration.toFixed(2) + "s";
+};
+
+// ============ LIVE INTEGRATION CARD ============
+function LiveIntegrationCard() {
+  // State for displayed values (updated at controlled intervals to avoid excessive re-renders)
+  const [displayValues, setDisplayValues] = useState({
+    eventsProcessed: 12847,
+    actionsPerMin: 35,
+    hoursSaved: 8.4,
+    lastEventSeconds: 2,
+    sparklinePoints: "0,12 8,8 16,14 24,6 32,10 40,4 48,11 56,7 64,9",
+  });
+
+  // Refs for internal tracking (don't cause re-renders)
+  const valuesRef = useRef({
+    eventsProcessed: 12847,
+    actionsPerMin: 35,
+    hoursSaved: 8.4,
+    lastEventSeconds: 2,
+    sparklineData: [12, 8, 14, 6, 10, 4, 11, 7, 9],
+  });
+  const lastUpdateRef = useRef(0);
+
+  useAnimationFrame((time) => {
+    const v = valuesRef.current;
+
+    // Update internal values every frame
+    // Events processed: increment occasionally
+    if (Math.random() < 0.02) {
+      v.eventsProcessed += Math.floor(Math.random() * 4) + 2;
+    }
+
+    // Actions per minute: smooth sine wave fluctuation (28-42 range)
+    v.actionsPerMin = Math.round(35 + Math.sin(time / 2000) * 5 + Math.sin(time / 800) * 2);
+
+    // Hours saved: slowly tick up
+    if (Math.random() < 0.001) {
+      v.hoursSaved = Math.round((v.hoursSaved + 0.1) * 10) / 10;
+    }
+
+    // Last event timer
+    v.lastEventSeconds += 0.016; // ~60fps
+    if (v.lastEventSeconds > 8 || (v.lastEventSeconds > 2 && Math.random() < 0.002)) {
+      v.lastEventSeconds = 1;
+    }
+
+    // Sparkline: update occasionally
+    if (Math.random() < 0.005) {
+      v.sparklineData.shift();
+      v.sparklineData.push(Math.floor(Math.random() * 10) + 4);
+    }
+
+    // Only update React state every ~100ms to limit re-renders
+    if (time - lastUpdateRef.current > 100) {
+      lastUpdateRef.current = time;
+      setDisplayValues({
+        eventsProcessed: v.eventsProcessed,
+        actionsPerMin: v.actionsPerMin,
+        hoursSaved: v.hoursSaved,
+        lastEventSeconds: Math.floor(v.lastEventSeconds),
+        sparklinePoints: v.sparklineData.map((y, i) => `${i * 8},${y}`).join(" "),
+      });
+    }
+  });
+
+  return (
+    <motion.div
+      className="absolute top-2 right-4 w-[160px] rounded-xl z-30 overflow-hidden"
+      style={{
+        background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+        backdropFilter: "blur(12px)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        boxShadow: "0 4px 24px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.05)",
+      }}
+      initial={{ x: 20, opacity: 0, scale: 0.95 }}
+      animate={{ x: 0, opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5, delay: 1.2 }}
+    >
+      {/* Header */}
+      <div className="px-2.5 py-1.5 border-b border-white/5 flex items-center gap-1.5">
+        <motion.div
+          className="w-1.5 h-1.5 rounded-full bg-green-400"
+          animate={{ opacity: [1, 0.4, 1], scale: [1, 0.9, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <span className="text-[7px] text-white/70 font-bold tracking-wide">LIVE</span>
+        <span className="text-[7px] text-white/30 mx-0.5">|</span>
+        <span className="text-[7px] text-white/70 font-semibold">Integracijos veikia 😉</span>
+      </div>
+
+      {/* Stats rows */}
+      <div className="px-2.5 py-2 space-y-1.5">
+        {/* Row 1: Events processed with sparkline */}
+        <div className="relative">
+          <div className="flex items-center justify-between">
+            <span className="text-[8px] text-white/80 font-semibold">Įvykiai apdoroti:</span>
+            <span className="text-[8px] text-white/90 font-semibold tabular-nums">
+              {displayValues.eventsProcessed.toLocaleString()}
+            </span>
+          </div>
+          {/* Subtle sparkline behind */}
+          <svg
+            className="absolute -bottom-0.5 left-0 w-full h-3 opacity-20"
+            viewBox="0 0 64 16"
+            preserveAspectRatio="none"
+          >
+            <polyline
+              fill="none"
+              stroke="url(#sparkGradLive)"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              points={displayValues.sparklinePoints}
+            />
+            <defs>
+              <linearGradient id="sparkGradLive" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                <stop offset="50%" stopColor="#22c55e" stopOpacity="0.6" />
+                <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.3" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        {/* Row 2: Active automations */}
+        <div className="flex items-center justify-between">
+          <span className="text-[8px] text-white/80 font-semibold">Automatizacijos aktyvios:</span>
+          <span className="text-[8px] text-green-400/90 font-semibold">7</span>
+        </div>
+
+        {/* Row 3: Connected tools */}
+        <div className="flex items-center justify-between">
+          <span className="text-[8px] text-white/80 font-semibold">Sujungti įrankiai:</span>
+          <span className="text-[8px] text-purple-400/90 font-semibold">6</span>
+        </div>
+
+        {/* Row 4: Actions per minute */}
+        <div className="flex items-center justify-between">
+          <span className="text-[8px] text-white/80 font-semibold">Veiksmai / min:</span>
+          <span className="text-[8px] text-cyan-400/90 font-semibold tabular-nums">
+            {displayValues.actionsPerMin}
+          </span>
+        </div>
+
+        {/* Row 5: Hours saved */}
+        <div className="flex items-center justify-between">
+          <span className="text-[8px] text-white/80 font-semibold">Vid. sutaupyta / sav:</span>
+          <span className="text-[8px] text-emerald-400 font-bold">
+            +{displayValues.hoursSaved.toFixed(1)}h
+          </span>
+        </div>
+
+        {/* Row 6: Last event */}
+        <div className="flex items-center justify-between">
+          <span className="text-[8px] text-white/80 font-semibold">Paskutinis įvykis:</span>
+          <span className="text-[8px] text-white/60 font-medium tabular-nums">
+            prieš {displayValues.lastEventSeconds}s
+          </span>
+        </div>
+      </div>
+
+      {/* Subtle glow effect */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/5 via-green-500/5 to-purple-500/5 rounded-xl blur-xl -z-10" />
+    </motion.div>
+  );
+}
 
 export default function Step1AuditVisual() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -317,10 +498,14 @@ export default function Step1AuditVisual() {
                 stroke="none"
               />
 
-              {/* Animated dots with staggered start times per flow */}
-              {DOT_CONFIGS.map((config, i) => {
+              {/* Animated dots with staggered start times per flow and randomized speeds */}
+              {DOT_BASE_CONFIGS.map((config, i) => {
+                // Get flow index for randomization
+                const flowIndex = flowPaths.indexOf(flow);
+                // Get randomized duration for this specific dot (API flows are faster)
+                const randomDur = getRandomDuration(config.baseDur, flowIndex, i, flow.from, flow.to);
                 // Combine flow's start delay with dot config delay
-                const totalDelay = flow.startDelay + parseFloat(config.delay);
+                const totalDelay = flow.startDelay + config.delay;
                 const baseOpacity = 0.9 - i * 0.15;
                 return (
                   <circle
@@ -330,7 +515,7 @@ export default function Step1AuditVisual() {
                     opacity={0}
                   >
                     <animateMotion
-                      dur={config.dur}
+                      dur={randomDur}
                       begin={`${totalDelay}s`}
                       repeatCount="indefinite"
                     >
@@ -341,7 +526,7 @@ export default function Step1AuditVisual() {
                       attributeName="opacity"
                       values={`0;${baseOpacity};${baseOpacity + 0.1};${baseOpacity};0`}
                       keyTimes="0;0.08;0.5;0.92;1"
-                      dur={config.dur}
+                      dur={randomDur}
                       begin={`${totalDelay}s`}
                       repeatCount="indefinite"
                     />
@@ -350,7 +535,7 @@ export default function Step1AuditVisual() {
                       attributeName="r"
                       values={`${config.size};${config.size};${config.size + 1.5};${config.size};${config.size}`}
                       keyTimes="0;0.4;0.5;0.6;1"
-                      dur={config.dur}
+                      dur={randomDur}
                       begin={`${totalDelay}s`}
                       repeatCount="indefinite"
                     />
@@ -571,92 +756,8 @@ export default function Step1AuditVisual() {
         <span className="text-[7px] text-emerald-300/80 font-medium">EXCEL</span>
       </div>
 
-      {/* Checklist Panel - Auditas */}
-      <motion.div
-        className="absolute -top-2 -right-2 w-auto rounded-lg bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/10 p-2 z-30"
-        initial={{ x: 20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 1.2 }}
-      >
-        <div className="flex items-center gap-1.5 mb-2">
-          <svg
-            className="w-3 h-3 text-purple-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <span className="text-[8px] text-white/60 font-medium">AUDITAS</span>
-        </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border border-red-400/50 bg-red-400/20 flex items-center justify-center flex-shrink-0">
-              <svg
-                className="w-2 h-2 text-red-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </div>
-            <span className="text-[7px] text-white/60 whitespace-nowrap">
-              Sąskaitų rūšiavimas
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border border-red-400/50 bg-red-400/20 flex items-center justify-center flex-shrink-0">
-              <svg
-                className="w-2 h-2 text-red-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={3}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </div>
-            <span className="text-[7px] text-white/60 whitespace-nowrap">
-              Neoptimizuotas CRM
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded border border-amber-400/50 bg-amber-400/20 flex items-center justify-center flex-shrink-0">
-              <svg
-                className="w-2 h-2 text-amber-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-            <span className="text-[7px] text-white/60 whitespace-nowrap">
-              48h Švaistomo laiko/sav.
-            </span>
-          </div>
-        </div>
-      </motion.div>
+      {/* Live Integration Showcase Card */}
+      <LiveIntegrationCard />
 
       {/* Debug info - only show when DEBUG_LINES is true */}
       {DEBUG_LINES && (
