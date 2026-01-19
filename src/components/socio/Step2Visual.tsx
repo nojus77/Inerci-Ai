@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { motion, useMotionValue, useTransform, useSpring, type MotionValue } from "framer-motion";
 
 // Lerp helper
 function lerp(start: number, end: number, p: number): number {
@@ -549,6 +549,54 @@ function ProgressBar({ progress }: { progress: number }) {
   );
 }
 
+// PRIEŠ/PO pill - uses motion value directly for perfect sync with scanline
+function ProgressPill({ progress }: { progress: MotionValue<number> }) {
+  // Transform progress to width percentage string
+  const widthPercent = useTransform(progress, (v) => `${v * 100}%`);
+  // Transform progress to PRIEŠ opacity
+  const priesOpacity = useTransform(progress, (v) => Math.max(0.4, 1 - v));
+  // Transform progress to PO opacity
+  const poOpacity = useTransform(progress, (v) => Math.max(0.4, v));
+  // Transform progress to PRIEŠ color
+  const priesColor = useTransform(progress, (v) =>
+    v < 0.5 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)"
+  );
+  // Transform progress to PO color
+  const poColor = useTransform(progress, (v) =>
+    v > 0.5 ? "#a78bfa" : "rgba(255,255,255,0.4)"
+  );
+
+  return (
+    <div
+      className="absolute top-2.5 right-2.5 flex items-center gap-2 text-[9px] z-40 px-2.5 py-1.5 rounded-lg"
+      style={{
+        background: "rgba(0, 0, 0, 0.15)",
+        backdropFilter: "blur(6px)",
+        border: "1px solid rgba(255, 255, 255, 0.03)",
+      }}
+    >
+      <motion.span
+        className="font-bold"
+        style={{ opacity: priesOpacity, color: priesColor }}
+      >
+        PRIEŠ
+      </motion.span>
+      <div className="w-10 h-1.5 bg-white/10 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-primary rounded-full"
+          style={{ width: widthPercent }}
+        />
+      </div>
+      <motion.span
+        className="font-bold"
+        style={{ opacity: poOpacity, color: poColor }}
+      >
+        PO
+      </motion.span>
+    </div>
+  );
+}
+
 export default function Step2Visual() {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
@@ -746,33 +794,7 @@ export default function Step2Visual() {
         </div>
 
         {/* Before/After labels - always visible above all content */}
-        <div
-          className="absolute top-2.5 right-2.5 flex items-center gap-2 text-[9px] z-40 px-2.5 py-1.5 rounded-lg"
-          style={{
-            background: "rgba(0, 0, 0, 0.15)",
-            backdropFilter: "blur(6px)",
-            border: "1px solid rgba(255, 255, 255, 0.03)",
-          }}
-        >
-          <span
-            className="font-bold"
-            style={{ opacity: Math.max(0.4, 1 - snappyProgress), color: snappyProgress < 0.5 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)" }}
-          >
-            PRIEŠ
-          </span>
-          <div className="w-10 h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary rounded-full"
-              style={{ width: `${snappyProgress * 100}%` }}
-            />
-          </div>
-          <span
-            className="font-bold"
-            style={{ opacity: Math.max(0.4, snappyProgress), color: snappyProgress > 0.5 ? "#a78bfa" : "rgba(255,255,255,0.4)" }}
-          >
-            PO
-          </span>
-        </div>
+        <ProgressPill progress={progress} />
       </div>
 
       {/* CSS for animations */}
