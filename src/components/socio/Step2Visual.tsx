@@ -503,6 +503,247 @@ function TransitionElements({ progress }: { progress: number }) {
   );
 }
 
+// Helper: Calculate overlay opacity based on progress (piecewise linear)
+// Fade in: 0.40→0.43, visible: 0.43→0.52, fade out: 0.52→0.55
+function getOverlayOpacity(progress: number): number {
+  if (progress < 0.40 || progress > 0.55) return 0;
+  if (progress < 0.43) return (progress - 0.40) / 0.03; // fade in
+  if (progress < 0.52) return 1; // fully visible
+  return (0.55 - progress) / 0.03; // fade out
+}
+
+// Mid-transition automation overlay
+function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
+  const opacity = useTransform(progress, getOverlayOpacity);
+  const dimAmount = useTransform(progress, (p) => getOverlayOpacity(p) > 0 ? 0.8 : 1);
+
+  return (
+    <>
+      {/* Dim layer for underlying content */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-15"
+        style={{
+          background: "rgba(0, 0, 0, 0.25)",
+          opacity: useTransform(opacity, (o) => o > 0 ? 1 : 0),
+        }}
+      />
+
+      {/* Main overlay */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center"
+        style={{ opacity }}
+      >
+        {/* Glass container */}
+        <div
+          className="relative px-6 py-5 rounded-2xl max-w-[85%] text-center overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, rgba(15, 15, 30, 0.95) 0%, rgba(10, 10, 25, 0.95) 100%)",
+            border: "1px solid rgba(167, 139, 250, 0.2)",
+            boxShadow: `
+              0 0 40px rgba(124, 58, 237, 0.15),
+              0 0 80px rgba(34, 211, 238, 0.08),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05)
+            `,
+            backdropFilter: "blur(12px)",
+          }}
+        >
+          {/* Animated glow ring behind content */}
+          <div className="absolute inset-0 overflow-hidden rounded-2xl">
+            <div className="automation-ring" />
+          </div>
+
+          {/* Robot nodes visual */}
+          <div className="relative mb-4 flex items-center justify-center gap-6">
+            {/* Node 1 */}
+            <div className="automation-node">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center relative">
+                <div className="absolute inset-0 rounded-full automation-node-glow" style={{ background: "rgba(167, 139, 250, 0.2)" }} />
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-400 to-purple-600 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                  </svg>
+                </div>
+                {/* Antenna */}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-2 bg-gradient-to-t from-violet-400 to-transparent" />
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-violet-400 automation-antenna-pulse" />
+              </div>
+            </div>
+
+            {/* Connecting line 1 */}
+            <svg className="w-8 h-1 overflow-visible" viewBox="0 0 32 4">
+              <line x1="0" y1="2" x2="32" y2="2" stroke="rgba(167, 139, 250, 0.4)" strokeWidth="1" strokeDasharray="4 2" />
+              <circle className="automation-data-dot" cx="0" cy="2" r="2" fill="#a78bfa" />
+            </svg>
+
+            {/* Node 2 (center - main) */}
+            <div className="automation-node">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center relative">
+                <div className="absolute inset-0 rounded-full automation-node-glow-main" style={{ background: "rgba(34, 211, 238, 0.25)" }} />
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-cyan-400 to-violet-500 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="11" width="18" height="10" rx="2" />
+                    <circle cx="12" cy="5" r="3" />
+                    <path d="M12 8v3" />
+                  </svg>
+                </div>
+                {/* Antenna */}
+                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-px h-2.5 bg-gradient-to-t from-cyan-400 to-transparent" />
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-cyan-400 automation-antenna-pulse-main" />
+              </div>
+            </div>
+
+            {/* Connecting line 2 */}
+            <svg className="w-8 h-1 overflow-visible" viewBox="0 0 32 4">
+              <line x1="0" y1="2" x2="32" y2="2" stroke="rgba(34, 211, 238, 0.4)" strokeWidth="1" strokeDasharray="4 2" />
+              <circle className="automation-data-dot-reverse" cx="32" cy="2" r="2" fill="#22d3ee" />
+            </svg>
+
+            {/* Node 3 */}
+            <div className="automation-node">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center relative">
+                <div className="absolute inset-0 rounded-full automation-node-glow" style={{ background: "rgba(34, 211, 238, 0.2)" }} />
+                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                  <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                  </svg>
+                </div>
+                {/* Antenna */}
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-px h-2 bg-gradient-to-t from-cyan-400 to-transparent" />
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400 automation-antenna-pulse" />
+              </div>
+            </div>
+          </div>
+
+          {/* Headline */}
+          <div className="relative mb-2">
+            <span
+              className="text-[15px] md:text-[17px] font-bold bg-gradient-to-r from-violet-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent"
+              style={{ filter: "drop-shadow(0 0 10px rgba(167, 139, 250, 0.5))" }}
+            >
+              INERCI
+            </span>
+            <span className="text-[13px] md:text-[15px] font-semibold text-white/90 ml-1.5">
+              automatizacijų diegimas
+            </span>
+          </div>
+
+          {/* Subline */}
+          <p className="relative text-[9px] md:text-[10px] text-white/50 leading-relaxed max-w-[240px] mx-auto mb-4">
+            Optimizuojame procesus. Jungiamės prie įrankių. Paleidžiame automatizacijas.
+          </p>
+
+          {/* Progress bar with shimmer */}
+          <div className="relative w-full max-w-[180px] mx-auto h-1 rounded-full overflow-hidden bg-white/10">
+            <div className="automation-progress-shimmer" />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* CSS Keyframes */}
+      <style jsx global>{`
+        /* Pulsing glow for outer nodes */
+        .automation-node-glow {
+          animation: nodeGlow 2s ease-in-out infinite;
+        }
+        .automation-node-glow-main {
+          animation: nodeGlowMain 1.5s ease-in-out infinite;
+        }
+        @keyframes nodeGlow {
+          0%, 100% { transform: scale(1); opacity: 0.5; }
+          50% { transform: scale(1.3); opacity: 0.8; }
+        }
+        @keyframes nodeGlowMain {
+          0%, 100% { transform: scale(1); opacity: 0.6; }
+          50% { transform: scale(1.4); opacity: 1; }
+        }
+
+        /* Antenna pulse */
+        .automation-antenna-pulse {
+          animation: antennaPulse 1.5s ease-in-out infinite;
+        }
+        .automation-antenna-pulse-main {
+          animation: antennaPulseMain 1s ease-in-out infinite;
+        }
+        @keyframes antennaPulse {
+          0%, 100% { opacity: 0.5; box-shadow: 0 0 4px rgba(167, 139, 250, 0.5); }
+          50% { opacity: 1; box-shadow: 0 0 8px rgba(167, 139, 250, 0.9); }
+        }
+        @keyframes antennaPulseMain {
+          0%, 100% { opacity: 0.6; box-shadow: 0 0 6px rgba(34, 211, 238, 0.6); }
+          50% { opacity: 1; box-shadow: 0 0 12px rgba(34, 211, 238, 1); }
+        }
+
+        /* Data dots moving along lines */
+        .automation-data-dot {
+          animation: dataDotMove 1.2s linear infinite;
+        }
+        .automation-data-dot-reverse {
+          animation: dataDotMoveReverse 1.2s linear infinite;
+        }
+        @keyframes dataDotMove {
+          0% { cx: 0; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { cx: 32; opacity: 0; }
+        }
+        @keyframes dataDotMoveReverse {
+          0% { cx: 32; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { cx: 0; opacity: 0; }
+        }
+
+        /* Rotating ring */
+        .automation-ring {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 200%;
+          height: 200%;
+          transform: translate(-50%, -50%);
+          background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            rgba(167, 139, 250, 0.1) 60deg,
+            transparent 120deg,
+            rgba(34, 211, 238, 0.1) 180deg,
+            transparent 240deg,
+            rgba(167, 139, 250, 0.1) 300deg,
+            transparent 360deg
+          );
+          animation: ringRotate 8s linear infinite;
+          opacity: 0.6;
+        }
+        @keyframes ringRotate {
+          0% { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Progress shimmer */
+        .automation-progress-shimmer {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(167, 139, 250, 0.6) 25%,
+            rgba(34, 211, 238, 0.8) 50%,
+            rgba(167, 139, 250, 0.6) 75%,
+            transparent 100%
+          );
+          animation: progressShimmer 1.5s ease-in-out infinite;
+        }
+        @keyframes progressShimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
+    </>
+  );
+}
+
 // Scanline effect
 function Scanline({ progress }: { progress: number }) {
   return (
@@ -756,6 +997,9 @@ export default function Step2Visual() {
 
         {/* Transition elements */}
         {!prefersReducedMotion && <TransitionElements progress={finalProgress} />}
+
+        {/* Automation overlay - shows during mid-transition */}
+        {!prefersReducedMotion && <AutomationOverlay progress={progress} />}
 
         {/* After state */}
         <AfterState opacity={prefersReducedMotion ? 1 : afterOp} progress={finalProgress} />
