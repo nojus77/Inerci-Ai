@@ -909,8 +909,8 @@ export default function Step2Visual() {
             timeoutId = setTimeout(animateForward, 100);
           }, 5000); // 5 second pause at "after" state
         } else {
-          // Animate forward
-          progress.set(Math.min(1, current + 0.003));
+          // Animate forward (slower: ~12s total transformation)
+          progress.set(Math.min(1, current + 0.002));
         }
       }, 25);
     };
