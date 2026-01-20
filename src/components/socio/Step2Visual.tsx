@@ -3140,16 +3140,16 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           98%, 100% { opacity: 0.8; box-shadow: 0 0 10px rgba(45, 255, 122, 0.4); }
         }
 
-        /* === MOBILE: Robot C stops earlier to not overlap mini PC === */
+        /* === MOBILE: Robot C starts and stops earlier to not overlap mini PC === */
         @media (max-width: 767px) {
           .robot-c-wrapper {
-            left: 88%;
+            left: 80%;
             animation: robotCWalkMobile 6.5s ease-in-out forwards;
           }
           @keyframes robotCWalkMobile {
-            0%, 42% { left: 88%; }
-            50%, 65% { left: 66%; }
-            80%, 100% { left: 80%; }
+            0%, 42% { left: 80%; }
+            50%, 65% { left: 62%; }
+            80%, 100% { left: 74%; }
           }
         }
 
