@@ -100,8 +100,17 @@ export default function CTA() {
               </motion.span>
             </motion.h3>
 
-            {/* Features as premium micro-badges */}
-            <BenefitPills features={cta.features} className="mb-5" />
+            {/* Mobile: subtitle text / Desktop: feature pills */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, ease: easing.standard, delay: 0.2 }}
+              className="md:hidden text-sm text-muted-foreground mb-5 max-w-md mx-auto"
+            >
+              Per 30min. mes padėsime jūsų verslui surasti pasikartojančius darbus ir parodysime konkrečius įrankius bei sprendimus kaip tai automatizuoti su AI integracijomis.
+            </motion.p>
+            <BenefitPills features={cta.features} className="hidden md:flex mb-5" />
 
             {/* Inline Cal.com Embed - clean 3-column booking layout */}
             {/* Mobile: no height constraint, content flows naturally in page scroll */}
@@ -117,6 +126,9 @@ export default function CTA() {
                 namespace={CAL_NAMESPACE}
                 calLink={CAL_LINK}
                 calOrigin={CAL_ORIGIN}
+                config={{
+                  layout: isMobile ? "column_view" : "month_view",
+                }}
                 style={{ width: "100%", height: "100%" }}
               />
             </motion.div>
