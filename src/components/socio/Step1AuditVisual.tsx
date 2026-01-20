@@ -66,8 +66,16 @@ const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "exce
 const DOT_CONFIG = {
   durMobile: 1.4,  // Faster on mobile (shorter paths)
   durDesktop: 2.2,
+  durFast: 0.6,    // Super fast burst dots (desktop only)
   size: 4
 };
+
+// Fast burst dots configuration - these appear occasionally and move super fast (desktop only)
+const FAST_BURST_DOTS = [
+  { from: "sheets", to: "crm", startDelay: 2.5 },
+  { from: "api", to: "calendar", startDelay: 5.2 },
+  { from: "slack", to: "email", startDelay: 8.0 },
+] as const;
 
 // Stats card with live counters (uses setInterval instead of RAF for performance)
 const LiveIntegrationCard = memo(function LiveIntegrationCard() {
@@ -442,6 +450,46 @@ export default function Step1AuditVisual() {
             </g>
           );
         })}
+
+        {/* Fast burst dots - desktop only, occasional super fast dots */}
+        {isInView && !isMobile && containerSize.width > 0 && flowPaths
+          .filter(flow => FAST_BURST_DOTS.some(fb => fb.from === flow.from && fb.to === flow.to))
+          .map((flow) => {
+            if (!Number.isFinite(flow.x1) || !Number.isFinite(flow.y1) ||
+                !Number.isFinite(flow.xMid) || !Number.isFinite(flow.yMid) ||
+                !Number.isFinite(flow.x2) || !Number.isFinite(flow.y2)) return null;
+
+            const fastBurst = FAST_BURST_DOTS.find(fb => fb.from === flow.from && fb.to === flow.to);
+            if (!fastBurst) return null;
+
+            const fastPathId = `fast-${flow.from}-${flow.to}`;
+            const fastPathD = `M ${flow.x1} ${flow.y1} L ${flow.xMid} ${flow.yMid} L ${flow.x2} ${flow.y2}`;
+            const fastDur = `${DOT_CONFIG.durFast}s`;
+            // Total cycle time before repeating (staggered every ~10s)
+            const repeatInterval = 10;
+
+            return (
+              <g key={fastPathId}>
+                <path id={fastPathId} d={fastPathD} fill="none" stroke="none" />
+                <circle r={DOT_CONFIG.size + 1} fill={flow.color} opacity={0}>
+                  <animateMotion
+                    dur={fastDur}
+                    begin={`${fastBurst.startDelay}s;${fastPathId}.end+${repeatInterval - DOT_CONFIG.durFast}s`}
+                    id={fastPathId}
+                  >
+                    <mpath href={`#${fastPathId}`} />
+                  </animateMotion>
+                  <animate
+                    attributeName="opacity"
+                    values="0;1;1;0"
+                    keyTimes="0;0.1;0.9;1"
+                    dur={fastDur}
+                    begin={`${fastBurst.startDelay}s;${fastPathId}.end+${repeatInterval - DOT_CONFIG.durFast}s`}
+                  />
+                </circle>
+              </g>
+            );
+          })}
       </svg>
 
       {/* Central INERCI Hub - single backdrop-blur */}
