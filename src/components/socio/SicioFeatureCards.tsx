@@ -472,10 +472,10 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-start md:items-end justify-start md:justify-end gap-2 pb-0 md:-mb-4 pr-0 md:pr-24">
-      {/* Person 1 (male) - asks */}
+    <div className="relative w-full h-full flex flex-col items-end justify-start md:justify-end gap-2 pb-0 md:-mb-4 pr-2 md:pr-24">
+      {/* Person 1 (male) - asks: text left, avatar right */}
       <motion.div
-        className="flex items-center gap-2 flex-row-reverse md:flex-row"
+        className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0 }}
       >
@@ -484,9 +484,9 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
           <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="24px" />
         </div>
       </motion.div>
-      {/* Person 2 (female/Inerci) - responds */}
+      {/* Person 2 (female/Inerci) - responds: avatar left, text right */}
       <motion.div
-        className="flex items-center gap-2 ml-4 md:ml-0 md:mr-12"
+        className="flex items-center gap-2 mr-4 md:mr-12"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
@@ -495,9 +495,9 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
         </div>
         <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
       </motion.div>
-      {/* Person 1 (male) - same person as first, reacts - aligned with first bubble */}
+      {/* Person 1 (male) - same person as first, reacts: text left, avatar right */}
       <motion.div
-        className="flex items-center gap-2 flex-row-reverse md:flex-row"
+        className="flex items-center gap-2"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.2 }}
       >
@@ -820,9 +820,9 @@ function FeatureCard({
                   </span>
                 </span>
               ) : cardKey === "scalable" ? (
-                <span className="flex flex-col">
-                  <span className="block">{(features.cards.scalable as { descriptionLine1?: string }).descriptionLine1}</span>
-                  <span className="block">{(features.cards.scalable as { descriptionLine2?: string }).descriptionLine2}</span>
+                <span className="flex flex-col text-xs md:text-base">
+                  <span className="block whitespace-nowrap">{(features.cards.scalable as { descriptionLine1?: string }).descriptionLine1}</span>
+                  <span className="block whitespace-nowrap">{(features.cards.scalable as { descriptionLine2?: string }).descriptionLine2}</span>
                 </span>
               ) : (
                 description
