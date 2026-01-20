@@ -16,8 +16,9 @@ export default function ScrollConnector({ isReversed = false }: ScrollConnectorP
   });
 
   // Animate the path drawing based on scroll
-  const pathLength = useTransform(scrollYProgress, [0.2, 0.8], [0, 1]);
-  const opacity = useTransform(scrollYProgress, [0.1, 0.25, 0.7, 0.9], [0, 0.5, 0.5, 0]);
+  // Extended ranges: appear earlier (0.05), stay visible longer (until 0.95)
+  const pathLength = useTransform(scrollYProgress, [0.05, 0.5], [0, 1]);
+  const opacity = useTransform(scrollYProgress, [0.0, 0.1, 0.85, 1.0], [0, 0.6, 0.6, 0]);
 
   // Smooth S-curve paths - one curves right-to-left, other left-to-right
   const path = isReversed

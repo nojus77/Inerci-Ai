@@ -12,8 +12,8 @@ export default function Home() {
       {/* Background is on body/html - particles show through transparent main */}
       <PillNavbar />
       <Hero />
-      <Features />
       <HowItWorks />
+      <Features />
       <Testimonials />
       <CTA />
       <Footer />

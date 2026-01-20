@@ -20,9 +20,6 @@ export default function HowItWorks() {
       <div className="mx-auto max-w-6xl px-6">
         {/* Section Header */}
         <motion.div {...scrollReveal} className="text-center mb-16 md:mb-20">
-          <span className="inline-block px-4 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary mb-4">
-            Mūsų paslaugos
-          </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
             Kaip{" "}
             <span className="relative inline-block">
