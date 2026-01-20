@@ -62,8 +62,12 @@ const NODE_COLORS: Record<string, string> = {
 const REQUIRED_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "excel", "bottleneck"] as const;
 const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "excel"] as const;
 
-// Reduced to single dot per path for performance
-const DOT_CONFIG = { dur: 2.2, size: 4 };
+// Dot config - different speeds for mobile vs desktop
+const DOT_CONFIG = {
+  durMobile: 1.4,  // Faster on mobile (shorter paths)
+  durDesktop: 2.2,
+  size: 4
+};
 
 // Stats card with live counters (uses setInterval instead of RAF for performance)
 const LiveIntegrationCard = memo(function LiveIntegrationCard() {
@@ -158,7 +162,16 @@ export default function Step1AuditVisual() {
   const [flowPaths, setFlowPaths] = useState<FlowPath[]>([]);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [isInView, setIsInView] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Detect mobile screen size
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // IntersectionObserver to pause SVG animations when offscreen
   useEffect(() => {
@@ -408,7 +421,7 @@ export default function Step1AuditVisual() {
 
           const flowPathId = `flow-${flow.from}-${flow.to}`;
           const flowPathD = `M ${flow.x1} ${flow.y1} L ${flow.xMid} ${flow.yMid} L ${flow.x2} ${flow.y2}`;
-          const dur = `${DOT_CONFIG.dur}s`;
+          const dur = `${isMobile ? DOT_CONFIG.durMobile : DOT_CONFIG.durDesktop}s`;
 
           return (
             <g key={flowPathId}>
