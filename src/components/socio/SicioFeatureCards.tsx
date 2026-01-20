@@ -712,8 +712,12 @@ function FeatureCard({
 
         {/* Content - increased depth for 3D pop */}
         <div
-          className={`relative z-10 p-6 md:p-8 h-full flex flex-col ${
-            isWide ? "md:flex-row md:items-start md:gap-8" : "items-center text-center"
+          className={`relative z-10 p-6 md:p-8 h-full flex ${
+            isWide
+              ? cardKey === "scalable"
+                ? "flex-row items-start gap-4 md:gap-8"
+                : "flex-col md:flex-row md:items-start md:gap-8"
+              : "flex-col items-center text-center"
           }`}
           style={{ transform: shouldAnimate3D ? "translateZ(40px)" : undefined }}
         >
@@ -753,18 +757,37 @@ function FeatureCard({
               transition={{ duration: 0.3 }}
             >
               {cardKey === "scalable" ? (
-                <span className="flex flex-wrap items-center gap-1 md:whitespace-nowrap">
-                  <span>{title}</span>
-                  <motion.span
-                    className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
-                    animate={{ scale: isHovered ? 1.05 : 1 }}
-                    transition={{ duration: 0.3 }}
-                    style={{ display: "inline-block" }}
-                  >
-                    {bigBold}
-                  </motion.span>
-                  <span>{(features.cards.scalable as { titleLine2?: string }).titleLine2 || ""}</span>
-                </span>
+                <>
+                  {/* Mobile: 2-line layout */}
+                  <span className="flex flex-col md:hidden">
+                    <span>Verslai naudojantys AI</span>
+                    <span className="flex items-center gap-1">
+                      <span>auga</span>
+                      <motion.span
+                        className="text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
+                        animate={{ scale: isHovered ? 1.05 : 1 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ display: "inline-block" }}
+                      >
+                        {bigBold}
+                      </motion.span>
+                      <span>{(features.cards.scalable as { titleLine2?: string }).titleLine2 || ""}</span>
+                    </span>
+                  </span>
+                  {/* Desktop: single line */}
+                  <span className="hidden md:flex items-center gap-1 whitespace-nowrap">
+                    <span>{title}</span>
+                    <motion.span
+                      className="text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
+                      animate={{ scale: isHovered ? 1.05 : 1 }}
+                      transition={{ duration: 0.3 }}
+                      style={{ display: "inline-block" }}
+                    >
+                      {bigBold}
+                    </motion.span>
+                    <span>{(features.cards.scalable as { titleLine2?: string }).titleLine2 || ""}</span>
+                  </span>
+                </>
               ) : (
                 title
               )}
@@ -813,7 +836,7 @@ function FeatureCard({
               cardKey === "transparent"
                 ? "hidden md:flex w-32 items-center justify-start self-center -ml-12"
                 : cardKey === "scalable"
-                ? "flex w-full md:w-64 min-h-[100px] md:min-h-0 items-end justify-center md:justify-start self-end mt-4 md:mt-0 md:-ml-24"
+                ? "flex w-auto md:w-64 items-end justify-end md:justify-start self-end mt-0 md:-ml-24"
                 : "hidden md:flex w-48 items-end"
             }`}>
               {bottomGraphic}
