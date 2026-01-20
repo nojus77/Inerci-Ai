@@ -55,14 +55,14 @@ interface ChaosPopup {
 }
 
 // Generate INTENSE chaos - many more popups, faster timing, fills screen
-// Mobile: fewer popups (6), faster timeline (~1.2s), then instant transition
+// Mobile: minimal popups (3), super fast (~0.8s), then instant transition
 function generateChaosPopups(seed: number, isMobile: boolean): ChaosPopup[] {
   const rng = seededRandom(seed);
   const popups: ChaosPopup[] = [];
 
-  // Total popups: 20 on desktop, 6 on mobile (much cleaner)
-  // Mobile timeline: 0-1.2s (fast burst), Desktop: 0-2.5s
-  const totalCount = isMobile ? 6 : 20;
+  // Total popups: 20 on desktop, 3 on mobile (just enough to show chaos)
+  // Mobile timeline: 0-0.8s (quick burst), Desktop: 0-2.5s
+  const totalCount = isMobile ? 3 : 20;
 
   for (let i = 0; i < totalCount; i++) {
     const progress = i / totalCount; // 0 to 1
@@ -85,12 +85,12 @@ function generateChaosPopups(seed: number, isMobile: boolean): ChaosPopup[] {
       x = 5 + rng() * 55;
     }
 
-    // Timing: Mobile is MUCH faster (all errors in ~1.2s)
+    // Timing: Mobile is MUCH faster (all errors in ~0.8s)
     // Desktop: slower buildup over 2.5s
     let baseDelay: number;
     if (isMobile) {
-      // Mobile: quick succession, all errors within 1.2s
-      baseDelay = progress * 1200;
+      // Mobile: quick succession, all errors within 0.8s
+      baseDelay = progress * 800;
     } else {
       // Desktop: original timing - rapid-fire, accelerating
       baseDelay = progress < 0.5
@@ -525,37 +525,37 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
           /* MOBILE: Faster chaos popup animation */
           .chaos-chip {
             animation:
-              chaosPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
-              chaosDrift 2s ease-in-out 0.4s infinite alternate;
+              chaosPopIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+              chaosDrift 2s ease-in-out 0.3s infinite alternate;
           }
 
-          /* MOBILE: Vignette builds faster (1.3s instead of 2.5s) */
+          /* MOBILE: Vignette builds faster (0.9s instead of 2.5s) */
           .chaos-vignette {
-            animation: vignetteIntensify 1.3s ease-in forwards;
+            animation: vignetteIntensify 0.9s ease-in forwards;
           }
 
-          /* MOBILE: Critical error appears at 1.3s (errors done at 1.2s) */
+          /* MOBILE: Critical error appears at 0.9s (errors done at 0.8s) */
           .screen-freeze-flash {
-            animation: screenFreezeFlash 0.25s ease-out 1300ms forwards;
+            animation: screenFreezeFlash 0.2s ease-out 900ms forwards;
           }
 
           .crash-overlay {
-            animation: crashOverlayBuild 0.4s ease-in 1350ms forwards;
+            animation: crashOverlayBuild 0.3s ease-in 950ms forwards;
           }
 
           .critical-error {
             padding: 10px 16px;
-            animation: criticalAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 1350ms forwards;
+            animation: criticalAppear 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 950ms forwards;
           }
           .critical-icon {
             font-size: 16px;
-            animation: criticalPulse 0.15s ease-in-out 1500ms 2;
+            animation: criticalPulse 0.12s ease-in-out 1100ms 2;
           }
           .critical-label { font-size: 12px; }
 
           /* MOBILE: Screen shake comes faster */
           .screen-crack {
-            animation: screenShake 0.35s ease-out 1600ms forwards;
+            animation: screenShake 0.25s ease-out 1200ms forwards;
           }
         }
 
