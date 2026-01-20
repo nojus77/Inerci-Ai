@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Cal, { getCalApi } from "@calcom/embed-react";
 import { cta } from "@/content/copy.lt";
@@ -13,7 +13,19 @@ const CAL_NAMESPACE = "cta-inline";
 const CAL_ORIGIN = "https://app.cal.eu";
 
 export default function CTA() {
-  // Initialize Cal API with UI config - no layout override, use default booking flow
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile for Cal config
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Initialize Cal API with UI config
+  // Mobile: hide event details for compact view (like xoxo.lt)
+  // Desktop: show full details
   useEffect(() => {
     (async function initCal() {
       const cal = await getCalApi({ namespace: CAL_NAMESPACE });
@@ -24,10 +36,10 @@ export default function CTA() {
             brandColor: "#7C3AED",
           },
         },
-        hideEventTypeDetails: false,
+        hideEventTypeDetails: isMobile,
       });
     })();
-  }, []);
+  }, [isMobile]);
 
   return (
     <section id="cta" className="pt-12 pb-8 md:pt-16 md:pb-12">

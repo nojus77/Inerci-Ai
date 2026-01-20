@@ -221,14 +221,14 @@ a, button {
    Desktop: Contained height for better layout
    ============================================ */
 
-/* Mobile: Let Cal embed expand naturally, show full calendar + time slots */
-/* This prevents nested scrolling - page scrolls instead */
+/* Mobile: Compact Cal embed - event details hidden, just calendar + times */
+/* Like xoxo.lt - clean, minimal, page scrolls naturally */
 .cal-embed-wrapper {
-  min-height: 900px;
+  min-height: 580px;
 }
 
 .cal-embed-wrapper iframe {
-  min-height: 900px;
+  min-height: 580px;
 }
 
 [data-cal-namespace] {
