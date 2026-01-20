@@ -472,7 +472,7 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-end justify-end gap-2 pb-0 -mb-4 pr-24">
+    <div className="relative w-full h-full flex flex-col items-end justify-end gap-2 pb-0 -mb-4 pr-0 md:pr-24">
       {/* Person 1 (male) - asks */}
       <motion.div
         className="flex items-center gap-2"
@@ -486,7 +486,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
       </motion.div>
       {/* Person 2 (female/Inerci) - responds */}
       <motion.div
-        className="flex items-center gap-2 mr-12"
+        className="flex items-center gap-2 mr-0 md:mr-12"
         animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3, delay: 0.1 }}
       >
@@ -753,7 +753,7 @@ function FeatureCard({
               transition={{ duration: 0.3 }}
             >
               {cardKey === "scalable" ? (
-                <span className="flex items-center gap-1 whitespace-nowrap">
+                <span className="flex flex-wrap items-center gap-1 md:whitespace-nowrap">
                   <span>{title}</span>
                   <motion.span
                     className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
@@ -809,12 +809,12 @@ function FeatureCard({
 
           {/* Bottom graphic for wide cards */}
           {isWide && bottomGraphic && (
-            <div className={`hidden md:flex flex-shrink-0 ${
+            <div className={`flex-shrink-0 ${
               cardKey === "transparent"
-                ? "w-32 items-center justify-start self-center -ml-12"
+                ? "hidden md:flex w-32 items-center justify-start self-center -ml-12"
                 : cardKey === "scalable"
-                ? "w-64 items-end justify-start self-end -ml-24"
-                : "w-48 items-end"
+                ? "flex w-full md:w-64 min-h-[100px] md:min-h-0 items-end justify-center md:justify-start self-end mt-4 md:mt-0 md:-ml-24"
+                : "hidden md:flex w-48 items-end"
             }`}>
               {bottomGraphic}
             </div>

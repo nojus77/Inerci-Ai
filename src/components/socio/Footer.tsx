@@ -115,9 +115,9 @@ export default function Footer() {
 
             {/* Compact mobile layout / 3-column desktop */}
             <div className="relative">
-              {/* Mobile: Compact horizontal layout */}
-              <div className="md:hidden space-y-4">
-                {/* Logo row */}
+              {/* Mobile: Compact vertical layout */}
+              <div className="md:hidden space-y-3">
+                {/* Logo row with CTA */}
                 <div className="flex items-center justify-between">
                   <motion.a
                     href="#"
@@ -146,25 +146,21 @@ export default function Footer() {
                   </motion.button>
                 </div>
 
-                {/* Description - shorter on mobile */}
-                <p className="text-xs text-foreground/40 leading-relaxed">
-                  {footer.description}
-                </p>
+                {/* Row 1: Sprendimai */}
+                <a href="#features" className="block text-sm text-foreground/50 hover:text-foreground/80 transition-colors">
+                  {footer.links.items[0].label}
+                </a>
 
-                {/* Links + Contact in a row */}
-                <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
-                  {footer.links.items.slice(0, 2).map((link) => (
-                    <a key={link.href} href={link.href} className="text-foreground/50 hover:text-foreground/80 transition-colors">
-                      {link.label}
-                    </a>
-                  ))}
-                  <a href={`mailto:${footer.contact.email}`} className="text-foreground/50 hover:text-foreground/80 transition-colors">
+                {/* Row 2: Paslaugos */}
+                <a href="#services" className="block text-sm text-foreground/50 hover:text-foreground/80 transition-colors">
+                  {footer.links.items[1].label}
+                </a>
+
+                {/* Row 3: Email + Social icons */}
+                <div className="flex items-center gap-4">
+                  <a href={`mailto:${footer.contact.email}`} className="text-sm text-foreground/50 hover:text-foreground/80 transition-colors">
                     {footer.contact.email}
                   </a>
-                </div>
-
-                {/* Social icons row */}
-                <div className="flex items-center gap-4">
                   <a href="https://linkedin.com/company/inerci" target="_blank" rel="noopener noreferrer" className="text-foreground/40 hover:text-primary/70 transition-colors">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
