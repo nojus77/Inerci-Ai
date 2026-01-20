@@ -965,11 +965,12 @@ export default function SicioFeatureCards() {
         ))}
       </div>
 
-      {/* Bottom row - 2 wider cards */}
+      {/* Bottom row - 2 wider cards (transparent card hidden on mobile) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {bottomCards.map((card, index) => (
           <div
             key={card.key}
+            className={card.key === "transparent" ? "hidden md:block" : ""}
             onMouseEnter={() => setHoveredCard(card.key)}
             onMouseLeave={() => setHoveredCard(null)}
           >
