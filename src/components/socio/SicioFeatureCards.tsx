@@ -760,8 +760,8 @@ function FeatureCard({
                 <>
                   {/* Mobile: 2-line layout - "Verslai naudojantys AI" then "auga 5× greičiau!" */}
                   <span className="flex flex-col md:hidden">
-                    <span>Verslai naudojantys AI</span>
-                    <span className="flex items-center gap-1">
+                    <span className="whitespace-nowrap">Verslai naudojantys AI</span>
+                    <span className="flex items-center gap-1 whitespace-nowrap">
                       <span>auga</span>
                       <motion.span
                         className="text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
