@@ -217,32 +217,54 @@ a, button {
 
 /* ============================================
    Cal.com Embed Overrides - Scoped to Cal containers
-   Mobile: No nested scrolling - content flows in page scroll
-   Desktop: Contained height for better layout
+   Mobile: Custom header + hidden Cal header, no nested scroll
+   Desktop: Full Cal embed with contained height
    ============================================ */
 
-/* Mobile: Compact Cal embed - event details hidden, just calendar + times */
-/* Like xoxo.lt - clean, minimal, page scrolls naturally */
+/* Mobile: Minimal Cal embed - our custom header above, Cal's header hidden */
+/* Page scrolls naturally, no overflow containers */
 .cal-embed-wrapper {
-  min-height: 580px;
+  min-height: 480px;
 }
 
 .cal-embed-wrapper iframe {
-  min-height: 580px;
+  min-height: 480px;
 }
 
+/* No nested scrolling on mobile - page scrolls */
 [data-cal-namespace] {
-  overflow: visible;
+  overflow: visible !important;
 }
 
 [data-cal-namespace] > div {
-  overflow: visible;
+  overflow: visible !important;
+}
+
+/* Hide Cal's built-in header/logo/title on mobile (we show our own) */
+@media (max-width: 767px) {
+  /* Hide the Cal logo and event type header area */
+  .cal-embed-wrapper [data-cal-namespace] [class*="main"] > div:first-child,
+  .cal-embed-wrapper [data-cal-namespace] header,
+  .cal-embed-wrapper [data-cal-namespace] [class*="eventHeader"],
+  .cal-embed-wrapper [data-cal-namespace] [class*="EventTypeDescription"] {
+    display: none !important;
+  }
+
+  /* Reduce top padding in Cal embed since we have our own header */
+  .cal-embed-wrapper [data-cal-namespace] {
+    padding-top: 0 !important;
+  }
+
+  /* Tighter spacing for mobile */
+  .cal-embed-wrapper {
+    margin-top: -8px;
+  }
 }
 
 /* Desktop: Contained height for cleaner layout */
 @media (min-width: 768px) {
   .cal-embed-wrapper {
-    height: clamp(520px, calc(100vh - 340px), 600px);
+    height: clamp(520px, calc(100vh - 340px), 620px);
     min-height: auto;
   }
 
@@ -253,6 +275,7 @@ a, button {
 
   [data-cal-namespace] {
     max-height: 86vh;
+    overflow: visible;
   }
 
   [data-cal-namespace] > div {
