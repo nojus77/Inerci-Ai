@@ -67,7 +67,7 @@ export default function CalModal({ open, onClose, calLink, namespace }: CalModal
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-[99999] flex items-center justify-center p-4"
+          className="fixed inset-0 z-[99999] flex items-center justify-center p-2 md:p-4 pt-16 md:pt-4"
         >
           {/* Backdrop */}
           <motion.div
@@ -86,7 +86,7 @@ export default function CalModal({ open, onClose, calLink, namespace }: CalModal
             transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             className="relative w-full max-w-[1100px] bg-[#0a0a0a] rounded-2xl overflow-hidden shadow-2xl border border-white/10"
             style={{
-              height: "clamp(620px, calc(100vh - 100px), 760px)",
+              height: "clamp(500px, calc(100vh - 80px), 760px)",
             }}
           >
             {/* Close button */}

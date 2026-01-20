@@ -746,7 +746,7 @@ function FeatureCard({
             )}
 
             <motion.h3
-              className="text-lg md:text-xl font-semibold text-white mb-3 whitespace-nowrap"
+              className="text-lg md:text-xl font-semibold text-white mb-3 md:whitespace-nowrap"
               animate={{
                 color: isHovered ? "#ffffff" : "rgba(255,255,255,0.95)",
               }}

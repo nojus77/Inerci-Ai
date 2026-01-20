@@ -4230,138 +4230,141 @@ export default function Step2Visual() {
 
         /* ═══════════════════════════════════════════════════════════════
            PO DASHBOARD - MOBILE OVERRIDES
+           Larger fonts, simplified layout for readability
            ═══════════════════════════════════════════════════════════════ */
         @media (max-width: 767px) {
-          /* KPI chips - smaller text to fit 4 columns */
+          /* KPI chips - larger, more readable */
           .po-kpi-chip {
-            padding: 3px 2px;
+            padding: 4px 6px;
+            border-radius: 6px;
           }
           .po-kpi-label {
-            font-size: 5px;
-            letter-spacing: 0;
+            font-size: 7px;
+            letter-spacing: 0.2px;
             margin-bottom: 1px;
           }
           .po-kpi-value {
-            font-size: 10px;
-            line-height: 1;
+            font-size: 13px;
+            line-height: 1.1;
+            font-weight: 700;
           }
           .po-kpi-trend {
-            font-size: 5px;
-            margin-top: 0;
+            font-size: 6px;
+            margin-top: 1px;
           }
 
-          /* Chart card - smaller */
+          /* Chart card - better sizing */
           .po-chart-card {
-            padding: 2px 4px !important;
+            padding: 4px 6px !important;
           }
           .po-chart-title {
-            font-size: 7px;
+            font-size: 8px;
           }
           .po-chart-period {
-            font-size: 5px;
-            padding: 0 2px;
+            font-size: 6px;
+            padding: 1px 3px;
           }
 
-          /* List card - tighter spacing */
+          /* List card - readable text */
           .po-list-card {
-            padding: 2px 3px !important;
+            padding: 4px 6px !important;
           }
           .po-list-title {
-            font-size: 6px;
+            font-size: 8px;
           }
           .po-list-count {
-            font-size: 6px;
-            padding: 0 2px;
+            font-size: 7px;
+            padding: 1px 4px;
           }
           .po-list-row {
-            padding: 1px 2px !important;
-            gap: 2px;
+            padding: 3px 4px !important;
+            gap: 4px;
           }
           .po-list-icon {
-            font-size: 6px !important;
-            width: 10px !important;
+            font-size: 9px !important;
+            width: 14px !important;
           }
           .po-list-name {
-            font-size: 5px !important;
+            font-size: 7px !important;
           }
           .po-list-impact {
-            font-size: 5px !important;
-            min-width: 16px;
+            font-size: 7px !important;
+            min-width: 22px;
           }
           .po-status-dot {
-            width: 3px;
-            height: 3px;
+            width: 4px;
+            height: 4px;
           }
 
-          /* Bottleneck card - tighter spacing */
+          /* Bottleneck card - visible bars */
           .po-bottleneck-card {
-            padding: 2px 3px !important;
+            padding: 4px 6px !important;
           }
           .po-bottleneck-title {
-            font-size: 6px;
+            font-size: 8px;
           }
           .po-bottleneck-rows {
-            gap: 2px;
+            gap: 3px;
           }
           .po-bottleneck-row {
-            padding: 1px !important;
+            padding: 2px !important;
           }
           .po-bottleneck-label {
-            font-size: 5px;
+            font-size: 7px;
           }
           .po-bottleneck-saved {
-            font-size: 5px;
+            font-size: 6px;
           }
           .po-bottleneck-bar-bg {
-            height: 3px;
+            height: 4px;
           }
           .po-bottleneck-pct {
-            font-size: 5px;
-            right: 1px;
+            font-size: 6px;
+            right: 2px;
           }
 
-          /* Activity feed - tighter */
+          /* Activity feed - readable entries */
           .po-feed-card {
-            padding: 2px 3px !important;
+            padding: 4px 6px !important;
           }
           .po-feed-title {
-            font-size: 6px;
+            font-size: 8px;
           }
           .po-feed-live {
-            font-size: 5px;
-            gap: 1px;
-          }
-          .po-feed-live-dot {
-            width: 2px;
-            height: 2px;
-          }
-          .po-feed-row {
-            padding: 1px 2px !important;
+            font-size: 6px;
             gap: 2px;
           }
+          .po-feed-live-dot {
+            width: 4px;
+            height: 4px;
+          }
+          .po-feed-row {
+            padding: 2px 4px !important;
+            gap: 4px;
+          }
           .po-feed-icon {
-            font-size: 6px;
-            width: 10px;
+            font-size: 8px;
+            width: 14px;
           }
           .po-feed-text {
-            font-size: 5px;
+            font-size: 7px;
           }
           .po-feed-time {
-            font-size: 5px;
+            font-size: 6px;
           }
 
-          /* Activity strip - smaller */
+          /* Activity strip - visible */
           .po-activity-strip {
-            padding: 3px 5px;
+            padding: 4px 8px;
           }
           .po-activity-label {
-            font-size: 6px;
+            font-size: 7px;
           }
           .po-activity-number {
-            font-size: 9px;
+            font-size: 11px;
           }
           .po-activity-unit {
-            font-size: 6px;
+            font-size: 7px;
           }
         }
       `}</style>

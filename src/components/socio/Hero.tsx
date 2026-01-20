@@ -90,7 +90,7 @@ export default function Hero() {
           initial={heroMotion.description.initial}
           animate={heroMotion.description.animate}
           transition={heroMotion.description.transition}
-          className="mt-5 md:mt-6 text-sm md:text-base text-foreground/50 font-normal max-w-2xl mx-auto leading-snug whitespace-nowrap"
+          className="mt-5 md:mt-6 text-sm md:text-base text-foreground/50 font-normal max-w-2xl mx-auto leading-snug md:whitespace-nowrap"
         >
           {hero.description}
         </motion.p>
