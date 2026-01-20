@@ -83,7 +83,7 @@ export default function HowItWorks() {
                 >
                   {/* Step number */}
                   <span
-                    className="text-6xl md:text-7xl font-bold mb-4 block"
+                    className="text-6xl md:text-7xl font-bold mb-4 block text-center md:text-left"
                     style={{
                       background: "linear-gradient(180deg, rgba(139, 92, 246, 0.6) 0%, rgba(139, 92, 246, 0.1) 100%)",
                       WebkitBackgroundClip: "text",
