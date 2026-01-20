@@ -3281,55 +3281,93 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             92%, 100% { transform: rotate(-20deg); }
           }
 
-          /* Orb animation for mobile - red->yellow->green as B does full workflow */
-          .energy-orb { animation: orbFlowMobile 6.5s ease-in-out forwards; }
-          @keyframes orbFlowMobile {
-            /* Start in A's hand (red) */
-            0%, 22% {
-              left: 30%;
-              opacity: 0;
-            }
-            /* A arrives, orb visible */
-            24% {
-              left: 30%;
+          /* Mobile orb - override wrapper animation for simplified 2-robot flow */
+          .mystic-orb-wrapper {
+            animation: orbMoveMobile 6.5s linear forwards !important;
+            will-change: left, bottom;
+            transform: translateZ(0);
+          }
+          @keyframes orbMoveMobile {
+            /* Start with Robot A at 0% - orb in A's right hand */
+            0%, 5% {
+              left: 4%;
+              bottom: 24px;
               opacity: 1;
-              background: radial-gradient(circle at 30% 30%, #fca5a5 0%, #ef4444 50%, #b91c1c 100%);
-              box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
             }
-            /* Transfer to B */
-            28%, 32% {
+            /* A walks toward B (A goes from 0% to 30%) - orb follows A's hand */
+            10% {
+              left: 12%;
+              bottom: 24px;
+              opacity: 1;
+            }
+            15% {
+              left: 20%;
+              bottom: 24px;
+              opacity: 1;
+            }
+            /* A arrives at 30%, arm extends for handoff */
+            22% {
+              left: 32%;
+              bottom: 24px;
+              opacity: 1;
+            }
+            /* Handoff moment - orb floats to B (B is at 38%) */
+            25% {
+              left: 34%;
+              bottom: 30px;
+              opacity: 1;
+            }
+            /* B catches orb with left arm */
+            28% {
               left: 38%;
+              bottom: 26px;
               opacity: 1;
-              background: radial-gradient(circle at 30% 30%, #fca5a5 0%, #ef4444 50%, #b91c1c 100%);
-              box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
             }
-            /* Transform to yellow during processing */
-            40%, 55% {
-              left: 50%;
+            /* B holds orb during processing (B at 38%) */
+            32%, 38% {
+              left: 40%;
+              bottom: 26px;
               opacity: 1;
-              background: radial-gradient(circle at 30% 30%, #fef08a 0%, #facc15 50%, #ca8a04 100%);
-              box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
             }
-            /* B walks to PC with yellow orb */
-            70% {
-              left: 75%;
+            /* B walks back to center (B goes to 50%) - orb moves with B */
+            50% {
+              left: 52%;
+              bottom: 24px;
               opacity: 1;
-              background: radial-gradient(circle at 30% 30%, #fef08a 0%, #facc15 50%, #ca8a04 100%);
-              box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
             }
-            /* At PC, orb moves into slot */
+            /* B at center, preparing to walk to PC */
+            58% {
+              left: 52%;
+              bottom: 24px;
+              opacity: 1;
+            }
+            /* B walks right toward PC (B goes from 50% to 82%) */
+            65% {
+              left: 65%;
+              bottom: 24px;
+              opacity: 1;
+            }
+            72% {
+              left: 76%;
+              bottom: 24px;
+              opacity: 1;
+            }
+            /* B arrives at PC (82%), extends arm to insert */
+            75% {
+              left: 84%;
+              bottom: 24px;
+              opacity: 1;
+            }
             78% {
-              left: 82%;
+              left: 86%;
+              bottom: 28px;
               opacity: 1;
-              background: radial-gradient(circle at 30% 30%, #fef08a 0%, #facc15 50%, #ca8a04 100%);
-              box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
             }
-            /* Transform to green as it enters PC */
+            /* Orb enters PC slot */
             82%, 100% {
-              left: 88%;
+              left: 90%;
+              bottom: 30px;
               opacity: 1;
-              background: radial-gradient(circle at 30% 30%, #86efac 0%, #22c55e 50%, #15803d 100%);
-              box-shadow: 0 0 25px rgba(34, 197, 94, 0.8);
             }
           }
         }
@@ -3902,9 +3940,9 @@ export default function Step2Visual() {
         }
         .po-panel {
           min-width: 0;
-          overflow: hidden;
-          min-height: 80px;
-          padding: 6px 8px;
+          overflow: visible;
+          min-height: 90px;
+          padding: 6px 8px 8px;
           border-radius: 8px;
           background: rgba(255,255,255,0.025);
           border: 1px solid rgba(255,255,255,0.05);
@@ -3969,10 +4007,10 @@ export default function Step2Visual() {
         .po-auto-list {
           display: flex;
           flex-direction: column;
-          gap: 3px;
+          gap: 4px;
           flex: 1;
           min-height: 0;
-          overflow: hidden;
+          overflow: visible;
         }
         .po-auto-row {
           display: flex;
