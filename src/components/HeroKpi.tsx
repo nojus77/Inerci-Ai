@@ -282,40 +282,10 @@ export default function HeroKpi({
           />
         </motion.div>
 
-        {/* Mobile: Value on top */}
-        <div className="flex flex-col items-center gap-3 md:hidden">
-          {/* Animated value - fixed width container to prevent layout shift */}
-          <div className="relative flex items-center justify-center min-h-[36px] min-w-[200px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={showEuros ? "euros" : "hours"}
-                variants={prefersReducedMotion ? {} : valueVariants}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={prefersReducedMotion ? { duration: 0 } : valueTransition}
-                className="flex items-end justify-center gap-1.5"
-              >
-                <span
-                  className="text-[26px] font-bold tracking-tight tabular-nums leading-none"
-                  style={{
-                    background: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.75) 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                  }}
-                >
-                  {showEuros ? heroKpi.euroPrefix : ""}{formattedValue}
-                </span>
-                <span className="text-xs font-medium text-foreground/50 pb-[1px]">
-                  {showEuros ? heroKpi.euroSuffix : heroKpi.hoursSuffix}
-                </span>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Sentence with icon */}
-          <div className="flex items-center gap-2">
+        {/* Mobile: Icon + Value on top row, sentence below */}
+        <div className="flex flex-col items-center gap-2 md:hidden">
+          {/* Top row: Icon + Value */}
+          <div className="flex items-center gap-3">
             {/* Icon with glow */}
             <div className="relative flex-shrink-0">
               <div
@@ -328,11 +298,42 @@ export default function HeroKpi({
                 <SparkIcon className="w-3.5 h-3.5 text-primary" animate={!prefersReducedMotion} />
               </div>
             </div>
-            <p className="text-xs font-medium text-foreground/60 text-center leading-snug max-w-[220px]">
-              {heroKpi.sentence}
-            </p>
+
+            {/* Animated value */}
+            <div className="relative flex items-center justify-center min-h-[36px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={showEuros ? "euros" : "hours"}
+                  variants={prefersReducedMotion ? {} : valueVariants}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={prefersReducedMotion ? { duration: 0 } : valueTransition}
+                  className="flex items-end justify-center gap-1.5"
+                >
+                  <span
+                    className="text-[26px] font-bold tracking-tight tabular-nums leading-none"
+                    style={{
+                      background: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.75) 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    {showEuros ? heroKpi.euroPrefix : ""}{formattedValue}
+                  </span>
+                  <span className="text-xs font-medium text-foreground/50 pb-[1px]">
+                    {showEuros ? heroKpi.euroSuffix : heroKpi.hoursSuffix}
+                  </span>
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </div>
 
+          {/* Sentence on its own row - full width for single line */}
+          <p className="text-xs font-medium text-foreground/60 text-center leading-snug whitespace-nowrap">
+            {heroKpi.sentence}
+          </p>
         </div>
 
         {/* Desktop: Horizontal layout [Icon] [Sentence] [Value] */}
