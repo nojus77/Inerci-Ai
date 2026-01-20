@@ -64,7 +64,7 @@ const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "exce
 
 // Dot config - different speeds for mobile vs desktop
 const DOT_CONFIG = {
-  durMobile: 1.4,  // Faster on mobile (shorter paths)
+  durMobile: 2.0,  // Slower on mobile for smoother feel
   durDesktop: 2.2,
   durFast: 0.6,    // Super fast burst dots (desktop only)
   size: 4
