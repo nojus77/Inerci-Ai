@@ -102,7 +102,7 @@ const LiveIntegrationCard = memo(function LiveIntegrationCard() {
 
   return (
     <motion.div
-      className="absolute top-1 right-1 md:top-2 md:right-2 w-[120px] md:w-[155px] rounded-lg z-30 overflow-hidden"
+      className="absolute top-1 right-1 md:top-2 md:right-2 w-[105px] md:w-[155px] rounded-lg z-30 overflow-hidden"
       style={{
         background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
         border: "1px solid rgba(255,255,255,0.1)",
@@ -112,39 +112,39 @@ const LiveIntegrationCard = memo(function LiveIntegrationCard() {
       animate={{ x: 0, opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 1.2 }}
     >
-      <div className="px-1.5 md:px-2 py-1 md:py-1.5 border-b border-white/5 flex items-center gap-1">
+      <div className="px-1 md:px-2 py-0.5 md:py-1.5 border-b border-white/5 flex items-center gap-0.5 md:gap-1">
         <div className="w-1 md:w-1.5 h-1 md:h-1.5 rounded-full bg-green-400 animate-pulse-slow" />
-        <span className="text-[6px] md:text-[8px] text-white/80 font-extrabold tracking-wide">LIVE</span>
-        <span className="text-[5px] md:text-[7px] text-white/30 mx-0.5 hidden md:inline">|</span>
-        <span className="text-[5px] md:text-[7px] text-white/80 font-bold hidden md:inline">Integracijos veikia 😉</span>
+        <span className="text-[5px] md:text-[8px] text-white/80 font-extrabold tracking-wide">LIVE</span>
+        <span className="text-[4px] md:text-[7px] text-white/30 mx-0.5">|</span>
+        <span className="text-[4px] md:text-[7px] text-white/80 font-bold truncate">Integracijos veikia 😉</span>
       </div>
-      <div className="px-1.5 md:px-2 py-1 md:py-1.5 space-y-0.5 md:space-y-1">
+      <div className="px-1 md:px-2 py-0.5 md:py-1.5 space-y-0.5 md:space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-[6px] md:text-[8px] text-white/85 font-bold">Įvykiai:</span>
-          <span className="text-[7px] md:text-[9px] text-white font-extrabold tabular-nums">
+          <span className="text-[5px] md:text-[8px] text-white/85 font-bold">Įvykiai:</span>
+          <span className="text-[6px] md:text-[9px] text-white font-extrabold tabular-nums">
             {eventsProcessed.toLocaleString("lt-LT")}
           </span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-[6px] md:text-[8px] text-white/85 font-bold">Autom.:</span>
-          <span className="text-[7px] md:text-[9px] text-green-400 font-extrabold">7</span>
-        </div>
-        <div className="hidden md:flex items-center justify-between">
-          <span className="text-[8px] text-white/85 font-bold">Sujungti įrankiai:</span>
-          <span className="text-[9px] text-purple-400 font-extrabold">6</span>
+          <span className="text-[5px] md:text-[8px] text-white/85 font-bold">Autom.:</span>
+          <span className="text-[6px] md:text-[9px] text-green-400 font-extrabold">7</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-[6px] md:text-[8px] text-white/85 font-bold">Veiks./min:</span>
-          <span className="text-[7px] md:text-[9px] text-cyan-400 font-extrabold tabular-nums">{actionsPerMin}</span>
+          <span className="text-[5px] md:text-[8px] text-white/85 font-bold">Įrankiai:</span>
+          <span className="text-[6px] md:text-[9px] text-purple-400 font-extrabold">6</span>
         </div>
-        <div className="hidden md:flex items-center justify-between">
-          <span className="text-[8px] text-white/85 font-bold">Sutaupyta / sav:</span>
-          <span className="text-[9px] text-emerald-400 font-extrabold tabular-nums">+{savedHours.toFixed(1)}h</span>
+        <div className="flex items-center justify-between">
+          <span className="text-[5px] md:text-[8px] text-white/85 font-bold">Veiks./min:</span>
+          <span className="text-[6px] md:text-[9px] text-cyan-400 font-extrabold tabular-nums">{actionsPerMin}</span>
         </div>
-        <div className="hidden md:flex items-center justify-between">
-          <span className="text-[8px] text-white/85 font-bold">Paskutinis įvykis:</span>
-          <span className="text-[9px] text-white/70 font-bold tabular-nums">
-            prieš {lastEventSeconds}s
+        <div className="flex items-center justify-between">
+          <span className="text-[5px] md:text-[8px] text-white/85 font-bold">Sutaupyta:</span>
+          <span className="text-[6px] md:text-[9px] text-emerald-400 font-extrabold tabular-nums">+{savedHours.toFixed(1)}h</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[5px] md:text-[8px] text-white/85 font-bold">Pask. įvykis:</span>
+          <span className="text-[6px] md:text-[9px] text-white/70 font-bold tabular-nums">
+            {lastEventSeconds}s
           </span>
         </div>
       </div>
