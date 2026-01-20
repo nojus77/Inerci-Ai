@@ -13,8 +13,23 @@ import {
 import HeroKpi from "@/components/HeroKpi";
 import { useCalModal } from "@/components/cal/CalContext";
 
+// Find the longest word to use as ghost for reserving space
+function getLongestWord(words: string[]): string {
+  return words.reduce((longest, word) => word.length > longest.length ? word : longest, "");
+}
+
+const gradientTextStyle = {
+  background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
+  backgroundSize: "200% 200%",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  backgroundClip: "text",
+  animation: "shimmer 3s ease-in-out infinite",
+} as const;
+
 function FlipWords({ words }: { words: string[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const longestWord = getLongestWord(words);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,31 +39,34 @@ function FlipWords({ words }: { words: string[] }) {
   }, [words.length]);
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.span
-        key={currentIndex}
-        initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-        exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
-        transition={{
-          duration: 0.5,
-          ease: [0.4, 0, 0.2, 1],
-          opacity: { duration: 0.4 },
-          filter: { duration: 0.4 }
-        }}
-        className="inline-block"
-        style={{
-          background: "linear-gradient(135deg, #93c5fd 0%, #818cf8 30%, #6366f1 60%, #a5b4fc 100%)",
-          backgroundSize: "200% 200%",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text",
-          animation: "shimmer 3s ease-in-out infinite",
-        }}
+    // Container with fixed dimensions based on longest word - prevents CLS
+    <span className="relative inline-flex justify-center">
+      {/* Ghost element - invisible but reserves space for longest word */}
+      <span
+        className="invisible whitespace-nowrap select-none"
+        style={gradientTextStyle}
+        aria-hidden="true"
       >
-        {words[currentIndex]}
-      </motion.span>
-    </AnimatePresence>
+        {longestWord}
+      </span>
+      {/* Animated word - absolutely positioned to prevent reflow */}
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={currentIndex}
+          initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
+          transition={{
+            duration: 0.4,
+            ease: [0.4, 0, 0.2, 1],
+          }}
+          className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
+          style={gradientTextStyle}
+        >
+          {words[currentIndex]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
   );
 }
 
@@ -72,17 +90,25 @@ export default function Hero() {
         transition={heroMotion.container.transition}
         className="relative z-10 mx-auto max-w-4xl px-6 text-center"
       >
-        {/* Main Headline */}
+        {/* Main Headline - fixed 3-line structure to prevent CLS */}
         <motion.h1
           initial={heroMotion.headline.initial}
           animate={heroMotion.headline.animate}
           transition={heroMotion.headline.transition}
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-foreground leading-tight"
         >
-          {hero.headlineLine1}
-          <br />
-          {hero.headlineLine2}{" "}
-          <FlipWords words={hero.flipWords} />
+          {/* Line 1 */}
+          <span className="block">{hero.headlineLine1}</span>
+          {/* Line 2 - on desktop includes rotating word, on mobile it's separate */}
+          <span className="hidden md:block">
+            {hero.headlineLine2}{" "}
+            <FlipWords words={hero.flipWords} />
+          </span>
+          {/* Mobile: Line 2 and Line 3 separate to prevent wrapping issues */}
+          <span className="block md:hidden">{hero.headlineLine2}</span>
+          <span className="block md:hidden">
+            <FlipWords words={hero.flipWords} />
+          </span>
         </motion.h1>
 
         {/* Description - visually secondary: smaller, lighter, tighter */}
