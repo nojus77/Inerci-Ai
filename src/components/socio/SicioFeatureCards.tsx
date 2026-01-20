@@ -470,43 +470,85 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 }
 
 // Chat bubbles for "Scale with ease" card
+// Mobile: absolutely positioned, scaled down, right-aligned with padding
+// Desktop: normal flow positioning
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-end justify-start md:justify-end gap-2 pb-0 md:-mb-4 pr-4 md:pr-24 scale-[0.85] origin-top-right md:scale-100">
-      {/* Person 1 (male) - asks: text left, avatar right */}
-      <motion.div
-        className="flex items-center gap-2"
-        animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
-        transition={{ duration: 0.3, delay: 0 }}
-      >
-        <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Padarei?</span>
-        <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-          <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="24px" />
-        </div>
-      </motion.div>
-      {/* Person 2 (female/Inerci) - responds: avatar left, text right */}
-      <motion.div
-        className="flex items-center gap-2 mr-4 md:mr-12"
-        animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
-      >
-        <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-          <Image src="/socio/chat-female-opt.png" alt="Inerci" fill className="object-cover" sizes="24px" />
-        </div>
-        <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
-      </motion.div>
-      {/* Person 1 (male) - same person as first, reacts: text left, avatar right */}
-      <motion.div
-        className="flex items-center gap-2"
-        animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
-        transition={{ duration: 0.3, delay: 0.2 }}
-      >
-        <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Nice!</span>
-        <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-          <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="24px" />
-        </div>
-      </motion.div>
-    </div>
+    <>
+      {/* Mobile version - absolutely positioned to stay inside card */}
+      <div className="md:hidden absolute top-4 right-3 flex flex-col items-end gap-1.5 max-w-[140px]">
+        {/* Person 1 (male) - asks: text left, avatar right */}
+        <motion.div
+          className="flex items-center gap-1.5"
+          animate={{ x: isHovered ? 0 : 3, opacity: isHovered ? 1 : 0.7 }}
+          transition={{ duration: 0.3, delay: 0 }}
+        >
+          <span className="px-2.5 py-1 text-[10px] bg-white/10 rounded-full text-white/70 whitespace-nowrap">Padarei?</span>
+          <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+            <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="20px" />
+          </div>
+        </motion.div>
+        {/* Person 2 (female/Inerci) - responds: avatar left, text right */}
+        <motion.div
+          className="flex items-center gap-1.5 mr-2"
+          animate={{ x: isHovered ? 0 : 3, opacity: isHovered ? 1 : 0.7 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+            <Image src="/socio/chat-female-opt.png" alt="Inerci" fill className="object-cover" sizes="20px" />
+          </div>
+          <span className="px-2.5 py-1 text-[10px] bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
+        </motion.div>
+        {/* Person 1 (male) - same person as first, reacts: text left, avatar right */}
+        <motion.div
+          className="flex items-center gap-1.5"
+          animate={{ x: isHovered ? 0 : 3, opacity: isHovered ? 1 : 0.7 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <span className="px-2.5 py-1 text-[10px] bg-white/10 rounded-full text-white/70 whitespace-nowrap">Nice!</span>
+          <div className="relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+            <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="20px" />
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Desktop version - normal positioning */}
+      <div className="hidden md:flex flex-col items-end justify-end gap-2 -mb-4 pr-24">
+        {/* Person 1 (male) - asks: text left, avatar right */}
+        <motion.div
+          className="flex items-center gap-2"
+          animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
+          transition={{ duration: 0.3, delay: 0 }}
+        >
+          <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Padarei?</span>
+          <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+            <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="24px" />
+          </div>
+        </motion.div>
+        {/* Person 2 (female/Inerci) - responds: avatar left, text right */}
+        <motion.div
+          className="flex items-center gap-2 mr-12"
+          animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+        >
+          <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+            <Image src="/socio/chat-female-opt.png" alt="Inerci" fill className="object-cover" sizes="24px" />
+          </div>
+          <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70 whitespace-nowrap">Inerci padarė.</span>
+        </motion.div>
+        {/* Person 1 (male) - same person as first, reacts: text left, avatar right */}
+        <motion.div
+          className="flex items-center gap-2"
+          animate={{ x: isHovered ? 0 : 5, opacity: isHovered ? 1 : 0.7 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          <span className="px-3 py-1.5 text-xs bg-white/10 rounded-full text-white/70">Nice!</span>
+          <div className="relative w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+            <Image src="/socio/chat-male-opt.png" alt="User" fill className="object-cover" sizes="24px" />
+          </div>
+        </motion.div>
+      </div>
+    </>
   );
 }
 
@@ -836,9 +878,16 @@ function FeatureCard({
               cardKey === "transparent"
                 ? "hidden md:flex w-32 items-center justify-start self-center -ml-12"
                 : cardKey === "scalable"
-                ? "flex w-auto md:w-64 items-start justify-end md:justify-start self-start md:self-end mt-0 md:-ml-24"
+                ? "hidden md:flex w-64 items-start justify-start self-end -ml-24"
                 : "hidden md:flex w-48 items-end"
             }`}>
+              {bottomGraphic}
+            </div>
+          )}
+
+          {/* Scalable card mobile chat - rendered separately with absolute positioning */}
+          {cardKey === "scalable" && bottomGraphic && (
+            <div className="md:hidden">
               {bottomGraphic}
             </div>
           )}
