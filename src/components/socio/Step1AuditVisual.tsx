@@ -64,10 +64,11 @@ const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "exce
 
 // Dot config - different speeds for mobile vs desktop
 const DOT_CONFIG = {
-  durMobile: 2.0,  // Slower on mobile for smoother feel
+  durMobile: 3.5,  // Slower on mobile for smoother feel
   durDesktop: 2.2,
   durFast: 0.6,    // Super fast burst dots (desktop only)
-  size: 4
+  sizeMobile: 3,
+  sizeDesktop: 4
 };
 
 // Fast burst dots configuration - these appear occasionally and move super fast (desktop only)
@@ -430,11 +431,12 @@ export default function Step1AuditVisual() {
           const flowPathId = `flow-${flow.from}-${flow.to}`;
           const flowPathD = `M ${flow.x1} ${flow.y1} L ${flow.xMid} ${flow.yMid} L ${flow.x2} ${flow.y2}`;
           const dur = `${isMobile ? DOT_CONFIG.durMobile : DOT_CONFIG.durDesktop}s`;
+          const dotSize = isMobile ? DOT_CONFIG.sizeMobile : DOT_CONFIG.sizeDesktop;
 
           return (
             <g key={flowPathId}>
               <path id={flowPathId} d={flowPathD} fill="none" stroke="none" />
-              <circle r={DOT_CONFIG.size} fill={flow.color} opacity={0}>
+              <circle r={dotSize} fill={flow.color} opacity={0}>
                 <animateMotion dur={dur} begin={`${flow.startDelay}s`} repeatCount="indefinite">
                   <mpath href={`#${flowPathId}`} />
                 </animateMotion>
@@ -504,74 +506,75 @@ export default function Step1AuditVisual() {
       </div>
 
       {/* Integration cards - no backdrop-blur, just gradient backgrounds */}
+      {/* Mobile: smaller cards (w-12 h-10), Desktop: normal (w-16 h-14) */}
       <div
         data-node="crm"
-        className="absolute top-4 left-2 w-16 h-14 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-400/30 flex flex-col items-center justify-center gap-1 z-20"
+        className="absolute top-4 left-2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
-        <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4 md:w-5 md:h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
-        <span className="text-[9px] text-green-300 font-extrabold">CRM</span>
+        <span className="text-[7px] md:text-[9px] text-green-300 font-extrabold">CRM</span>
       </div>
 
       <div
         data-node="email"
-        className="absolute top-2 left-1/2 -translate-x-1/2 w-16 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-400/30 flex flex-col items-center justify-center gap-1 z-20"
+        className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 border border-blue-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
-        <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4 md:w-5 md:h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
         </svg>
-        <span className="text-[9px] text-blue-300 font-extrabold">EMAIL</span>
+        <span className="text-[7px] md:text-[9px] text-blue-300 font-extrabold">EMAIL</span>
       </div>
 
       <div
         data-node="sheets"
-        className="absolute bottom-4 left-2 w-16 h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-400/30 flex flex-col items-center justify-center gap-1 z-20"
+        className="absolute bottom-4 left-2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
-        <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4 md:w-5 md:h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
         </svg>
-        <span className="text-[9px] text-amber-300 font-extrabold">SHEETS</span>
+        <span className="text-[7px] md:text-[9px] text-amber-300 font-extrabold">SHEETS</span>
       </div>
 
       <div
         data-node="calendar"
-        className="absolute bottom-4 right-2 w-16 h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 border border-pink-400/30 flex flex-col items-center justify-center gap-1 z-20"
+        className="absolute bottom-4 right-2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 border border-pink-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
-        <svg className="w-5 h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4 md:w-5 md:h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        <span className="text-[9px] text-pink-300 font-extrabold">CALENDAR</span>
+        <span className="text-[6px] md:text-[9px] text-pink-300 font-extrabold">CALENDAR</span>
       </div>
 
       <div
         data-node="slack"
-        className="absolute top-1/2 -translate-y-1/2 left-2 w-14 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-400/30 flex flex-col items-center justify-center gap-1 z-20"
+        className="absolute top-1/2 -translate-y-1/2 left-2 w-10 h-9 md:w-14 md:h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 border border-purple-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
-        <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3 h-3 md:w-4 md:h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
-        <span className="text-[9px] text-purple-300 font-extrabold">SLACK</span>
+        <span className="text-[6px] md:text-[9px] text-purple-300 font-extrabold">SLACK</span>
       </div>
 
       <div
         data-node="api"
-        className="absolute top-1/2 -translate-y-1/2 right-2 w-14 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-400/30 flex flex-col items-center justify-center gap-1 z-20"
+        className="absolute top-1/2 -translate-y-1/2 right-2 w-10 h-9 md:w-14 md:h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-cyan-500/5 border border-cyan-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
-        <svg className="w-4 h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3 h-3 md:w-4 md:h-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
         </svg>
-        <span className="text-[9px] text-cyan-300 font-extrabold">API</span>
+        <span className="text-[6px] md:text-[9px] text-cyan-300 font-extrabold">API</span>
       </div>
 
       <div
         data-node="excel"
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 w-16 h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-400/30 flex flex-col items-center justify-center gap-1 z-20"
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
-        <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <span className="text-[9px] text-emerald-300 font-extrabold">EXCEL</span>
+        <span className="text-[7px] md:text-[9px] text-emerald-300 font-extrabold">EXCEL</span>
       </div>
 
       <LiveIntegrationCard />
