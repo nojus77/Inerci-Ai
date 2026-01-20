@@ -172,8 +172,8 @@ function CriticalError() {
       <div className="screen-freeze-flash" />
       {/* The critical error badge */}
       <div className="critical-error">
-        <span className="critical-icon">💥</span>
-        <span className="critical-label">SISTEMA UŽSTRIGO</span>
+        <span className="critical-icon">⚠</span>
+        <span className="critical-label">Sistema užstrigo</span>
       </div>
       {/* Screen crack/glitch effect */}
       <div className="screen-crack" />
@@ -346,88 +346,73 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
           z-index: 25;
         }
 
-        /* Screen freeze flash - dramatic white flash before crash */
+        /* Subtle dim flash - no harsh white */
         .screen-freeze-flash {
           position: absolute;
           inset: 0;
-          background: white;
+          background: rgba(0, 0, 0, 0.3);
           opacity: 0;
-          animation: screenFreezeFlash 0.35s ease-out 1800ms forwards;
+          animation: screenFreezeFlash 0.5s ease-out 1800ms forwards;
           z-index: 35;
         }
 
         @keyframes screenFreezeFlash {
-          0% { opacity: 0; background: white; }
-          15% { opacity: 0.9; background: white; }
-          30% { opacity: 0.3; background: rgba(239, 68, 68, 0.8); }
-          50% { opacity: 0.7; background: rgba(239, 68, 68, 0.9); }
-          70% { opacity: 0.4; background: rgba(239, 68, 68, 0.6); }
+          0% { opacity: 0; }
+          30% { opacity: 0.6; }
           100% { opacity: 0; }
         }
 
-        /* Red crash overlay that builds up */
+        /* Soft amber/orange overlay - not harsh red */
         .crash-overlay {
           position: absolute;
           inset: 0;
-          background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.3) 0%, rgba(239, 68, 68, 0.7) 100%);
+          background: radial-gradient(ellipse at center, rgba(251, 146, 60, 0.15) 0%, rgba(251, 146, 60, 0.35) 100%);
           opacity: 0;
-          animation: crashOverlayBuild 0.6s ease-in 1900ms forwards;
+          animation: crashOverlayBuild 0.8s ease-out 1900ms forwards;
           z-index: 22;
         }
 
         @keyframes crashOverlayBuild {
           0% { opacity: 0; }
-          40% { opacity: 0.4; }
-          70% { opacity: 0.7; }
-          100% { opacity: 0.85; }
+          100% { opacity: 0.6; }
         }
 
         .critical-error {
           position: absolute;
           left: 50%;
           top: 50%;
-          transform: translate(-50%, -50%) scale(0);
+          transform: translate(-50%, -50%) scale(0.9);
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 14px 24px;
-          border-radius: 10px;
-          background: rgba(220, 38, 38, 0.98);
-          border: 2px solid #ef4444;
+          padding: 12px 20px;
+          border-radius: 12px;
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.9) 0%, rgba(220, 38, 38, 0.95) 100%);
+          border: 1px solid rgba(255, 255, 255, 0.15);
           box-shadow:
-            0 0 60px rgba(239, 68, 68, 0.9),
-            0 0 120px rgba(239, 68, 68, 0.5),
-            inset 0 1px 0 rgba(255,255,255,0.2);
+            0 4px 24px rgba(0, 0, 0, 0.4),
+            0 0 0 1px rgba(239, 68, 68, 0.3);
           opacity: 0;
-          animation: criticalAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1850ms forwards;
+          animation: criticalAppear 0.4s ease-out 1850ms forwards;
           z-index: 40;
         }
 
         .critical-icon {
-          font-size: 20px;
-          animation: criticalPulse 0.2s ease-in-out 2050ms 3;
+          font-size: 18px;
         }
 
         .critical-label {
-          font-size: 15px;
-          font-weight: 800;
+          font-size: 13px;
+          font-weight: 700;
           color: white;
           text-transform: uppercase;
-          letter-spacing: 1.5px;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+          letter-spacing: 1px;
         }
 
         @keyframes criticalAppear {
           0% {
             opacity: 0;
-            transform: translate(-50%, -50%) scale(0.2);
-          }
-          50% {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1.2);
-          }
-          75% {
-            transform: translate(-50%, -50%) scale(0.92);
+            transform: translate(-50%, -50%) scale(0.9);
           }
           100% {
             opacity: 1;
@@ -435,71 +420,44 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
           }
         }
 
-        @keyframes criticalPulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.4); }
-        }
-
-        /* === SCREEN CRACK / SHAKE EFFECT === */
+        /* Screen crack - just subtle lines, no shake */
         .screen-crack {
           position: absolute;
           inset: 0;
           opacity: 0;
           background: linear-gradient(
             135deg,
-            transparent 35%,
-            rgba(239, 68, 68, 0.15) 42%,
-            transparent 48%,
-            rgba(239, 68, 68, 0.2) 53%,
-            transparent 58%,
-            rgba(239, 68, 68, 0.1) 65%,
-            transparent 70%
+            transparent 40%,
+            rgba(251, 146, 60, 0.08) 45%,
+            transparent 50%,
+            rgba(251, 146, 60, 0.06) 55%,
+            transparent 60%
           );
-          animation: screenShake 0.5s ease-out 2350ms forwards;
+          animation: screenCrackFade 0.6s ease-out 2100ms forwards;
           z-index: 20;
         }
 
-        @keyframes screenShake {
-          0% {
-            opacity: 0;
-            transform: translate(0, 0);
-          }
-          10% {
-            opacity: 1;
-            transform: translate(-4px, 3px);
-          }
-          20% { transform: translate(5px, -3px); }
-          30% { transform: translate(-3px, 4px); }
-          40% { transform: translate(4px, -2px); }
-          50% { transform: translate(-2px, 3px); }
-          60% { transform: translate(3px, -3px); }
-          70% { transform: translate(-3px, 2px); }
-          80% { transform: translate(2px, -2px); }
-          90% { transform: translate(-1px, 1px); }
-          100% {
-            opacity: 0.7;
-            transform: translate(0, 0);
-          }
+        @keyframes screenCrackFade {
+          0% { opacity: 0; }
+          50% { opacity: 1; }
+          100% { opacity: 0.4; }
         }
 
-        /* === RED VIGNETTE (intensifying FAST over 2.5s) === */
+        /* Soft amber vignette - subtle, not aggressive */
         .chaos-vignette {
           position: absolute;
           inset: 0;
           pointer-events: none;
           opacity: 0;
-          background: radial-gradient(ellipse at center, transparent 20%, rgba(239, 68, 68, 0.35) 100%);
-          animation: vignetteIntensify 2.5s ease-in forwards;
+          background: radial-gradient(ellipse at center, transparent 30%, rgba(251, 146, 60, 0.18) 100%);
+          animation: vignetteIntensify 2.5s ease-out forwards;
           z-index: 5;
         }
 
         @keyframes vignetteIntensify {
           0% { opacity: 0; }
-          20% { opacity: 0.4; }
-          40% { opacity: 0.55; }
-          60% { opacity: 0.7; }
-          80% { opacity: 0.9; }
-          100% { opacity: 1; }
+          50% { opacity: 0.5; }
+          100% { opacity: 0.7; }
         }
 
         /* === MOBILE: Larger chips + FASTER timing === */
@@ -531,31 +489,30 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
 
           /* MOBILE: Vignette builds faster (0.9s instead of 2.5s) */
           .chaos-vignette {
-            animation: vignetteIntensify 0.9s ease-in forwards;
+            animation: vignetteIntensify 0.9s ease-out forwards;
           }
 
           /* MOBILE: Critical error appears at 0.9s (errors done at 0.8s) */
           .screen-freeze-flash {
-            animation: screenFreezeFlash 0.2s ease-out 900ms forwards;
+            animation: screenFreezeFlash 0.3s ease-out 900ms forwards;
           }
 
           .crash-overlay {
-            animation: crashOverlayBuild 0.3s ease-in 950ms forwards;
+            animation: crashOverlayBuild 0.4s ease-out 950ms forwards;
           }
 
           .critical-error {
             padding: 10px 16px;
-            animation: criticalAppear 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) 950ms forwards;
+            animation: criticalAppear 0.3s ease-out 950ms forwards;
           }
           .critical-icon {
             font-size: 16px;
-            animation: criticalPulse 0.12s ease-in-out 1100ms 2;
           }
-          .critical-label { font-size: 12px; }
+          .critical-label { font-size: 11px; }
 
-          /* MOBILE: Screen shake comes faster */
+          /* MOBILE: Subtle crack effect */
           .screen-crack {
-            animation: screenShake 0.25s ease-out 1200ms forwards;
+            animation: screenCrackFade 0.4s ease-out 1100ms forwards;
           }
         }
 
@@ -827,166 +784,199 @@ function BeforeState({ opacity }: { opacity: number }) {
   );
 }
 
-// After state: Premium unified dashboard
+// After state: Premium unified dashboard - Clean, readable, instantly understandable
 function AfterState({ opacity, progress }: { opacity: number; progress: number }) {
   if (opacity < 0.01) return null;
 
-  // Animated KPI values
+  // Animated KPI values - big, meaningful numbers
   const savedEuros = Math.round(lerp(0, 2847, progress));
   const savedHours = lerp(0, 47.2, progress).toFixed(1);
-  const automations = Math.round(lerp(0, 12, progress));
-  const errors = Math.round(lerp(8, 0, progress));
+  const automations = Math.round(lerp(0, 5, progress));
 
-  // Top automations data (reduced to 4 for space)
-  const topAutomations = [
-    { icon: "📧", name: "Email → CRM", status: "active", impact: "+18h" },
-    { icon: "📋", name: "Sąskaitos sync", status: "active", impact: "+12h" },
-    { icon: "🔔", name: "Follow-up alert", status: "active", impact: "+9h" },
-    { icon: "📊", name: "Report gen", status: "active", impact: "+5h" },
+  // Active automations data - real, specific names with status
+  const activeAutomations = [
+    { name: "Email → CRM", status: "live", saved: "+18h/sav.", lastRun: "prieš 2 min" },
+    { name: "Sąskaitos sync", status: "live", saved: "+12h/sav.", lastRun: "prieš 8 min" },
+    { name: "Follow-up priminimai", status: "live", saved: "+9h/sav.", lastRun: "prieš 15 min" },
+    { name: "Ataskaitų generavimas", status: "warning", saved: "+5h/sav.", lastRun: "prieš 1 val." },
+    { name: "Užduočių priskyrimas", status: "live", saved: "+3h/sav.", lastRun: "prieš 22 min" },
   ];
 
-  // Bottlenecks data
-  const bottlenecks = [
-    { label: "Rankinis suvedimas", pct: 32, saved: "-6.1h/sav." },
-    { label: "Dublikatų tvarkymas", pct: 24, saved: "-3.8h/sav." },
-    { label: "Follow-up vėlavimai", pct: 21, saved: "-2.9h/sav." },
-    { label: "Sąskaitų klaidos", pct: 13, saved: "-1.7h/sav." },
+  // What's been fixed - solution view with green savings
+  const fixedIssues = [
+    { label: "Rankinis suvedimas", saved: "+6.1h/sav.", pct: 85 },
+    { label: "Dublikatų tvarkymas", saved: "+3.8h/sav.", pct: 72 },
+    { label: "Follow-up vėlavimai", saved: "+2.9h/sav.", pct: 68 },
+    { label: "Sąskaitų klaidos", saved: "+1.7h/sav.", pct: 91 },
   ];
 
-  // Activity feed data
+  // Activity feed - clean, recent actions
   const activityFeed = [
-    { icon: "📥", text: "CRM papildyta 18 lead'ų", time: "prieš 2 min" },
-    { icon: "📤", text: "Išsiųsti 7 follow-up", time: "prieš 6 min" },
-    { icon: "✅", text: "Sutvarkytos 4 sąskaitos", time: "prieš 12 min" },
-    { icon: "🔄", text: "Kalendorius sinchronizuotas", time: "prieš 21 min" },
-    { icon: "⚠️", text: "2 vėluojantys atsakymai", time: "prieš 34 min", warn: true },
+    { icon: "✓", text: "CRM papildyta 18 lead'ų", time: "prieš 2 min" },
+    { icon: "✓", text: "Išsiųsti 7 follow-up", time: "prieš 6 min" },
+    { icon: "✓", text: "Sutvarkytos 4 sąskaitos", time: "prieš 12 min" },
+    { icon: "✓", text: "Kalendorius sinchronizuotas", time: "prieš 21 min" },
   ];
 
   return (
     <div
-      className="absolute inset-0 p-2 pt-9 pointer-events-none"
+      className="absolute inset-0 p-2 pt-8 pointer-events-none po-dashboard"
       style={{ opacity }}
     >
-      <div className="h-full flex flex-col gap-1">
-        {/* 4 KPI chips - top row (2 cols on mobile, 4 on desktop) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
-          <div className="po-kpi-chip">
-            <div className="po-kpi-label">Sutaupyta €</div>
-            <div className="po-kpi-value po-kpi-euro">€{savedEuros.toLocaleString()}</div>
-            <div className="po-kpi-trend po-trend-up">↑ 23%</div>
-          </div>
-          <div className="po-kpi-chip">
-            <div className="po-kpi-label">Sutaupyta val.</div>
-            <div className="po-kpi-value po-kpi-hours">{savedHours}h</div>
-            <div className="po-kpi-trend po-trend-up">↑ 12%</div>
-          </div>
-          <div className="po-kpi-chip">
-            <div className="po-kpi-label">Automatizacijos</div>
-            <div className="po-kpi-value po-kpi-auto">{automations}</div>
-            <div className="po-kpi-trend po-trend-neutral">aktyvios</div>
-          </div>
-          <div className="po-kpi-chip">
-            <div className="po-kpi-label">Klaidos</div>
-            <div className="po-kpi-value po-kpi-errors">{errors}</div>
-            <div className="po-kpi-trend po-trend-down">↓ 89%</div>
+      {/* ══════════════════════════════════════════════════════════════
+         TOP: 3 KPIs in grid - no overlap
+         ══════════════════════════════════════════════════════════════ */}
+      <div className="po-kpi-grid">
+        <div className="po-kpi-card">
+          <div className="po-kpi-label">Sutaupyta €</div>
+          <div className="po-kpi-value po-kpi-green">€{savedEuros.toLocaleString()}</div>
+          <div className="po-kpi-delta po-delta-up">+23% 7d</div>
+        </div>
+        <div className="po-kpi-card">
+          <div className="po-kpi-label">Sutaupyta val.</div>
+          <div className="po-kpi-value po-kpi-purple">{savedHours}h</div>
+          <div className="po-kpi-delta po-delta-up">+12% 7d</div>
+        </div>
+        <div className="po-kpi-card">
+          <div className="po-kpi-label">Automatizacijos</div>
+          <div className="po-kpi-value po-kpi-cyan">{automations}</div>
+          <div className="po-kpi-status">
+            <span className="po-status-pill po-status-ok">OK</span>
           </div>
         </div>
+      </div>
 
-        {/* Sutaupymai per laiką - line chart (compact) */}
-        <div className="po-chart-card" style={{ padding: "4px 6px" }}>
-          <div className="po-chart-header" style={{ marginBottom: "2px" }}>
-            <span className="po-chart-title">Sutaupymai per laiką</span>
-            <span className="po-chart-period">7d</span>
+      {/* ══════════════════════════════════════════════════════════════
+         CHART: Fixed height block with header
+         ══════════════════════════════════════════════════════════════ */}
+      <div className="po-chart-card">
+        <div className="po-chart-header">
+          <span className="po-chart-title">Sutaupymai (7 d.)</span>
+          <div className="po-chart-toggle">
+            <span className="po-toggle-active">€</span>
+            <span className="po-toggle-divider">|</span>
+            <span className="po-toggle-inactive">Val.</span>
           </div>
-          <svg viewBox="0 0 200 35" className="w-full h-[30px]" preserveAspectRatio="none">
+        </div>
+        <div className="po-chart-container">
+          <svg viewBox="0 0 200 48" className="w-full h-[42px]" preserveAspectRatio="none">
             <defs>
-              <linearGradient id="poChartGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="rgba(52, 211, 153, 0.35)" />
+              <linearGradient id="poChartGradNew" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="rgba(52, 211, 153, 0.20)" />
                 <stop offset="100%" stopColor="rgba(52, 211, 153, 0)" />
               </linearGradient>
-              <filter id="poGlow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                <feMerge>
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
             </defs>
-            <line x1="0" y1="12" x2="200" y2="12" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
-            <line x1="0" y1="24" x2="200" y2="24" stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
-            <path d="M 0 32 L 28 28 L 57 26 L 85 22 L 114 17 L 142 14 L 171 9 L 200 6 L 200 35 L 0 35 Z" fill="url(#poChartGrad)" />
-            <path d="M 0 32 L 28 28 L 57 26 L 85 22 L 114 17 L 142 14 L 171 9 L 200 6" fill="none" stroke="#34d399" strokeWidth="1.5" filter="url(#poGlow)" className="po-chart-line" />
-            {[[0, 32], [28, 28], [57, 26], [85, 22], [114, 17], [142, 14], [171, 9]].map(([x, y], i) => (
-              <circle key={i} cx={x} cy={y} r="1.5" fill="#34d399" className="po-chart-dot" />
-            ))}
-            <circle cx="171" cy="9" r="2.5" fill="#34d399" className="po-chart-dot-current" />
+            {/* Faint horizontal grid lines */}
+            <line x1="0" y1="10" x2="200" y2="10" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+            <line x1="0" y1="20" x2="200" y2="20" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+            <line x1="0" y1="30" x2="200" y2="30" stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" />
+            {/* Area fill with fluctuations */}
+            <path
+              d="M 0 34 L 14 33 L 28 30 L 42 31 L 57 27 L 71 25 L 85 22 L 100 20 L 114 16 L 128 14 L 142 11 L 157 10 L 171 8 L 185 7 L 200 6 L 200 40 L 0 40 Z"
+              fill="url(#poChartGradNew)"
+            />
+            {/* Chart line with small fluctuations */}
+            <path
+              d="M 0 34 L 14 33 L 28 30 L 42 31 L 57 27 L 71 25 L 85 22 L 100 20 L 114 16 L 128 14 L 142 11 L 157 10 L 171 8 L 185 7 L 200 6"
+              fill="none"
+              stroke="#34d399"
+              strokeWidth="1.5"
+              className="po-chart-line"
+            />
+            {/* Event markers at day 2, 4, 5, 7 */}
+            <circle cx="28" cy="30" r="2" fill="#34d399" className="po-chart-marker" style={{ animationDelay: '0.2s' }} />
+            <circle cx="85" cy="22" r="2" fill="#34d399" className="po-chart-marker" style={{ animationDelay: '0.5s' }} />
+            <circle cx="114" cy="16" r="2" fill="#34d399" className="po-chart-marker" style={{ animationDelay: '0.7s' }} />
+            <circle cx="200" cy="6" r="2" fill="#34d399" className="po-chart-marker" style={{ animationDelay: '1s' }} />
+            {/* X-axis day labels */}
+            <text x="14" y="47" className="po-chart-xaxis">Pr</text>
+            <text x="42" y="47" className="po-chart-xaxis">An</text>
+            <text x="71" y="47" className="po-chart-xaxis">Tr</text>
+            <text x="100" y="47" className="po-chart-xaxis">Kt</text>
+            <text x="128" y="47" className="po-chart-xaxis">Pn</text>
+            <text x="157" y="47" className="po-chart-xaxis">Št</text>
+            <text x="185" y="47" className="po-chart-xaxis">Sk</text>
           </svg>
-        </div>
-
-        {/* 2-column layout: Top automatizacijos + Bottlenecks (1 col on mobile) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 flex-1 min-h-0">
-          {/* Left: Top automatizacijos (4 rows) */}
-          <div className="po-list-card" style={{ padding: "4px 5px" }}>
-            <div className="po-list-header" style={{ marginBottom: "2px" }}>
-              <span className="po-list-title">Top automatizacijos</span>
-              <span className="po-list-count">{automations}</span>
-            </div>
-            <div className="po-list-rows">
-              {topAutomations.map((item, i) => (
-                <div key={i} className="po-list-row" style={{ padding: "2px 3px", animationDelay: `${i * 0.1}s` }}>
-                  <span className="po-list-icon" style={{ fontSize: "7px", width: "12px" }}>{item.icon}</span>
-                  <span className="po-list-name" style={{ fontSize: "6px" }}>{item.name}</span>
-                  <span className={`po-list-status ${item.status === 'active' ? 'po-status-active' : 'po-status-paused'}`}>
-                    <span className="po-status-dot" />
-                  </span>
-                  <span className="po-list-impact" style={{ fontSize: "5px" }}>{item.impact}</span>
-                </div>
-              ))}
-            </div>
+          {/* Event annotations - positioned to avoid overlap */}
+          <div className="po-chart-annotation po-anno-1">
+            <span>Sąskaitos sync</span>
           </div>
-
-          {/* Right: Bottlenecks panel */}
-          <div className="po-bottleneck-card">
-            <div className="po-bottleneck-header">
-              <span className="po-bottleneck-title">Kur dingsta laikas</span>
-            </div>
-            <div className="po-bottleneck-rows">
-              {bottlenecks.map((item, i) => (
-                <div key={i} className={`po-bottleneck-row ${i >= 3 ? 'hidden md:block' : ''}`} style={{ animationDelay: `${i * 0.08}s` }}>
-                  <div className="po-bottleneck-top">
-                    <span className="po-bottleneck-label">{item.label}</span>
-                    <span className="po-bottleneck-saved">{item.saved}</span>
-                  </div>
-                  <div className="po-bottleneck-bar-bg">
-                    <div className="po-bottleneck-bar-fill" style={{ width: `${item.pct}%` }}>
-                      <div className="po-bottleneck-shimmer" />
-                    </div>
-                    <span className="po-bottleneck-pct">{item.pct}%</span>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div className="po-chart-annotation po-anno-2">
+            <span>Follow-up</span>
+          </div>
+          <div className="po-chart-annotation po-anno-3">
+            <span>Kalendorius</span>
+          </div>
+          <div className="po-chart-annotation po-anno-4">
+            <span>Email → CRM</span>
           </div>
         </div>
+      </div>
 
-        {/* Šią savaitę Activity feed */}
-        <div className="po-feed-card">
-          <div className="po-feed-header">
-            <span className="po-feed-title">Šią savaitę</span>
-            <span className="po-feed-live">
-              <span className="po-feed-live-dot" />
+      {/* ══════════════════════════════════════════════════════════════
+         BOTTOM: 2-column grid for panels
+         ══════════════════════════════════════════════════════════════ */}
+      <div className="po-bottom-grid">
+        {/* Left: Aktyvios automatizacijos */}
+        <div className="po-panel">
+          <div className="po-panel-header">
+            <span className="po-panel-title">Automatizacijos</span>
+            <span className="po-panel-live">
+              <span className="po-live-dot" />
               LIVE
             </span>
           </div>
-          <div className="po-feed-rows">
-            {activityFeed.map((item, i) => (
-              <div key={i} className={`po-feed-row ${item.warn ? 'po-feed-warn' : ''} ${i >= 3 ? 'hidden md:flex' : ''}`} style={{ animationDelay: `${i * 0.06}s` }}>
-                <span className="po-feed-icon">{item.icon}</span>
-                <span className="po-feed-text">{item.text}</span>
-                <span className="po-feed-time">{item.time}</span>
+          <div className="po-auto-list">
+            {activeAutomations.slice(0, 3).map((item, i) => (
+              <div key={i} className="po-auto-row" style={{ animationDelay: `${i * 0.08}s` }}>
+                <div className="po-auto-left">
+                  <span className={`po-auto-dot ${item.status === 'live' ? 'po-dot-live' : 'po-dot-warn'}`} />
+                  <span className="po-auto-name">{item.name}</span>
+                </div>
+                <div className="po-auto-right">
+                  <span className="po-auto-saved">{item.saved}</span>
+                </div>
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Right: Kas sutvarkyta */}
+        <div className="po-panel">
+          <div className="po-panel-header">
+            <span className="po-panel-title">Sutvarkyta</span>
+          </div>
+          <div className="po-fixed-list">
+            {fixedIssues.slice(0, 3).map((item, i) => (
+              <div key={i} className="po-fixed-row" style={{ animationDelay: `${i * 0.08}s` }}>
+                <div className="po-fixed-top">
+                  <span className="po-fixed-label">{item.label}</span>
+                  <span className="po-fixed-saved">{item.saved}</span>
+                </div>
+                <div className="po-fixed-bar">
+                  <div className="po-fixed-fill" style={{ width: `${item.pct}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════════════════════════
+         ACTIVITY: Bottom feed
+         ══════════════════════════════════════════════════════════════ */}
+      <div className="po-activity">
+        <div className="po-activity-header">
+          <span className="po-activity-title">Šią savaitę</span>
+        </div>
+        <div className="po-activity-rows">
+          {activityFeed.slice(0, 3).map((item, i) => (
+            <div key={i} className="po-activity-row" style={{ animationDelay: `${i * 0.05}s` }}>
+              <span className="po-activity-check">{item.icon}</span>
+              <span className="po-activity-text">{item.text}</span>
+              <span className="po-activity-time">{item.time}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -1168,11 +1158,10 @@ function EnergyConnection({ progress }: { progress: number }) {
 }
 
 // Helper: Calculate overlay opacity based on progress (piecewise linear)
-// Robots appear immediately after chaos/critical error (no explosion animation)
-// Overlay starts at 0.22 (right after SISTEMA UŽSTRIGO disappears)
+// Robots appear INSTANTLY at 0.20 - same moment BEFORE state disappears (no overlap/duplicates)
 function getOverlayOpacity(progress: number): number {
-  if (progress < 0.22 || progress > 0.84) return 0;
-  if (progress < 0.26) return (progress - 0.22) / 0.04; // quick fade in (0.22-0.26)
+  if (progress < 0.20 || progress > 0.84) return 0;
+  if (progress < 0.21) return 1; // instant appear at 0.20
   if (progress < 0.8325) return 1; // fully visible
   return (0.84 - progress) / 0.0075; // ultra-fast fade out
 }
@@ -1859,12 +1848,12 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
 
   return (
     <>
-      {/* Dim layer for underlying content */}
+      {/* Full opaque backdrop - completely hides BEFORE state (no bleed-through) */}
       <motion.div
         className="absolute inset-0 pointer-events-none z-15"
         style={{
-          background: "rgba(0, 0, 0, 0.3)",
-          opacity: 1,
+          background: "linear-gradient(135deg, rgba(15, 15, 30, 1) 0%, rgba(10, 10, 25, 1) 100%)",
+          opacity,
         }}
       />
 
@@ -1872,7 +1861,7 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
       <motion.div
         key={animationKey}
         className="absolute inset-0 pointer-events-none z-20 flex items-center justify-center"
-        style={{ opacity }}
+        style={{ opacity, transform: "translateZ(0)" }}
       >
         {/* Glass container - stretched to fill most of the card */}
         <div
@@ -1881,6 +1870,8 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             background: "linear-gradient(135deg, rgba(15, 15, 30, 0.96) 0%, rgba(10, 10, 25, 0.96) 100%)",
             border: "1px solid rgba(167, 139, 250, 0.25)",
             boxShadow: "0 0 40px rgba(124, 58, 237, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
+            transform: "translateZ(0)",
+            contain: "layout paint",
           }}
         >
           {/* Robot stage - expanded to fill container, taller */}
@@ -2091,6 +2082,8 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
         /* === ROBOT STAGE LAYOUT === */
         .robot-stage {
           position: relative;
+          contain: layout style;
+          transform: translateZ(0);
         }
 
         /* === ROBOT UNIT BASE === */
@@ -2099,6 +2092,8 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           width: 32px;
           height: 52px;
           overflow: visible;
+          transform: translateZ(0);
+          backface-visibility: hidden;
         }
         .robot-head {
           position: absolute;
@@ -2234,7 +2229,7 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
         }
 
         /* === ROBOT WRAPPERS (positioning) === */
-        /* Robots span full width with proper gaps to avoid overlap */
+        /* GPU-accelerated for smooth animations */
         /* Robot A starts far left (0%), walks toward center (stops at 26%) */
         .robot-a-wrapper {
           position: absolute;
@@ -2242,6 +2237,8 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           left: 0%;
           overflow: visible;
           animation: robotAWalk 6.5s ease-in-out forwards;
+          will-change: left;
+          transform: translateZ(0);
         }
         /* Robot B starts at center (50%), walks left to meet A (38%), then right to C (62%), returns */
         .robot-b-wrapper {
@@ -2250,14 +2247,18 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           left: 50%;
           overflow: visible;
           animation: robotBWalk 6.5s ease-in-out forwards;
+          will-change: left;
+          transform: translateZ(0);
         }
-        /* Robot C starts on right side (92%), walks left to meet B at 60%, walks back */
+        /* Robot C starts on right side (80%), walks left to meet B at 68%, walks to PC (92%) */
         .robot-c-wrapper {
           position: absolute;
           bottom: 12px;
-          left: 92%;
+          left: 80%;
           overflow: visible;
           animation: robotCWalk 6.5s ease-in-out forwards;
+          will-change: left;
+          transform: translateZ(0);
         }
 
         /* === WALK ANIMATIONS === */
@@ -2325,12 +2326,12 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           78%, 100% { left: 50%; }
         }
 
-        /* Robot C: walks from right (92%) left to meet B (68%), receives cube, walks to mini PC (98%), inserts cube */
+        /* Robot C: walks from right (80%) left to meet B (68%), receives cube, walks to mini PC (88%), inserts cube */
         /* Timeline: 0-42% idle, 42-50% walk left to 68%, 50-65% receive from B, 65-80% walk right to PC, 80-90% stand+insert, 90-100% done */
         @keyframes robotCWalk {
-          0%, 42% { left: 92%; }
+          0%, 42% { left: 80%; }
           50%, 65% { left: 68%; }
-          80%, 100% { left: 86%; }
+          80%, 100% { left: 88%; }
         }
 
         /* Robot B legs - walk cycle when moving */
@@ -2494,6 +2495,8 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           height: 14px;
           animation: orbMove 6.5s ease-in-out forwards;
           z-index: 10;
+          will-change: left, bottom, opacity;
+          transform: translateZ(0);
         }
         @keyframes orbMove {
           /* Robot A starts at 0%, orb in A's RIGHT hand */
@@ -3002,13 +3005,15 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           position: absolute;
           bottom: 55px;
           left: 50%;
-          transform: translateX(-50%);
+          transform: translateX(-50%) translateZ(0);
           width: 70px;
           height: 50px;
           border-radius: 6px;
           opacity: 0;
           overflow: hidden;
           animation: holoCardAppear 6.5s ease-out forwards;
+          will-change: opacity, transform;
+          backface-visibility: hidden;
           /* Holographic styling */
           background: linear-gradient(135deg,
             rgba(45, 255, 122, 0.15) 0%,
@@ -3559,9 +3564,10 @@ export default function Step2Visual() {
   }, [isInView, prefersReducedMotion, hasStarted, isMobile, progress, smoothProgress]);
 
   // Calculate opacities for states
-  // BEFORE fades out by 0.28 (before explosion/overlay starts at 0.28-0.30)
+  // BEFORE state stays fully visible until progress 0.19, then INSTANTLY disappears at 0.20
+  // Robots appear at 0.20 - instant cut, no fade, no duplicate elements visible
   // PO (After) shows faster after holo card appears (0.68-0.80 of 12.5s total)
-  const beforeOpacity = useTransform(smoothProgress, [0, 0.28], [1, 0]);
+  const beforeOpacity = useTransform(smoothProgress, [0.19, 0.20], [1, 0]);
   const afterOpacity = useTransform(smoothProgress, [0.68, 0.80], [0, 1]);
 
   const [beforeOp, setBeforeOp] = useState(1);
@@ -3707,54 +3713,93 @@ export default function Step2Visual() {
         }
 
         /* ═══════════════════════════════════════════════════════════════
-           PO DASHBOARD - Premium Unified Dashboard Styles
+           PO DASHBOARD - Fixed Layout (No Overlap)
+           Flexbox column layout with proper grid sections
            ═══════════════════════════════════════════════════════════════ */
 
-        /* KPI Chips Grid */
-        .po-kpi-chip {
-          padding: 6px 5px;
-          border-radius: 8px;
-          background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-          border: 1px solid rgba(255,255,255,0.06);
-          transition: all 0.2s ease;
+        .po-dashboard {
+          font-family: system-ui, -apple-system, sans-serif;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          height: 100%;
+          box-sizing: border-box;
         }
-        .po-kpi-chip:hover {
-          background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-          border-color: rgba(255,255,255,0.1);
-          transform: translateY(-1px);
+
+        /* ─────────────────────────────────────────────────────────────────
+           KPI GRID - 3 columns desktop, 1 column mobile
+           ───────────────────────────────────────────────────────────────── */
+        .po-kpi-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 8px;
+        }
+        .po-kpi-card {
+          min-width: 0;
+          overflow: hidden;
+          padding: 8px 6px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.06);
+          text-align: center;
         }
         .po-kpi-label {
-          font-size: 7px;
+          font-size: 6px;
           font-weight: 600;
-          color: rgba(255,255,255,0.55);
+          color: rgba(255,255,255,0.5);
           text-transform: uppercase;
           letter-spacing: 0.3px;
-          margin-bottom: 2px;
+          margin-bottom: 3px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .po-kpi-value {
-          font-size: 14px;
+          font-size: 16px;
           font-weight: 800;
           font-variant-numeric: tabular-nums;
           line-height: 1.1;
+          margin-bottom: 3px;
+          white-space: nowrap;
         }
-        .po-kpi-euro { color: #34d399; }
-        .po-kpi-hours { color: #a78bfa; }
-        .po-kpi-auto { color: #22d3ee; }
-        .po-kpi-errors { color: #f87171; }
-        .po-kpi-trend {
-          font-size: 7px;
+        .po-kpi-green { color: #34d399; }
+        .po-kpi-purple { color: #a78bfa; }
+        .po-kpi-cyan { color: #22d3ee; }
+        .po-kpi-delta {
+          font-size: 5px;
           font-weight: 600;
-          margin-top: 1px;
+          color: rgba(255,255,255,0.4);
+          white-space: nowrap;
         }
-        .po-trend-up { color: #34d399; }
-        .po-trend-down { color: #34d399; }
-        .po-trend-neutral { color: rgba(255,255,255,0.35); }
+        .po-delta-up { color: rgba(52, 211, 153, 0.7); }
+        .po-kpi-status {
+          margin-top: 2px;
+        }
+        .po-status-pill {
+          display: inline-block;
+          font-size: 5px;
+          font-weight: 700;
+          padding: 2px 4px;
+          border-radius: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.2px;
+          white-space: nowrap;
+        }
+        .po-status-ok {
+          background: rgba(52, 211, 153, 0.15);
+          color: #34d399;
+        }
 
-        /* Chart Card */
+        /* ─────────────────────────────────────────────────────────────────
+           CHART SECTION - Fixed height block
+           ───────────────────────────────────────────────────────────────── */
         .po-chart-card {
-          padding: 6px 8px;
-          border-radius: 10px;
-          background: rgba(255,255,255,0.02);
+          min-width: 0;
+          overflow: visible;
+          min-height: 72px;
+          padding: 6px 8px 8px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.025);
           border: 1px solid rgba(255,255,255,0.05);
         }
         .po-chart-header {
@@ -3762,418 +3807,341 @@ export default function Step2Visual() {
           align-items: center;
           justify-content: space-between;
           margin-bottom: 4px;
+          gap: 8px;
         }
         .po-chart-title {
-          font-size: 9px;
-          color: rgba(255,255,255,0.6);
+          font-size: 8px;
+          color: rgba(255,255,255,0.7);
           font-weight: 700;
+          white-space: nowrap;
         }
-        .po-chart-period {
-          font-size: 7px;
+        .po-chart-toggle {
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          font-size: 6px;
           font-weight: 600;
-          color: rgba(255,255,255,0.4);
-          padding: 1px 4px;
-          border-radius: 4px;
-          background: rgba(255,255,255,0.05);
+          flex-shrink: 0;
+        }
+        .po-toggle-active {
+          color: #34d399;
+          padding: 2px 4px;
+          background: rgba(52, 211, 153, 0.15);
+          border-radius: 3px;
+        }
+        .po-toggle-divider {
+          color: rgba(255,255,255,0.2);
+        }
+        .po-toggle-inactive {
+          color: rgba(255,255,255,0.35);
         }
         .po-chart-line {
           stroke-dasharray: 300;
           stroke-dashoffset: 300;
           animation: poChartDraw 1.5s ease forwards;
         }
-        .po-chart-dot {
-          opacity: 0;
-          animation: poChartDotFade 0.3s ease forwards;
-        }
-        .po-chart-dot:nth-child(4) { animation-delay: 0.3s; }
-        .po-chart-dot:nth-child(5) { animation-delay: 0.5s; }
-        .po-chart-dot:nth-child(6) { animation-delay: 0.7s; }
-        .po-chart-dot:nth-child(7) { animation-delay: 0.9s; }
-        .po-chart-dot:nth-child(8) { animation-delay: 1.1s; }
-        .po-chart-dot:nth-child(9) { animation-delay: 1.3s; }
-        .po-chart-dot:nth-child(10) { animation-delay: 1.5s; }
-        .po-chart-dot-current {
-          animation: poChartPulse 2s ease-in-out infinite;
+        .po-chart-marker {
+          animation: poMarkerPulse 2s ease-in-out infinite;
         }
         @keyframes poChartDraw {
           to { stroke-dashoffset: 0; }
         }
-        @keyframes poChartDotFade {
-          to { opacity: 1; }
+        @keyframes poMarkerPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
         }
-        @keyframes poChartPulse {
-          0%, 100% { opacity: 1; r: 3; }
-          50% { opacity: 0.7; r: 4; }
+        .po-chart-container {
+          position: relative;
+          width: 100%;
+          padding-bottom: 2px;
+        }
+        .po-chart-xaxis {
+          font-size: 5px;
+          fill: rgba(255,255,255,0.35);
+          font-weight: 500;
+          text-anchor: middle;
+        }
+        .po-chart-annotation {
+          position: absolute;
+          font-size: 5px;
+          font-weight: 600;
+          color: rgba(52, 211, 153, 0.85);
+          white-space: nowrap;
+          background: rgba(0,0,0,0.6);
+          padding: 1px 3px;
+          border-radius: 2px;
+          pointer-events: none;
+        }
+        /* Position each annotation to avoid overlap */
+        .po-anno-1 {
+          top: 58%;
+          left: 8%;
+        }
+        .po-anno-2 {
+          top: 28%;
+          left: 36%;
+        }
+        .po-anno-3 {
+          top: 8%;
+          left: 50%;
+        }
+        .po-anno-4 {
+          top: -8%;
+          left: 82%;
         }
 
-        /* List Card */
-        .po-list-card {
+        /* ─────────────────────────────────────────────────────────────────
+           BOTTOM GRID - 2 columns desktop, 1 column mobile
+           ───────────────────────────────────────────────────────────────── */
+        .po-bottom-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
           flex: 1;
           min-height: 0;
-          padding: 5px 6px;
-          border-radius: 10px;
-          background: rgba(255,255,255,0.02);
+        }
+        .po-panel {
+          min-width: 0;
+          overflow: hidden;
+          min-height: 80px;
+          padding: 6px 8px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.025);
           border: 1px solid rgba(255,255,255,0.05);
           display: flex;
           flex-direction: column;
         }
-        .po-list-header {
+        .po-panel-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
           margin-bottom: 4px;
+          gap: 4px;
         }
-        .po-list-title {
-          font-size: 9px;
+        .po-panel-title {
+          font-size: 7px;
           color: rgba(255,255,255,0.6);
           font-weight: 700;
-        }
-        .po-list-count {
-          font-size: 8px;
-          font-weight: 700;
-          color: #34d399;
-          padding: 1px 4px;
-          border-radius: 4px;
-          background: rgba(52, 211, 153, 0.1);
-        }
-        .po-list-rows {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-        .po-list-row {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          padding: 3px 4px;
-          border-radius: 6px;
-          background: rgba(255,255,255,0.02);
-          transition: all 0.15s ease;
-          animation: poListRowSlide 0.4s ease backwards;
-        }
-        .po-list-row:hover {
-          background: rgba(255,255,255,0.04);
-        }
-        @keyframes poListRowSlide {
-          from {
-            opacity: 0;
-            transform: translateX(-8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-        .po-list-icon {
-          font-size: 10px;
-          width: 14px;
-          text-align: center;
-        }
-        .po-list-name {
-          flex: 1;
-          font-size: 9px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.8);
+          text-transform: uppercase;
+          letter-spacing: 0.2px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .po-list-status {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 10px;
-        }
-        .po-status-dot {
-          width: 5px;
-          height: 5px;
-          border-radius: 50%;
-        }
-        .po-status-active .po-status-dot {
-          background: #34d399;
-          box-shadow: 0 0 4px rgba(52, 211, 153, 0.6);
-          animation: poStatusPulse 2s ease-in-out infinite;
-        }
-        .po-status-paused .po-status-dot {
-          background: rgba(255,255,255,0.25);
-        }
-        @keyframes poStatusPulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-        .po-list-impact {
-          font-size: 8px;
-          font-weight: 700;
-          color: #a78bfa;
-          min-width: 22px;
-          text-align: right;
-        }
-
-        /* Activity Strip */
-        .po-activity-strip {
-          position: relative;
-          padding: 5px 8px;
-          border-radius: 8px;
-          background: linear-gradient(90deg, rgba(124, 58, 237, 0.08) 0%, rgba(52, 211, 153, 0.08) 100%);
-          border: 1px solid rgba(255,255,255,0.05);
-          overflow: hidden;
-        }
-        .po-activity-scan {
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(124, 58, 237, 0.15), transparent);
-          animation: poActivityScan 3s ease-in-out infinite;
-        }
-        @keyframes poActivityScan {
-          0% { left: -100%; }
-          100% { left: 100%; }
-        }
-        .po-activity-content {
-          position: relative;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .po-activity-label {
-          font-size: 8px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.5);
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-        }
-        .po-activity-stat {
-          display: flex;
-          align-items: baseline;
-          gap: 2px;
-        }
-        .po-activity-number {
-          font-size: 11px;
-          font-weight: 800;
-          color: #fff;
-          font-variant-numeric: tabular-nums;
-        }
-        .po-activity-unit {
-          font-size: 8px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.5);
-        }
-        .po-activity-divider {
-          width: 1px;
-          height: 10px;
-          background: rgba(255,255,255,0.1);
-        }
-        .po-activity-live {
-          margin-left: auto;
+        .po-panel-live {
           display: flex;
           align-items: center;
           gap: 3px;
-          font-size: 8px;
+          font-size: 5px;
           font-weight: 700;
           color: #34d399;
+          flex-shrink: 0;
         }
         .po-live-dot {
           width: 4px;
           height: 4px;
           border-radius: 50%;
           background: #34d399;
-          box-shadow: 0 0 6px rgba(52, 211, 153, 0.8);
-          animation: poLiveDot 1.5s ease-in-out infinite;
+          box-shadow: 0 0 4px rgba(52, 211, 153, 0.8);
+          animation: poLivePulse 2s ease-in-out infinite;
+          flex-shrink: 0;
         }
-        @keyframes poLiveDot {
+        @keyframes poLivePulse {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.2); }
+          50% { opacity: 0.5; transform: scale(1.15); }
         }
-
-        /* ═══════════════════════════════════════════════════════════════
-           BOTTLENECKS PANEL - "Kur dingsta laikas"
-           ═══════════════════════════════════════════════════════════════ */
-
-        .po-bottleneck-card {
-          padding: 4px 5px;
+        .po-panel-footer {
+          margin-top: auto;
+          padding-top: 3px;
+        }
+        .po-warning-pill {
+          display: inline-block;
+          font-size: 5px;
+          font-weight: 600;
+          padding: 2px 5px;
           border-radius: 8px;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.05);
-          display: flex;
-          flex-direction: column;
+          background: rgba(251, 146, 60, 0.12);
+          color: #fb923c;
+          white-space: nowrap;
         }
-        .po-bottleneck-header {
-          margin-bottom: 3px;
-        }
-        .po-bottleneck-title {
-          font-size: 8px;
-          color: rgba(255,255,255,0.6);
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-        }
-        .po-bottleneck-rows {
+
+        /* Automations list */
+        .po-auto-list {
           display: flex;
           flex-direction: column;
           gap: 3px;
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
         }
-        .po-bottleneck-row {
-          animation: poListRowSlide 0.4s ease backwards;
-          transition: all 0.15s ease;
-          padding: 2px;
+        .po-auto-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 3px 4px;
           border-radius: 4px;
+          background: rgba(255,255,255,0.02);
+          animation: poRowSlide 0.4s ease backwards;
+          min-width: 0;
         }
-        .po-bottleneck-row:hover {
-          background: rgba(255,255,255,0.03);
-          transform: translateY(-1px);
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        @keyframes poRowSlide {
+          from { opacity: 0; transform: translateX(-4px); }
+          to { opacity: 1; transform: translateX(0); }
         }
-        .po-bottleneck-top {
+        .po-auto-left {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          min-width: 0;
+          flex: 1;
+        }
+        .po-auto-dot {
+          width: 4px;
+          height: 4px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .po-dot-live {
+          background: #34d399;
+          box-shadow: 0 0 3px rgba(52, 211, 153, 0.6);
+        }
+        .po-dot-warn {
+          background: #fb923c;
+          box-shadow: 0 0 3px rgba(251, 146, 60, 0.6);
+        }
+        .po-auto-name {
+          font-size: 7px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.85);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .po-auto-right {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
+        }
+        .po-auto-saved {
+          font-size: 6px;
+          font-weight: 700;
+          color: #34d399;
+          white-space: nowrap;
+        }
+        .po-auto-time {
+          font-size: 5px;
+          font-weight: 500;
+          color: rgba(255,255,255,0.4);
+          white-space: nowrap;
+        }
+
+        /* Fixed issues list */
+        .po-fixed-list {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+        }
+        .po-fixed-row {
+          animation: poRowSlide 0.4s ease backwards;
+          min-width: 0;
+        }
+        .po-fixed-top {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 2px;
+          gap: 4px;
         }
-        .po-bottleneck-label {
-          font-size: 8px;
+        .po-fixed-label {
+          font-size: 7px;
           font-weight: 600;
           color: rgba(255,255,255,0.7);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          flex: 1;
+          min-width: 0;
         }
-        .po-bottleneck-saved {
-          font-size: 7px;
-          font-weight: 700;
-          color: #f87171;
-          white-space: nowrap;
-        }
-        .po-bottleneck-bar-bg {
-          position: relative;
-          height: 4px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 2px;
-          overflow: hidden;
-        }
-        .po-bottleneck-bar-fill {
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          background: linear-gradient(90deg, #f87171 0%, #fb923c 100%);
-          border-radius: 2px;
-          overflow: hidden;
-        }
-        .po-bottleneck-shimmer {
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-          animation: bottleneckShimmer 2s ease-in-out infinite;
-        }
-        @keyframes bottleneckShimmer {
-          0% { left: -100%; }
-          100% { left: 200%; }
-        }
-        .po-bottleneck-pct {
-          position: absolute;
-          right: 2px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-size: 7px;
-          font-weight: 700;
-          color: rgba(255,255,255,0.6);
-        }
-
-        /* ═══════════════════════════════════════════════════════════════
-           ACTIVITY FEED - "Šią savaitę"
-           ═══════════════════════════════════════════════════════════════ */
-
-        .po-feed-card {
-          padding: 4px 5px;
-          border-radius: 8px;
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.05);
-        }
-        .po-feed-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 3px;
-        }
-        .po-feed-title {
-          font-size: 8px;
-          color: rgba(255,255,255,0.6);
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-        }
-        .po-feed-live {
-          display: flex;
-          align-items: center;
-          gap: 2px;
+        .po-fixed-saved {
           font-size: 7px;
           font-weight: 700;
           color: #34d399;
-        }
-        .po-feed-live-dot {
-          width: 3px;
-          height: 3px;
-          border-radius: 50%;
-          background: #34d399;
-          box-shadow: 0 0 4px rgba(52, 211, 153, 0.8);
-          animation: poLiveDot 1.5s ease-in-out infinite;
-        }
-        .po-feed-rows {
-          display: flex;
-          flex-direction: column;
-          gap: 1px;
-        }
-        .po-feed-row {
-          display: flex;
-          align-items: center;
-          gap: 3px;
-          padding: 2px 3px;
-          border-radius: 4px;
-          animation: poListRowSlide 0.3s ease backwards;
-          transition: all 0.15s ease;
-        }
-        .po-feed-row:hover {
-          background: rgba(255,255,255,0.03);
-          transform: translateY(-1px);
-          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        .po-feed-warn {
-          background: rgba(251, 146, 60, 0.08);
-        }
-        .po-feed-warn:hover {
-          background: rgba(251, 146, 60, 0.12);
-        }
-        .po-feed-icon {
-          font-size: 8px;
-          width: 12px;
-          text-align: center;
+          white-space: nowrap;
           flex-shrink: 0;
         }
-        .po-feed-text {
-          flex: 1;
+        .po-fixed-bar {
+          height: 3px;
+          background: rgba(255,255,255,0.06);
+          border-radius: 2px;
+          overflow: hidden;
+        }
+        .po-fixed-fill {
+          height: 100%;
+          background: linear-gradient(90deg, rgba(52, 211, 153, 0.4) 0%, rgba(52, 211, 153, 0.2) 100%);
+          border-radius: 2px;
+        }
+
+        /* ─────────────────────────────────────────────────────────────────
+           ACTIVITY FEED - Bottom section
+           ───────────────────────────────────────────────────────────────── */
+        .po-activity {
+          min-width: 0;
+          overflow: hidden;
+          padding: 5px 8px;
+          border-radius: 8px;
+          background: rgba(255,255,255,0.02);
+          border: 1px solid rgba(255,255,255,0.04);
+        }
+        .po-activity-header {
+          margin-bottom: 3px;
+        }
+        .po-activity-title {
+          font-size: 6px;
+          color: rgba(255,255,255,0.5);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.2px;
+        }
+        .po-activity-rows {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .po-activity-row {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 1px 0;
+          animation: poRowSlide 0.3s ease backwards;
+          min-width: 0;
+        }
+        .po-activity-check {
           font-size: 7px;
+          color: #34d399;
+          flex-shrink: 0;
+          width: 10px;
+          text-align: center;
+        }
+        .po-activity-text {
+          flex: 1;
+          font-size: 6px;
           font-weight: 600;
-          color: rgba(255,255,255,0.75);
+          color: rgba(255,255,255,0.7);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          min-width: 0;
         }
-        .po-feed-warn .po-feed-text {
-          color: #fb923c;
-          font-weight: 700;
-        }
-        .po-feed-time {
-          font-size: 7px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.45);
-          white-space: nowrap;
+        .po-activity-time {
+          font-size: 5px;
+          font-weight: 500;
+          color: rgba(255,255,255,0.35);
           flex-shrink: 0;
+          white-space: nowrap;
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -4285,141 +4253,126 @@ export default function Step2Visual() {
 
         /* ═══════════════════════════════════════════════════════════════
            PO DASHBOARD - MOBILE OVERRIDES
-           Larger fonts, simplified layout for readability
+           Stack to single column, compact sizing, no overflow
            ═══════════════════════════════════════════════════════════════ */
-        @media (max-width: 767px) {
-          /* KPI chips - larger, more readable */
-          .po-kpi-chip {
-            padding: 4px 6px;
-            border-radius: 6px;
-          }
-          .po-kpi-label {
-            font-size: 7px;
-            letter-spacing: 0.2px;
-            margin-bottom: 1px;
-          }
-          .po-kpi-value {
-            font-size: 13px;
-            line-height: 1.1;
-            font-weight: 700;
-          }
-          .po-kpi-trend {
-            font-size: 6px;
-            margin-top: 1px;
+        @media (max-width: 639px) {
+          .po-dashboard {
+            padding: 6px;
+            padding-top: 28px;
+            gap: 6px;
           }
 
-          /* Chart card - better sizing */
-          .po-chart-card {
-            padding: 4px 6px !important;
+          /* KPI grid - stays 3 columns but more compact */
+          .po-kpi-grid {
+            gap: 4px;
           }
-          .po-chart-title {
-            font-size: 8px;
+          .po-kpi-card {
+            padding: 5px 3px;
           }
-          .po-chart-period {
-            font-size: 6px;
+          .po-kpi-label {
+            font-size: 5px;
+            margin-bottom: 2px;
+          }
+          .po-kpi-value {
+            font-size: 12px;
+            margin-bottom: 2px;
+          }
+          .po-kpi-delta {
+            font-size: 4px;
+          }
+          .po-status-pill {
+            font-size: 4px;
             padding: 1px 3px;
           }
 
-          /* List card - readable text */
-          .po-list-card {
-            padding: 4px 6px !important;
+          /* Chart - compact */
+          .po-chart-card {
+            padding: 4px 6px;
+            min-height: 50px;
           }
-          .po-list-title {
-            font-size: 8px;
-          }
-          .po-list-count {
-            font-size: 7px;
-            padding: 1px 4px;
-          }
-          .po-list-row {
-            padding: 3px 4px !important;
-            gap: 4px;
-          }
-          .po-list-icon {
-            font-size: 9px !important;
-            width: 14px !important;
-          }
-          .po-list-name {
-            font-size: 7px !important;
-          }
-          .po-list-impact {
-            font-size: 7px !important;
-            min-width: 22px;
-          }
-          .po-status-dot {
-            width: 4px;
-            height: 4px;
-          }
-
-          /* Bottleneck card - visible bars */
-          .po-bottleneck-card {
-            padding: 4px 6px !important;
-          }
-          .po-bottleneck-title {
-            font-size: 8px;
-          }
-          .po-bottleneck-rows {
-            gap: 3px;
-          }
-          .po-bottleneck-row {
-            padding: 2px !important;
-          }
-          .po-bottleneck-label {
+          .po-chart-title {
             font-size: 7px;
           }
-          .po-bottleneck-saved {
-            font-size: 6px;
-          }
-          .po-bottleneck-bar-bg {
-            height: 4px;
-          }
-          .po-bottleneck-pct {
-            font-size: 6px;
-            right: 2px;
-          }
-
-          /* Activity feed - readable entries */
-          .po-feed-card {
-            padding: 4px 6px !important;
-          }
-          .po-feed-title {
-            font-size: 8px;
-          }
-          .po-feed-live {
-            font-size: 6px;
+          .po-chart-toggle {
+            font-size: 5px;
             gap: 2px;
           }
-          .po-feed-live-dot {
-            width: 4px;
-            height: 4px;
+          .po-toggle-active {
+            padding: 1px 3px;
           }
-          .po-feed-row {
-            padding: 2px 4px !important;
-            gap: 4px;
-          }
-          .po-feed-icon {
-            font-size: 8px;
-            width: 14px;
-          }
-          .po-feed-text {
-            font-size: 7px;
-          }
-          .po-feed-time {
-            font-size: 6px;
+          .po-chart-annotation {
+            font-size: 4px;
+            padding: 1px 2px;
           }
 
-          /* Activity strip - visible */
-          .po-activity-strip {
-            padding: 4px 8px;
+          /* Bottom grid - stack to single column */
+          .po-bottom-grid {
+            grid-template-columns: 1fr;
+            gap: 6px;
           }
-          .po-activity-label {
-            font-size: 7px;
+          .po-panel {
+            padding: 5px 6px;
+            min-height: 60px;
           }
-          .po-activity-number {
-            font-size: 11px;
+          .po-panel-title {
+            font-size: 6px;
           }
-          .po-activity-unit {
-            font-size: 7px;
+          .po-panel-live {
+            font-size: 4px;
+            gap: 2px;
+          }
+          .po-live-dot {
+            width: 3px;
+            height: 3px;
+          }
+          .po-auto-list {
+            gap: 2px;
+          }
+          .po-auto-row {
+            padding: 2px 3px;
+          }
+          .po-auto-dot {
+            width: 3px;
+            height: 3px;
+          }
+          .po-auto-name {
+            font-size: 6px;
+          }
+          .po-auto-saved {
+            font-size: 5px;
+          }
+          .po-fixed-list {
+            gap: 3px;
+          }
+          .po-fixed-label {
+            font-size: 6px;
+          }
+          .po-fixed-saved {
+            font-size: 6px;
+          }
+          .po-fixed-bar {
+            height: 2px;
+          }
+
+          /* Activity feed - compact */
+          .po-activity {
+            padding: 4px 6px;
+          }
+          .po-activity-title {
+            font-size: 5px;
+          }
+          .po-activity-rows {
+            gap: 1px;
+          }
+          .po-activity-check {
+            font-size: 6px;
+            width: 8px;
+          }
+          .po-activity-text {
+            font-size: 5px;
+          }
+          .po-activity-time {
+            font-size: 4px;
           }
         }
       `}</style>
