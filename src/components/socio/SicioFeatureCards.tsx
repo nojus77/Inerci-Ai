@@ -476,7 +476,7 @@ function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
     <>
       {/* Mobile version - absolutely positioned to stay inside card */}
-      <div className="md:hidden absolute top-4 right-3 flex flex-col items-end gap-1.5 max-w-[140px]">
+      <div className="md:hidden absolute top-8 right-3 flex flex-col items-end gap-1.5 max-w-[140px]">
         {/* Person 1 (male) - asks: text left, avatar right */}
         <motion.div
           className="flex items-center gap-1.5"
