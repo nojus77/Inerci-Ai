@@ -472,7 +472,7 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-end justify-end gap-2 pb-0 -mb-4 pr-0 md:pr-24">
+    <div className="relative w-full h-full flex flex-col items-end justify-start md:justify-end gap-2 pb-0 md:-mb-4 pr-0 md:pr-24">
       {/* Person 1 (male) - asks */}
       <motion.div
         className="flex items-center gap-2"
@@ -758,7 +758,7 @@ function FeatureCard({
             >
               {cardKey === "scalable" ? (
                 <>
-                  {/* Mobile: 2-line layout */}
+                  {/* Mobile: 2-line layout - "Verslai naudojantys AI" then "auga 5× greičiau!" */}
                   <span className="flex flex-col md:hidden">
                     <span>Verslai naudojantys AI</span>
                     <span className="flex items-center gap-1">
@@ -836,7 +836,7 @@ function FeatureCard({
               cardKey === "transparent"
                 ? "hidden md:flex w-32 items-center justify-start self-center -ml-12"
                 : cardKey === "scalable"
-                ? "flex w-auto md:w-64 items-end justify-end md:justify-start self-end mt-0 md:-ml-24"
+                ? "flex w-auto md:w-64 items-start justify-end md:justify-start self-start md:self-end mt-0 md:-ml-24"
                 : "hidden md:flex w-48 items-end"
             }`}>
               {bottomGraphic}
