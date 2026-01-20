@@ -866,6 +866,16 @@ function FeatureCard({
                   <span className="block whitespace-nowrap">{(features.cards.scalable as { descriptionLine1?: string }).descriptionLine1}</span>
                   <span className="block whitespace-nowrap">{(features.cards.scalable as { descriptionLine2?: string }).descriptionLine2}</span>
                 </span>
+              ) : cardKey === "secure" ? (
+                <>
+                  {/* Mobile: 2-line layout for secure card */}
+                  <span className="flex flex-col md:hidden">
+                    <span className="block">Apsauga nuo įsilaužimų ir nutekėjimų.</span>
+                    <span className="block">Jūsų duomenys lieka jūsų rankose.</span>
+                  </span>
+                  {/* Desktop: single line */}
+                  <span className="hidden md:block">{description}</span>
+                </>
               ) : (
                 description
               )}
