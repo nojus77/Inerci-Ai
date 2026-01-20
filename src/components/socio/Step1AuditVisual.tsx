@@ -364,7 +364,7 @@ export default function Step1AuditVisual() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[320px] bg-gradient-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#0f0f1a] rounded-2xl p-6"
+      className="relative w-full h-full min-h-[280px] bg-gradient-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#0f0f1a] rounded-2xl p-6"
       style={{ overflow: "visible" }}
     >
       {/* CSS for pulse animation */}
@@ -529,7 +529,7 @@ export default function Step1AuditVisual() {
 
       <div
         data-node="sheets"
-        className="absolute bottom-4 left-2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
+        className="absolute bottom-8 left-2 md:bottom-4 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-amber-500/20 to-amber-500/5 border border-amber-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
         <svg className="w-4 h-4 md:w-5 md:h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -539,7 +539,7 @@ export default function Step1AuditVisual() {
 
       <div
         data-node="calendar"
-        className="absolute bottom-4 right-2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 border border-pink-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
+        className="absolute bottom-8 right-2 md:bottom-4 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 border border-pink-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
         <svg className="w-4 h-4 md:w-5 md:h-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -569,7 +569,7 @@ export default function Step1AuditVisual() {
 
       <div
         data-node="excel"
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 md:bottom-2 w-12 h-10 md:w-16 md:h-14 rounded-xl bg-gradient-to-br from-emerald-500/20 to-emerald-500/5 border border-emerald-400/30 flex flex-col items-center justify-center gap-0.5 md:gap-1 z-20"
       >
         <svg className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
