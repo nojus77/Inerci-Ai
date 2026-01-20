@@ -1168,11 +1168,11 @@ function EnergyConnection({ progress }: { progress: number }) {
 }
 
 // Helper: Calculate overlay opacity based on progress (piecewise linear)
-// Total animation: 12.5s | PRIEŠ: 4s (0.00-0.32) | Overlay: ~6.5s (0.32-0.84) | PO: 2s (0.84-1.0)
-// Page peel starts at 0.30, overlay fully visible by 0.34
+// Robots appear immediately after chaos/critical error (no explosion animation)
+// Overlay starts at 0.22 (right after SISTEMA UŽSTRIGO disappears)
 function getOverlayOpacity(progress: number): number {
-  if (progress < 0.30 || progress > 0.84) return 0;
-  if (progress < 0.34) return (progress - 0.30) / 0.04; // fade in during peel (0.30-0.34)
+  if (progress < 0.22 || progress > 0.84) return 0;
+  if (progress < 0.26) return (progress - 0.22) / 0.04; // quick fade in (0.22-0.26)
   if (progress < 0.8325) return 1; // fully visible
   return (0.84 - progress) / 0.0075; // ultra-fast fade out
 }
@@ -3642,10 +3642,10 @@ export default function Step2Visual() {
         {/* Transition elements */}
         {!prefersReducedMotion && <TransitionElements progress={finalProgress} />}
 
-        {/* Page peel transition - red cloth that transforms into cube */}
-        {!prefersReducedMotion && <GlassShatterTransition progress={progress} />}
+        {/* Explosion animation removed - robots take over directly after SISTEMA UŽSTRIGO */}
+        {/* {!prefersReducedMotion && <GlassShatterTransition progress={progress} />} */}
 
-        {/* Automation overlay - shows during mid-transition */}
+        {/* Automation overlay (robots) - shows immediately after chaos ends */}
         {!prefersReducedMotion && <AutomationOverlay progress={progress} />}
 
         {/* Energy connection - particles flowing from holo card to dashboard */}
