@@ -152,11 +152,11 @@ export default function HowItWorks() {
                     ))}
                   </ul>
 
-                  {/* CTA Button for consulting (3rd section) */}
+                  {/* CTA Button for consulting (3rd section) - Desktop only */}
                   {key === "consulting" && (
                     <motion.button
                       onClick={openCalModal}
-                      className="mt-6 relative inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
+                      className="hidden md:inline-flex mt-6 relative items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
                       whileHover={buttonMotion.hover}
                       whileTap={buttonMotion.tap}
                       transition={buttonMotion.transition}
@@ -206,6 +206,42 @@ export default function HowItWorks() {
                   <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-secondary/10 rounded-full blur-2xl" />
                 </motion.div>
               </motion.div>
+
+              {/* CTA Button for consulting (3rd section) - Mobile only, after animation */}
+              {key === "consulting" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3, duration: 0.4, ease: easing.standard }}
+                  className="md:hidden mt-8 flex justify-center"
+                >
+                  <motion.button
+                    onClick={openCalModal}
+                    className="relative inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-[#ac9cfc] to-primary transition-opacity duration-300 group-hover:opacity-0" />
+                    <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="relative z-10 flex items-center gap-2">
+                      {hero.bookCall}
+                      <svg
+                        className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M17 8l4 4m0 0l-4 4m4-4H3"
+                        />
+                      </svg>
+                    </span>
+                  </motion.button>
+                </motion.div>
+              )}
 
               {/* Spacing after each section */}
               <div className="h-24 md:h-32" />
