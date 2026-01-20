@@ -364,7 +364,7 @@ export default function Step1AuditVisual() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-full min-h-[280px] bg-gradient-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#0f0f1a] rounded-2xl p-6"
+      className="relative w-full h-full min-h-[320px] bg-gradient-to-br from-[#0f0f1a] via-[#1a1a2e] to-[#0f0f1a] rounded-2xl p-6"
       style={{ overflow: "visible" }}
     >
       {/* CSS for pulse animation */}
