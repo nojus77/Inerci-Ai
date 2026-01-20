@@ -3140,16 +3140,154 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           98%, 100% { opacity: 0.8; box-shadow: 0 0 10px rgba(45, 255, 122, 0.4); }
         }
 
-        /* === MOBILE: Robot C starts and stops earlier to not overlap mini PC === */
+        /* === MOBILE: Only 2 robots - hide Robot C, Robot B does full workflow === */
+        /* Flow: Robot A (red cube) -> Robot B receives, transforms to yellow, walks to PC, cube turns green */
         @media (max-width: 767px) {
+          /* Hide Robot C on mobile */
           .robot-c-wrapper {
-            left: 80%;
-            animation: robotCWalkMobile 6.5s ease-in-out forwards;
+            display: none !important;
           }
-          @keyframes robotCWalkMobile {
-            0%, 42% { left: 80%; }
-            50%, 65% { left: 62%; }
-            80%, 100% { left: 74%; }
+
+          /* Robot A: walks from left (0%) to meet B (30%), hands off cube, walks back */
+          .robot-a-wrapper {
+            animation: robotAWalkMobile 6.5s ease-in-out forwards;
+          }
+          @keyframes robotAWalkMobile {
+            0%, 5% { left: 0%; }
+            22%, 32% { left: 30%; }
+            50%, 100% { left: 0%; }
+          }
+
+          /* Robot B: starts at center (50%), walks left to meet A (38%), receives cube,
+             processes it (yellow), then walks right to PC (82%), inserts cube (green) */
+          .robot-b-wrapper {
+            animation: robotBWalkMobile 6.5s ease-in-out forwards;
+          }
+          @keyframes robotBWalkMobile {
+            0%, 18% { left: 50%; }
+            25%, 38% { left: 38%; }
+            50%, 58% { left: 50%; }
+            75%, 100% { left: 82%; }
+          }
+
+          /* Robot B legs - walk cycle for mobile (left to A, back to center, then to PC) */
+          .leg-b-left { animation: legBLeftMobile 6.5s ease-in-out forwards; }
+          .leg-b-right { animation: legBRightMobile 6.5s ease-in-out forwards; }
+          @keyframes legBLeftMobile {
+            0%, 18% { transform: rotate(0deg); }
+            /* Walk left to meet A */
+            20% { transform: rotate(15deg); }
+            22% { transform: rotate(-15deg); }
+            24% { transform: rotate(15deg); }
+            25% { transform: rotate(0deg); }
+            /* Idle during handoff + processing */
+            38%, 50% { transform: rotate(0deg); }
+            /* Walk back to center */
+            52% { transform: rotate(-15deg); }
+            54% { transform: rotate(15deg); }
+            56% { transform: rotate(-15deg); }
+            58% { transform: rotate(0deg); }
+            /* Walk right to PC */
+            62% { transform: rotate(-15deg); }
+            65% { transform: rotate(15deg); }
+            68% { transform: rotate(-15deg); }
+            71% { transform: rotate(15deg); }
+            74% { transform: rotate(-15deg); }
+            75% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+          }
+          @keyframes legBRightMobile {
+            0%, 18% { transform: rotate(0deg); }
+            /* Walk left (opposite phase) */
+            20% { transform: rotate(-15deg); }
+            22% { transform: rotate(15deg); }
+            24% { transform: rotate(-15deg); }
+            25% { transform: rotate(0deg); }
+            /* Idle during handoff + processing */
+            38%, 50% { transform: rotate(0deg); }
+            /* Walk back (opposite phase) */
+            52% { transform: rotate(15deg); }
+            54% { transform: rotate(-15deg); }
+            56% { transform: rotate(15deg); }
+            58% { transform: rotate(0deg); }
+            /* Walk right to PC (opposite phase) */
+            62% { transform: rotate(15deg); }
+            65% { transform: rotate(-15deg); }
+            68% { transform: rotate(15deg); }
+            71% { transform: rotate(-15deg); }
+            74% { transform: rotate(15deg); }
+            75% { transform: rotate(0deg); }
+            100% { transform: rotate(0deg); }
+          }
+
+          /* Robot B arms on mobile - receive from A (left arm), then extend right arm to insert into PC */
+          .arm-b-left { animation: armBLeftMobile 6.5s ease-in-out forwards; }
+          .arm-b-right { animation: armBRightMobile 6.5s ease-in-out forwards; }
+          @keyframes armBLeftMobile {
+            0%, 24% { transform: rotate(0deg); }
+            /* Reach to receive from A */
+            28%, 35% { transform: rotate(-45deg); }
+            /* Back down after receiving */
+            40%, 100% { transform: rotate(0deg); }
+          }
+          @keyframes armBRightMobile {
+            0%, 70% { transform: rotate(0deg); }
+            /* Extend to insert cube into PC */
+            78%, 88% { transform: rotate(45deg); }
+            /* Celebrate */
+            92%, 100% { transform: rotate(-20deg); }
+          }
+
+          /* Orb animation for mobile - red->yellow->green as B does full workflow */
+          .energy-orb { animation: orbFlowMobile 6.5s ease-in-out forwards; }
+          @keyframes orbFlowMobile {
+            /* Start in A's hand (red) */
+            0%, 22% {
+              left: 30%;
+              opacity: 0;
+            }
+            /* A arrives, orb visible */
+            24% {
+              left: 30%;
+              opacity: 1;
+              background: radial-gradient(circle at 30% 30%, #fca5a5 0%, #ef4444 50%, #b91c1c 100%);
+              box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+            }
+            /* Transfer to B */
+            28%, 32% {
+              left: 38%;
+              opacity: 1;
+              background: radial-gradient(circle at 30% 30%, #fca5a5 0%, #ef4444 50%, #b91c1c 100%);
+              box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+            }
+            /* Transform to yellow during processing */
+            40%, 55% {
+              left: 50%;
+              opacity: 1;
+              background: radial-gradient(circle at 30% 30%, #fef08a 0%, #facc15 50%, #ca8a04 100%);
+              box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
+            }
+            /* B walks to PC with yellow orb */
+            70% {
+              left: 75%;
+              opacity: 1;
+              background: radial-gradient(circle at 30% 30%, #fef08a 0%, #facc15 50%, #ca8a04 100%);
+              box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
+            }
+            /* At PC, orb moves into slot */
+            78% {
+              left: 82%;
+              opacity: 1;
+              background: radial-gradient(circle at 30% 30%, #fef08a 0%, #facc15 50%, #ca8a04 100%);
+              box-shadow: 0 0 20px rgba(250, 204, 21, 0.7);
+            }
+            /* Transform to green as it enters PC */
+            82%, 100% {
+              left: 88%;
+              opacity: 1;
+              background: radial-gradient(circle at 30% 30%, #86efac 0%, #22c55e 50%, #15803d 100%);
+              box-shadow: 0 0 25px rgba(34, 197, 94, 0.8);
+            }
           }
         }
 
