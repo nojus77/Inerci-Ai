@@ -29,14 +29,30 @@ const gradientTextStyle = {
 
 function FlipWords({ words }: { words: string[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const longestWord = getLongestWord(words);
 
+  // Detect mobile for faster transitions
   useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    // Mobile: 0.5s faster word cycling (2.5s vs 3s)
+    const intervalTime = isMobile
+      ? (duration.flipWord - 0.5) * 1000
+      : duration.flipWord * 1000;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % words.length);
-    }, duration.flipWord * 1000);
+    }, intervalTime);
     return () => clearInterval(interval);
-  }, [words.length]);
+  }, [words.length, isMobile]);
+
+  // Mobile: faster animation (0.25s vs 0.4s)
+  const animationDuration = isMobile ? 0.25 : 0.4;
 
   return (
     // Container with fixed dimensions based on longest word - prevents CLS
@@ -53,11 +69,11 @@ function FlipWords({ words }: { words: string[] }) {
       <AnimatePresence mode="wait">
         <motion.span
           key={currentIndex}
-          initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
+          initial={{ opacity: 0, y: isMobile ? 6 : 10, filter: "blur(6px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
+          exit={{ opacity: 0, y: isMobile ? -6 : -10, filter: "blur(6px)" }}
           transition={{
-            duration: 0.4,
+            duration: animationDuration,
             ease: [0.4, 0, 0.2, 1],
           }}
           className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
