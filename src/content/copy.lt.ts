@@ -131,21 +131,21 @@ export const testimonials = {
         "Per pirmąją savaitę sutaupėme \nvirš 30 valandų rankinio darbo.\nAutomatizacijos veikia nepriekaištingai. \nRekomenduoju pabandyti.",
       author: "Tadas Samuolis",
       role: "CMO, Ateities Vizija",
-      avatar: "/socio/avatar-1.webp",
+      avatar: "/socio/avatar-1.png",
     },
     {
       quote:
         "Inerci komanda padėjo lengvai automatizuoti užklausas. Mes ramūs nes žinome, kad mūsų klientais pasirūpinta 24/7!",
       author: "Laura Grikšienė",
       role: "Performance Creative, Vilra Media",
-      avatar: "/socio/avatar-2.webp",
+      avatar: "/socio/avatar-2.png",
     },
     {
       quote:
         "Įgyvendinimas buvo sklandus, \nrezultatai — akimirksniu. Dabar galime \nfokusuotis į tai, kas tikrai svarbu.\nMūsų komanda patenkinta 😉",
       author: "Marius Lukošiūnas",
       role: "COO, Arbitrage Media",
-      avatar: "/socio/avatar-3.webp",
+      avatar: "/socio/avatar-3.png",
     },
   ],
 };
