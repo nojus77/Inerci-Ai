@@ -15,7 +15,7 @@ import { easing, interactiveCardMotion, tiltMotion } from "@/content/socioMotion
 // Premium Icon: Sliders/Tuning for "100% pagal jus" (Card 1)
 function SlidersIcon({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-28 h-28 flex items-center justify-center">
+    <div className="relative w-16 h-16 md:w-28 md:h-28 flex items-center justify-center">
       {/* Outer glow on hover */}
       <motion.div
         className="absolute inset-0 rounded-full blur-xl"
@@ -110,7 +110,7 @@ function SlidersIcon({ isHovered }: { isHovered: boolean }) {
 // Premium Icon: Shield + Lock for "Duomenys saugūs" (Card 2)
 function ShieldLockIcon({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-28 h-28 flex items-center justify-center">
+    <div className="relative w-16 h-16 md:w-28 md:h-28 flex items-center justify-center">
       {/* Outer glow on hover */}
       <motion.div
         className="absolute inset-0 rounded-full blur-xl"
@@ -190,7 +190,7 @@ function ShieldLockIcon({ isHovered }: { isHovered: boolean }) {
 // Premium Icon: Lightning + Motion for "3× greičiau" (Card 3)
 function SpeedBoltIcon({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-28 h-28 flex items-center justify-center">
+    <div className="relative w-16 h-16 md:w-28 md:h-28 flex items-center justify-center">
       {/* Outer glow on hover */}
       <motion.div
         className="absolute inset-0 rounded-full blur-xl"
@@ -353,7 +353,7 @@ function HubConnectedIcon({ isHovered }: { isHovered: boolean }) {
 // Premium Icon: Growth Graph for "5× greičiau auga" (Card 5 - wide)
 function GrowthGraphIcon({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-28 h-28 flex items-center justify-center">
+    <div className="relative w-16 h-16 md:w-28 md:h-28 flex items-center justify-center">
       {/* Outer glow on hover */}
       <motion.div
         className="absolute inset-0 rounded-full blur-xl"
@@ -754,10 +754,10 @@ function FeatureCard({
 
         {/* Content - increased depth for 3D pop */}
         <div
-          className={`relative z-10 p-6 md:p-8 h-full flex ${
+          className={`relative z-10 p-4 md:p-8 h-full flex ${
             isWide
               ? cardKey === "scalable"
-                ? "flex-row items-start gap-4 md:gap-8"
+                ? "flex-row items-start gap-3 md:gap-8"
                 : "flex-col md:flex-row md:items-start md:gap-8"
               : "flex-col items-center text-center"
           }`}
@@ -766,7 +766,7 @@ function FeatureCard({
           {/* Hero icon area (top cards) */}
           {heroIcon && (
             <motion.div
-              className="flex justify-center mb-4"
+              className="flex justify-center mb-2 md:mb-4"
               animate={{
                 y: isHovered ? -5 : 0,
               }}
@@ -792,7 +792,7 @@ function FeatureCard({
             )}
 
             <motion.h3
-              className="text-lg md:text-xl font-semibold text-white mb-3 md:whitespace-nowrap"
+              className="text-base md:text-xl font-semibold text-white mb-1.5 md:mb-3 md:whitespace-nowrap"
               animate={{
                 color: isHovered ? "#ffffff" : "rgba(255,255,255,0.95)",
               }}
@@ -802,11 +802,11 @@ function FeatureCard({
                 <>
                   {/* Mobile: 2-line layout - "Verslai naudojantys AI" then "auga 5× greičiau!" */}
                   <span className="flex flex-col md:hidden">
-                    <span className="whitespace-nowrap">Verslai naudojantys AI</span>
-                    <span className="flex items-center gap-1 whitespace-nowrap">
+                    <span className="whitespace-nowrap text-sm">Verslai naudojantys AI</span>
+                    <span className="flex items-center gap-1 whitespace-nowrap text-sm">
                       <span>auga</span>
                       <motion.span
-                        className="text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
+                        className="text-2xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
                         animate={{ scale: isHovered ? 1.05 : 1 }}
                         transition={{ duration: 0.3 }}
                         style={{ display: "inline-block" }}
@@ -834,13 +834,13 @@ function FeatureCard({
                 title
               )}
             </motion.h3>
-            <p className={`text-sm md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-6" : ""}`}>
+            <p className={`text-xs md:text-base text-white/50 leading-relaxed ${!isWide ? "mt-2 md:mt-6" : ""}`}>
               {cardKey === "fast" && bigBold ? (
                 <span className="flex flex-col items-center text-center">
                   <span className="flex items-center justify-center gap-1 whitespace-nowrap">
                     <span>{(features.cards.fast as { descriptionLine1?: string }).descriptionLine1}</span>
                     <motion.span
-                      className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
+                      className="text-xl md:text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
                       animate={{ scale: isHovered ? 1.05 : 1 }}
                       transition={{ duration: 0.3 }}
                       style={{ display: "inline-block" }}
@@ -945,7 +945,7 @@ export default function SicioFeatureCards() {
   return (
     <div className="w-full">
       {/* Top row - 3 cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-3 md:mb-6">
         {topCards.map((card, index) => (
           <div
             key={card.key}
@@ -966,7 +966,7 @@ export default function SicioFeatureCards() {
       </div>
 
       {/* Bottom row - 2 wider cards (transparent card hidden on mobile) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
         {bottomCards.map((card, index) => (
           <div
             key={card.key}
