@@ -473,7 +473,7 @@ export default function Step1AuditVisual() {
             return (
               <g key={fastPathId}>
                 <path id={fastPathId} d={fastPathD} fill="none" stroke="none" />
-                <circle r={DOT_CONFIG.size + 1} fill={flow.color} opacity={0}>
+                <circle r={DOT_CONFIG.sizeDesktop + 1} fill={flow.color} opacity={0}>
                   <animateMotion
                     dur={fastDur}
                     begin={`${fastBurst.startDelay}s;${fastPathId}.end+${repeatInterval - DOT_CONFIG.durFast}s`}
