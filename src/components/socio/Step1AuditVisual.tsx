@@ -41,12 +41,12 @@ interface FlowPath {
 
 const FLOW_CONNECTIONS = [
   { from: "sheets", to: "crm", startDelay: 0 },
-  { from: "api", to: "calendar", startDelay: 0.8 },
-  { from: "slack", to: "email", startDelay: 1.6 },
-  { from: "excel", to: "api", startDelay: 2.4 },
-  { from: "crm", to: "slack", startDelay: 3.2 },
-  { from: "email", to: "sheets", startDelay: 4.0 },
-  { from: "calendar", to: "excel", startDelay: 4.8 },
+  { from: "api", to: "calendar", startDelay: 0.3 },
+  { from: "slack", to: "email", startDelay: 0.6 },
+  { from: "excel", to: "api", startDelay: 0.9 },
+  { from: "crm", to: "slack", startDelay: 1.2 },
+  { from: "email", to: "sheets", startDelay: 1.5 },
+  { from: "calendar", to: "excel", startDelay: 1.8 },
 ] as const;
 
 const NODE_COLORS: Record<string, string> = {
@@ -63,7 +63,7 @@ const REQUIRED_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "e
 const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "excel"] as const;
 
 // Reduced to single dot per path for performance
-const DOT_CONFIG = { dur: 4.5, size: 4 };
+const DOT_CONFIG = { dur: 2.2, size: 4 };
 
 // Stats card with live counters (uses setInterval instead of RAF for performance)
 const LiveIntegrationCard = memo(function LiveIntegrationCard() {
