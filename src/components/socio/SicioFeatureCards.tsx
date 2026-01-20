@@ -472,7 +472,7 @@ function MiniChart({ isHovered }: { isHovered: boolean }) {
 // Chat bubbles for "Scale with ease" card
 function ChatBubbles({ isHovered }: { isHovered: boolean }) {
   return (
-    <div className="relative w-full h-full flex flex-col items-end justify-start md:justify-end gap-2 pb-0 md:-mb-4 pr-28 md:pr-24">
+    <div className="relative w-full h-full flex flex-col items-end justify-start md:justify-end gap-2 pb-0 md:-mb-4 pr-4 md:pr-24 scale-[0.85] origin-top-right md:scale-100">
       {/* Person 1 (male) - asks: text left, avatar right */}
       <motion.div
         className="flex items-center gap-2"
