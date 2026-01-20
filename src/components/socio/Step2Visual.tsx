@@ -55,13 +55,14 @@ interface ChaosPopup {
 }
 
 // Generate INTENSE chaos - many more popups, faster timing, fills screen
+// Mobile: fewer popups (6), faster timeline (~1.2s), then instant transition
 function generateChaosPopups(seed: number, isMobile: boolean): ChaosPopup[] {
   const rng = seededRandom(seed);
   const popups: ChaosPopup[] = [];
 
-  // Total popups: 18-22 on desktop, 12-14 on mobile
-  // Compressed timeline: 0-2.5s (was 0-3.5s)
-  const totalCount = isMobile ? 12 : 20;
+  // Total popups: 20 on desktop, 6 on mobile (much cleaner)
+  // Mobile timeline: 0-1.2s (fast burst), Desktop: 0-2.5s
+  const totalCount = isMobile ? 6 : 20;
 
   for (let i = 0; i < totalCount; i++) {
     const progress = i / totalCount; // 0 to 1
@@ -84,13 +85,20 @@ function generateChaosPopups(seed: number, isMobile: boolean): ChaosPopup[] {
       x = 5 + rng() * 55;
     }
 
-    // Timing: rapid-fire, accelerating toward the end
-    // Early popups spread out, late popups come FAST
-    const baseDelay = progress < 0.5
-      ? progress * 1600 // 0-800ms for first half
-      : 800 + (progress - 0.5) * 2800; // 800-2200ms for second half (accelerating)
+    // Timing: Mobile is MUCH faster (all errors in ~1.2s)
+    // Desktop: slower buildup over 2.5s
+    let baseDelay: number;
+    if (isMobile) {
+      // Mobile: quick succession, all errors within 1.2s
+      baseDelay = progress * 1200;
+    } else {
+      // Desktop: original timing - rapid-fire, accelerating
+      baseDelay = progress < 0.5
+        ? progress * 1600 // 0-800ms for first half
+        : 800 + (progress - 0.5) * 2800; // 800-2200ms for second half
+    }
 
-    const jitter = (rng() - 0.5) * 200; // ±100ms randomness
+    const jitter = isMobile ? (rng() - 0.5) * 100 : (rng() - 0.5) * 200;
 
     popups.push({
       id: i,
@@ -100,7 +108,7 @@ function generateChaosPopups(seed: number, isMobile: boolean): ChaosPopup[] {
       type: progress > 0.4 || rng() > 0.6 ? "danger" : "warning",
       x,
       y,
-      delay: Math.max(100, Math.floor(baseDelay + jitter)),
+      delay: Math.max(50, Math.floor(baseDelay + jitter)),
       rotation: (rng() - 0.5) * 12,
       driftX: (rng() - 0.5) * 30,
       driftY: (rng() - 0.5) * 25,
@@ -494,7 +502,7 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
           100% { opacity: 1; }
         }
 
-        /* === MOBILE: Larger chips === */
+        /* === MOBILE: Larger chips + FASTER timing === */
         @media (max-width: 767px) {
           .chaos-size-small {
             padding: 4px 8px;
@@ -514,11 +522,41 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
           .chaos-size-large .chaos-icon { font-size: 14px; }
           .chaos-size-large .chaos-label { font-size: 12px; }
 
+          /* MOBILE: Faster chaos popup animation */
+          .chaos-chip {
+            animation:
+              chaosPopIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+              chaosDrift 2s ease-in-out 0.4s infinite alternate;
+          }
+
+          /* MOBILE: Vignette builds faster (1.3s instead of 2.5s) */
+          .chaos-vignette {
+            animation: vignetteIntensify 1.3s ease-in forwards;
+          }
+
+          /* MOBILE: Critical error appears at 1.3s (errors done at 1.2s) */
+          .screen-freeze-flash {
+            animation: screenFreezeFlash 0.25s ease-out 1300ms forwards;
+          }
+
+          .crash-overlay {
+            animation: crashOverlayBuild 0.4s ease-in 1350ms forwards;
+          }
+
           .critical-error {
             padding: 10px 16px;
+            animation: criticalAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 1350ms forwards;
           }
-          .critical-icon { font-size: 16px; }
+          .critical-icon {
+            font-size: 16px;
+            animation: criticalPulse 0.15s ease-in-out 1500ms 2;
+          }
           .critical-label { font-size: 12px; }
+
+          /* MOBILE: Screen shake comes faster */
+          .screen-crack {
+            animation: screenShake 0.35s ease-out 1600ms forwards;
+          }
         }
 
         /* === REDUCED MOTION === */
@@ -3410,6 +3448,15 @@ export default function Step2Visual() {
   const [rawProgress, setRawProgress] = useState(0);
   const [isInView, setIsInView] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Mobile detection for faster animation timing
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Sync smoothProgress to state for content transitions (opacity fades)
   useEffect(() => {
@@ -3467,18 +3514,26 @@ export default function Step2Visual() {
   }, [isInView, hasStarted, progress, smoothProgress]);
 
   // Automatic endless loop: 0 -> 1 (animate) -> pause 5s -> instant reset to 0 -> repeat
+  // Mobile: faster animation (~8s total vs ~12.5s desktop)
   useEffect(() => {
     if (!isInView || prefersReducedMotion || !hasStarted) return;
 
     let timeoutId: NodeJS.Timeout;
     let intervalId: NodeJS.Timeout;
 
+    // Mobile: 0.003 increment = ~8.3s total, Desktop: 0.002 = ~12.5s
+    const progressIncrement = isMobile ? 0.003 : 0.002;
+    // Mobile: shorter pause (4s vs 6s)
+    const endPause = isMobile ? 4000 : 6000;
+    // Mobile: shorter initial delay (1s vs 1.5s) - show "before" less
+    const initialDelay = isMobile ? 1000 : 1500;
+
     const animateForward = () => {
       intervalId = setInterval(() => {
         const current = progress.get();
 
         if (current >= 1) {
-          // Reached 100%, stop and pause for 5 seconds
+          // Reached 100%, stop and pause
           clearInterval(intervalId);
           timeoutId = setTimeout(() => {
             // Instant reset to 0 - jump both progress and smoothProgress
@@ -3486,22 +3541,22 @@ export default function Step2Visual() {
             smoothProgress.jump(0);
             // Start animating forward again after a brief moment
             timeoutId = setTimeout(animateForward, 100);
-          }, 6000); // 6 second pause at "after" state
+          }, endPause);
         } else {
-          // Animate forward (slower: ~12s total transformation)
-          progress.set(Math.min(1, current + 0.002));
+          // Animate forward
+          progress.set(Math.min(1, current + progressIncrement));
         }
       }, 25);
     };
 
-    // Start with a delay (1.5s to show "before" state)
-    timeoutId = setTimeout(animateForward, 1500);
+    // Start with a delay to show "before" state
+    timeoutId = setTimeout(animateForward, initialDelay);
 
     return () => {
       clearTimeout(timeoutId);
       clearInterval(intervalId);
     };
-  }, [isInView, prefersReducedMotion, hasStarted, progress, smoothProgress]);
+  }, [isInView, prefersReducedMotion, hasStarted, isMobile, progress, smoothProgress]);
 
   // Calculate opacities for states
   // BEFORE fades out by 0.28 (before explosion/overlay starts at 0.28-0.30)
