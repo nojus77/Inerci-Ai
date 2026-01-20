@@ -758,11 +758,10 @@ function FeatureCard({
             >
               {cardKey === "scalable" ? (
                 <>
-                  {/* Mobile: 2-line layout - "Verslai naudojantys AI" then "auga 5× greičiau!" */}
+                  {/* Mobile: 2-line layout - "Verslai naudojantys AI auga" then "5× greičiau!" */}
                   <span className="flex flex-col md:hidden">
-                    <span>Verslai naudojantys AI</span>
+                    <span>Verslai naudojantys AI auga</span>
                     <span className="flex items-center gap-1">
-                      <span>auga</span>
                       <motion.span
                         className="text-3xl font-bold bg-gradient-to-r from-primary via-[#ac9cfc] to-primary bg-clip-text text-transparent relative -top-0.5"
                         animate={{ scale: isHovered ? 1.05 : 1 }}
