@@ -66,10 +66,18 @@ const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "exce
 const DOT_CONFIG = {
   durMobile: 3.5,  // Slower on mobile for smoother feel
   durDesktop: 2.2,
+  durSlow: 4.5,    // Slow ambient dots (desktop only)
   durFast: 0.6,    // Super fast burst dots (desktop only)
   sizeMobile: 3,
   sizeDesktop: 4
 };
+
+// Slow ambient dots - these drift lazily for visual variety (desktop only)
+const SLOW_DOTS = [
+  { from: "crm", to: "slack", startDelay: 1.0 },
+  { from: "calendar", to: "excel", startDelay: 3.5 },
+  { from: "email", to: "sheets", startDelay: 6.0 },
+] as const;
 
 // Fast burst dots configuration - these appear occasionally and move super fast (desktop only)
 const FAST_BURST_DOTS = [
@@ -487,6 +495,41 @@ export default function Step1AuditVisual() {
                     keyTimes="0;0.1;0.9;1"
                     dur={fastDur}
                     begin={`${fastBurst.startDelay}s;${fastPathId}.end+${repeatInterval - DOT_CONFIG.durFast}s`}
+                  />
+                </circle>
+              </g>
+            );
+          })}
+
+        {/* Slow ambient dots - desktop only, lazily drifting for visual variety */}
+        {isInView && !isMobile && containerSize.width > 0 && flowPaths
+          .filter(flow => SLOW_DOTS.some(sd => sd.from === flow.from && sd.to === flow.to))
+          .map((flow) => {
+            if (!Number.isFinite(flow.x1) || !Number.isFinite(flow.y1) ||
+                !Number.isFinite(flow.xMid) || !Number.isFinite(flow.yMid) ||
+                !Number.isFinite(flow.x2) || !Number.isFinite(flow.y2)) return null;
+
+            const slowDot = SLOW_DOTS.find(sd => sd.from === flow.from && sd.to === flow.to);
+            if (!slowDot) return null;
+
+            const slowPathId = `slow-${flow.from}-${flow.to}`;
+            const slowPathD = `M ${flow.x1} ${flow.y1} L ${flow.xMid} ${flow.yMid} L ${flow.x2} ${flow.y2}`;
+            const slowDur = `${DOT_CONFIG.durSlow}s`;
+
+            return (
+              <g key={slowPathId}>
+                <path id={slowPathId} d={slowPathD} fill="none" stroke="none" />
+                <circle r={DOT_CONFIG.sizeDesktop - 1} fill={flow.color} opacity={0}>
+                  <animateMotion dur={slowDur} begin={`${slowDot.startDelay}s`} repeatCount="indefinite">
+                    <mpath href={`#${slowPathId}`} />
+                  </animateMotion>
+                  <animate
+                    attributeName="opacity"
+                    values="0;0.6;0.6;0"
+                    keyTimes="0;0.1;0.9;1"
+                    dur={slowDur}
+                    begin={`${slowDot.startDelay}s`}
+                    repeatCount="indefinite"
                   />
                 </circle>
               </g>

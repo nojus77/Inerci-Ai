@@ -3744,18 +3744,18 @@ export default function Step2Visual() {
           text-align: center;
         }
         .po-kpi-label {
-          font-size: 6px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.5);
+          font-size: 7px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.6);
           text-transform: uppercase;
-          letter-spacing: 0.3px;
+          letter-spacing: 0.4px;
           margin-bottom: 3px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .po-kpi-value {
-          font-size: 16px;
+          font-size: 18px;
           font-weight: 800;
           font-variant-numeric: tabular-nums;
           line-height: 1.1;
@@ -3766,23 +3766,23 @@ export default function Step2Visual() {
         .po-kpi-purple { color: #a78bfa; }
         .po-kpi-cyan { color: #22d3ee; }
         .po-kpi-delta {
-          font-size: 5px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.4);
+          font-size: 6px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.5);
           white-space: nowrap;
         }
-        .po-delta-up { color: rgba(52, 211, 153, 0.7); }
+        .po-delta-up { color: rgba(52, 211, 153, 0.8); }
         .po-kpi-status {
           margin-top: 2px;
         }
         .po-status-pill {
           display: inline-block;
-          font-size: 5px;
-          font-weight: 700;
-          padding: 2px 4px;
+          font-size: 6px;
+          font-weight: 800;
+          padding: 2px 5px;
           border-radius: 8px;
           text-transform: uppercase;
-          letter-spacing: 0.2px;
+          letter-spacing: 0.3px;
           white-space: nowrap;
         }
         .po-status-ok {
@@ -3810,17 +3810,17 @@ export default function Step2Visual() {
           gap: 8px;
         }
         .po-chart-title {
-          font-size: 8px;
-          color: rgba(255,255,255,0.7);
-          font-weight: 700;
+          font-size: 9px;
+          color: rgba(255,255,255,0.8);
+          font-weight: 800;
           white-space: nowrap;
         }
         .po-chart-toggle {
           display: flex;
           align-items: center;
           gap: 3px;
-          font-size: 6px;
-          font-weight: 600;
+          font-size: 7px;
+          font-weight: 700;
           flex-shrink: 0;
         }
         .po-toggle-active {
@@ -3919,11 +3919,11 @@ export default function Step2Visual() {
           gap: 4px;
         }
         .po-panel-title {
-          font-size: 7px;
-          color: rgba(255,255,255,0.6);
-          font-weight: 700;
+          font-size: 8px;
+          color: rgba(255,255,255,0.7);
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.2px;
+          letter-spacing: 0.3px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -3932,8 +3932,8 @@ export default function Step2Visual() {
           display: flex;
           align-items: center;
           gap: 3px;
-          font-size: 5px;
-          font-weight: 700;
+          font-size: 6px;
+          font-weight: 800;
           color: #34d399;
           flex-shrink: 0;
         }
@@ -4010,9 +4010,9 @@ export default function Step2Visual() {
           box-shadow: 0 0 3px rgba(251, 146, 60, 0.6);
         }
         .po-auto-name {
-          font-size: 7px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.85);
+          font-size: 8px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.9);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -4024,8 +4024,8 @@ export default function Step2Visual() {
           flex-shrink: 0;
         }
         .po-auto-saved {
-          font-size: 6px;
-          font-weight: 700;
+          font-size: 7px;
+          font-weight: 800;
           color: #34d399;
           white-space: nowrap;
         }
@@ -4057,9 +4057,9 @@ export default function Step2Visual() {
           gap: 4px;
         }
         .po-fixed-label {
-          font-size: 7px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.7);
+          font-size: 8px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.8);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -4067,8 +4067,8 @@ export default function Step2Visual() {
           min-width: 0;
         }
         .po-fixed-saved {
-          font-size: 7px;
-          font-weight: 700;
+          font-size: 8px;
+          font-weight: 800;
           color: #34d399;
           white-space: nowrap;
           flex-shrink: 0;
@@ -4100,11 +4100,11 @@ export default function Step2Visual() {
           margin-bottom: 3px;
         }
         .po-activity-title {
-          font-size: 6px;
-          color: rgba(255,255,255,0.5);
-          font-weight: 700;
+          font-size: 7px;
+          color: rgba(255,255,255,0.6);
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.2px;
+          letter-spacing: 0.3px;
         }
         .po-activity-rows {
           display: flex;
@@ -4120,7 +4120,7 @@ export default function Step2Visual() {
           min-width: 0;
         }
         .po-activity-check {
-          font-size: 7px;
+          font-size: 8px;
           color: #34d399;
           flex-shrink: 0;
           width: 10px;
@@ -4128,18 +4128,18 @@ export default function Step2Visual() {
         }
         .po-activity-text {
           flex: 1;
-          font-size: 6px;
-          font-weight: 600;
-          color: rgba(255,255,255,0.7);
+          font-size: 7px;
+          font-weight: 700;
+          color: rgba(255,255,255,0.8);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           min-width: 0;
         }
         .po-activity-time {
-          font-size: 5px;
-          font-weight: 500;
-          color: rgba(255,255,255,0.35);
+          font-size: 6px;
+          font-weight: 600;
+          color: rgba(255,255,255,0.45);
           flex-shrink: 0;
           white-space: nowrap;
         }

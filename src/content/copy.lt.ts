@@ -138,14 +138,14 @@ export const testimonials = {
         "Inerci komanda padėjo lengvai automatizuoti užklausas. Mes ramūs nes žinome, kad mūsų klientais pasirūpinta 24/7!",
       author: "Laura Grikšienė",
       role: "Performance Creative, Vilra Media",
-      avatar: "/socio/avatar-2.png",
+      avatar: "/socio/avatar-3.png",
     },
     {
       quote:
         "Įgyvendinimas buvo sklandus, \nrezultatai — akimirksniu. Dabar galime \nfokusuotis į tai, kas tikrai svarbu.\nMūsų komanda patenkinta 😉",
       author: "Marius Lukošiūnas",
       role: "COO, Arbitrage Media",
-      avatar: "/socio/avatar-3.png",
+      avatar: "/socio/avatar-2.png",
     },
   ],
 };
