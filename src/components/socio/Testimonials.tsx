@@ -51,7 +51,7 @@ export default function Testimonials() {
               <div className="flex items-center gap-3 mt-auto">
                 <div className="relative w-10 h-10 rounded-full overflow-hidden">
                   <Image
-                    src={testimonial.avatar}
+                    src={`${testimonial.avatar}?v=2`}
                     alt={testimonial.author}
                     fill
                     className="object-cover"

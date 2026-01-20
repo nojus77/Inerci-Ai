@@ -344,7 +344,7 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
           inset: 0;
           background: white;
           opacity: 0;
-          animation: screenFreezeFlash 0.4s ease-out 2300ms forwards;
+          animation: screenFreezeFlash 0.35s ease-out 1800ms forwards;
           z-index: 35;
         }
 
@@ -363,7 +363,7 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
           inset: 0;
           background: radial-gradient(ellipse at center, rgba(239, 68, 68, 0.3) 0%, rgba(239, 68, 68, 0.7) 100%);
           opacity: 0;
-          animation: crashOverlayBuild 0.8s ease-in 2500ms forwards;
+          animation: crashOverlayBuild 0.6s ease-in 1900ms forwards;
           z-index: 22;
         }
 
@@ -391,13 +391,13 @@ const BeforeChaosLayer = memo(function BeforeChaosLayer({
             0 0 120px rgba(239, 68, 68, 0.5),
             inset 0 1px 0 rgba(255,255,255,0.2);
           opacity: 0;
-          animation: criticalAppear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2400ms forwards;
+          animation: criticalAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1850ms forwards;
           z-index: 40;
         }
 
         .critical-icon {
           font-size: 20px;
-          animation: criticalPulse 0.2s ease-in-out 2600ms 4;
+          animation: criticalPulse 0.2s ease-in-out 2050ms 3;
         }
 
         .critical-label {
@@ -830,8 +830,8 @@ function AfterState({ opacity, progress }: { opacity: number; progress: number }
       style={{ opacity }}
     >
       <div className="h-full flex flex-col gap-1">
-        {/* 4 KPI chips - top row */}
-        <div className="grid grid-cols-4 gap-1">
+        {/* 4 KPI chips - top row (2 cols on mobile, 4 on desktop) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-1">
           <div className="po-kpi-chip">
             <div className="po-kpi-label">Sutaupyta €</div>
             <div className="po-kpi-value po-kpi-euro">€{savedEuros.toLocaleString()}</div>
@@ -885,8 +885,8 @@ function AfterState({ opacity, progress }: { opacity: number; progress: number }
           </svg>
         </div>
 
-        {/* 2-column layout: Top automatizacijos + Bottlenecks */}
-        <div className="grid grid-cols-2 gap-1 flex-1 min-h-0">
+        {/* 2-column layout: Top automatizacijos + Bottlenecks (1 col on mobile) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-1 flex-1 min-h-0">
           {/* Left: Top automatizacijos (4 rows) */}
           <div className="po-list-card" style={{ padding: "4px 5px" }}>
             <div className="po-list-header" style={{ marginBottom: "2px" }}>
@@ -914,7 +914,7 @@ function AfterState({ opacity, progress }: { opacity: number; progress: number }
             </div>
             <div className="po-bottleneck-rows">
               {bottlenecks.map((item, i) => (
-                <div key={i} className="po-bottleneck-row" style={{ animationDelay: `${i * 0.08}s` }}>
+                <div key={i} className={`po-bottleneck-row ${i >= 3 ? 'hidden md:block' : ''}`} style={{ animationDelay: `${i * 0.08}s` }}>
                   <div className="po-bottleneck-top">
                     <span className="po-bottleneck-label">{item.label}</span>
                     <span className="po-bottleneck-saved">{item.saved}</span>
@@ -942,7 +942,7 @@ function AfterState({ opacity, progress }: { opacity: number; progress: number }
           </div>
           <div className="po-feed-rows">
             {activityFeed.map((item, i) => (
-              <div key={i} className={`po-feed-row ${item.warn ? 'po-feed-warn' : ''}`} style={{ animationDelay: `${i * 0.06}s` }}>
+              <div key={i} className={`po-feed-row ${item.warn ? 'po-feed-warn' : ''} ${i >= 3 ? 'hidden md:flex' : ''}`} style={{ animationDelay: `${i * 0.06}s` }}>
                 <span className="po-feed-icon">{item.icon}</span>
                 <span className="po-feed-text">{item.text}</span>
                 <span className="po-feed-time">{item.time}</span>
@@ -3253,7 +3253,7 @@ function ProgressPill({ progress }: { progress: MotionValue<number> }) {
 export default function Step2Visual() {
   const containerRef = useRef<HTMLDivElement>(null);
   const progress = useMotionValue(0);
-  const smoothProgress = useSpring(progress, { stiffness: 120, damping: 20 });
+  const smoothProgress = useSpring(progress, { stiffness: 180, damping: 25 });
 
   const [displayProgress, setDisplayProgress] = useState(0);
   const [rawProgress, setRawProgress] = useState(0);
@@ -3335,7 +3335,7 @@ export default function Step2Visual() {
             smoothProgress.jump(0);
             // Start animating forward again after a brief moment
             timeoutId = setTimeout(animateForward, 100);
-          }, 5000); // 5 second pause at "after" state
+          }, 6000); // 6 second pause at "after" state
         } else {
           // Animate forward (slower: ~12s total transformation)
           progress.set(Math.min(1, current + 0.002));
@@ -3353,9 +3353,10 @@ export default function Step2Visual() {
   }, [isInView, prefersReducedMotion, hasStarted, progress, smoothProgress]);
 
   // Calculate opacities for states
-  // PO (After) shows faster after holo card appears (0.72-0.88 of 12.5s total)
-  const beforeOpacity = useTransform(smoothProgress, [0, 0.4], [1, 0]);
-  const afterOpacity = useTransform(smoothProgress, [0.72, 0.88], [0, 1]);
+  // BEFORE fades out by 0.28 (before explosion/overlay starts at 0.28-0.30)
+  // PO (After) shows faster after holo card appears (0.68-0.80 of 12.5s total)
+  const beforeOpacity = useTransform(smoothProgress, [0, 0.28], [1, 0]);
+  const afterOpacity = useTransform(smoothProgress, [0.68, 0.80], [0, 1]);
 
   const [beforeOp, setBeforeOp] = useState(1);
   const [afterOp, setAfterOp] = useState(0);
@@ -4074,6 +4075,143 @@ export default function Step2Visual() {
           10% { opacity: 1; }
           80% { opacity: 1; }
           100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════
+           PO DASHBOARD - MOBILE OVERRIDES
+           ═══════════════════════════════════════════════════════════════ */
+        @media (max-width: 767px) {
+          /* KPI chips - smaller text to fit 4 columns */
+          .po-kpi-chip {
+            padding: 3px 2px;
+          }
+          .po-kpi-label {
+            font-size: 5px;
+            letter-spacing: 0;
+            margin-bottom: 1px;
+          }
+          .po-kpi-value {
+            font-size: 10px;
+            line-height: 1;
+          }
+          .po-kpi-trend {
+            font-size: 5px;
+            margin-top: 0;
+          }
+
+          /* Chart card - smaller */
+          .po-chart-card {
+            padding: 2px 4px !important;
+          }
+          .po-chart-title {
+            font-size: 7px;
+          }
+          .po-chart-period {
+            font-size: 5px;
+            padding: 0 2px;
+          }
+
+          /* List card - tighter spacing */
+          .po-list-card {
+            padding: 2px 3px !important;
+          }
+          .po-list-title {
+            font-size: 6px;
+          }
+          .po-list-count {
+            font-size: 6px;
+            padding: 0 2px;
+          }
+          .po-list-row {
+            padding: 1px 2px !important;
+            gap: 2px;
+          }
+          .po-list-icon {
+            font-size: 6px !important;
+            width: 10px !important;
+          }
+          .po-list-name {
+            font-size: 5px !important;
+          }
+          .po-list-impact {
+            font-size: 5px !important;
+            min-width: 16px;
+          }
+          .po-status-dot {
+            width: 3px;
+            height: 3px;
+          }
+
+          /* Bottleneck card - tighter spacing */
+          .po-bottleneck-card {
+            padding: 2px 3px !important;
+          }
+          .po-bottleneck-title {
+            font-size: 6px;
+          }
+          .po-bottleneck-rows {
+            gap: 2px;
+          }
+          .po-bottleneck-row {
+            padding: 1px !important;
+          }
+          .po-bottleneck-label {
+            font-size: 5px;
+          }
+          .po-bottleneck-saved {
+            font-size: 5px;
+          }
+          .po-bottleneck-bar-bg {
+            height: 3px;
+          }
+          .po-bottleneck-pct {
+            font-size: 5px;
+            right: 1px;
+          }
+
+          /* Activity feed - tighter */
+          .po-feed-card {
+            padding: 2px 3px !important;
+          }
+          .po-feed-title {
+            font-size: 6px;
+          }
+          .po-feed-live {
+            font-size: 5px;
+            gap: 1px;
+          }
+          .po-feed-live-dot {
+            width: 2px;
+            height: 2px;
+          }
+          .po-feed-row {
+            padding: 1px 2px !important;
+            gap: 2px;
+          }
+          .po-feed-icon {
+            font-size: 6px;
+            width: 10px;
+          }
+          .po-feed-text {
+            font-size: 5px;
+          }
+          .po-feed-time {
+            font-size: 5px;
+          }
+
+          /* Activity strip - smaller */
+          .po-activity-strip {
+            padding: 3px 5px;
+          }
+          .po-activity-label {
+            font-size: 6px;
+          }
+          .po-activity-number {
+            font-size: 9px;
+          }
+          .po-activity-unit {
+            font-size: 6px;
+          }
         }
       `}</style>
     </div>

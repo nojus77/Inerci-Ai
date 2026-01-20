@@ -186,7 +186,7 @@ export default function HowItWorks() {
                 {/* Image or Custom Visual */}
                 <motion.div
                   {...servicesMotion.image}
-                  className={`relative ${isReversed ? "lg:order-1" : "lg:order-2"}`}
+                  className={`relative ${isReversed ? "lg:order-1" : "lg:order-2"} ${key === "consulting" ? "order-first lg:order-2" : ""}`}
                 >
                   {key === "voiceAgent" ? (
                     <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
