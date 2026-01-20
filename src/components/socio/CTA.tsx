@@ -92,15 +92,14 @@ export default function CTA() {
             <BenefitPills features={cta.features} className="mb-5" />
 
             {/* Inline Cal.com Embed - clean 3-column booking layout */}
+            {/* Mobile: no height constraint, content flows naturally in page scroll */}
+            {/* Desktop: fixed height for contained layout */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, ease: easing.standard, delay: 0.5 }}
-              className="w-full rounded-2xl overflow-hidden"
-              style={{
-                height: "clamp(520px, calc(100vh - 340px), 600px)",
-              }}
+              className="w-full rounded-2xl overflow-hidden cal-embed-wrapper"
             >
               <Cal
                 namespace={CAL_NAMESPACE}

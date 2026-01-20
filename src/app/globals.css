@@ -217,43 +217,56 @@ a, button {
 
 /* ============================================
    Cal.com Embed Overrides - Scoped to Cal containers
-   Fixes confirmation modal clipping/overflow issues
+   Mobile: No nested scrolling - content flows in page scroll
+   Desktop: Contained height for better layout
    ============================================ */
 
-/* Target Cal.com iframe container - make it fill available space */
-[data-cal-namespace] iframe {
-  max-height: 86vh !important;
+/* Mobile: Let Cal embed expand naturally, no height constraints */
+/* This prevents nested scrolling - page scrolls instead */
+.cal-embed-wrapper {
+  min-height: 600px;
 }
 
-/* Cal.com modal/overlay fixes - these selectors target Cal's internal structure */
-/* The embed renders inside an iframe, but we can style the container */
+.cal-embed-wrapper iframe {
+  min-height: 600px;
+}
+
 [data-cal-namespace] {
-  /* Ensure the Cal container can grow */
-  max-height: 86vh;
   overflow: visible;
 }
 
-/* For inline embeds - ensure proper scrolling */
 [data-cal-namespace] > div {
-  max-height: inherit;
-  overflow-y: auto;
+  overflow: visible;
+}
+
+/* Desktop: Contained height for cleaner layout */
+@media (min-width: 768px) {
+  .cal-embed-wrapper {
+    height: clamp(520px, calc(100vh - 340px), 600px);
+    min-height: auto;
+  }
+
+  .cal-embed-wrapper iframe {
+    max-height: 86vh !important;
+    min-height: 520px;
+  }
+
+  [data-cal-namespace] {
+    max-height: 86vh;
+  }
+
+  [data-cal-namespace] > div {
+    max-height: inherit;
+    overflow-y: auto;
+  }
 }
 
 /* Cal.com embed overlay modal (when it opens as popup) */
-/* Cal uses these data attributes for their modals */
 [data-cal-link] {
   max-height: 86vh !important;
 }
 
-/* Scoped styles for our Cal embed wrappers */
-.cal-embed-wrapper iframe,
-#cta [data-cal-namespace] iframe {
-  max-height: 86vh !important;
-  min-height: 560px;
-}
-
 /* Fix for Cal.com's internal booking success modal */
-/* Cal renders confirmation in a scrollable container - ensure it works */
 [data-cal-namespace] [role="dialog"],
 [data-cal-namespace] [data-state="open"] {
   max-height: 86vh !important;
@@ -266,22 +279,24 @@ a, button {
   overflow-y: auto !important;
 }
 
-/* Dark theme scrollbar for Cal embed areas */
-[data-cal-namespace] ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+/* Dark theme scrollbar for Cal embed areas (desktop only) */
+@media (min-width: 768px) {
+  [data-cal-namespace] ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
 
-[data-cal-namespace] ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
+  [data-cal-namespace] ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
 
-[data-cal-namespace] ::-webkit-scrollbar-thumb {
-  background: rgba(124, 58, 237, 0.4);
-  border-radius: 3px;
-}
+  [data-cal-namespace] ::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.4);
+    border-radius: 3px;
+  }
 
-[data-cal-namespace] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 58, 237, 0.6);
+  [data-cal-namespace] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 58, 237, 0.6);
+  }
 }
