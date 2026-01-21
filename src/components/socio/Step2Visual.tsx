@@ -3191,25 +3191,25 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             display: none !important;
           }
 
-          /* Robot A: walks from left (0%) to meet B (30%), hands off cube, walks back */
+          /* Robot A: walks from left (0%) to meet B (25%), hands off cube, walks back */
           .robot-a-wrapper {
             animation: robotAWalkMobile 6.5s ease-in-out forwards;
           }
           @keyframes robotAWalkMobile {
             0%, 5% { left: 0%; }
-            22%, 32% { left: 30%; }
+            22%, 32% { left: 25%; }
             50%, 100% { left: 0%; }
           }
 
-          /* Robot B: starts at center (50%), walks left to meet A (38%), receives cube,
-             processes it briefly, then walks directly to PC (82%) - no middle stop */
+          /* Robot B: starts at center (50%), walks left to meet A (42%), receives cube,
+             processes it briefly, then walks to PC (75%) - more space from machine */
           .robot-b-wrapper {
             animation: robotBWalkMobile 6.5s ease-in-out forwards;
           }
           @keyframes robotBWalkMobile {
             0%, 18% { left: 50%; }
-            25%, 40% { left: 38%; }
-            70%, 100% { left: 82%; }
+            25%, 40% { left: 42%; }
+            70%, 100% { left: 75%; }
           }
 
           /* Robot B legs - walk cycle for mobile (left to A, then directly to PC) */
@@ -3256,20 +3256,22 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             100% { transform: rotate(0deg); }
           }
 
-          /* Robot B arms on mobile - receive from A (left arm), then extend right arm to insert into PC */
+          /* Robot B arms on mobile - receive with left arm, carry with right, insert into PC */
           .arm-b-left { animation: armBLeftMobile 6.5s ease-in-out forwards; }
           .arm-b-right { animation: armBRightMobile 6.5s ease-in-out forwards; }
           @keyframes armBLeftMobile {
             0%, 24% { transform: rotate(0deg); }
             /* Reach to receive from A */
-            28%, 35% { transform: rotate(-45deg); }
-            /* Back down after receiving */
-            40%, 100% { transform: rotate(0deg); }
+            28%, 32% { transform: rotate(-45deg); }
+            /* Back down after handoff */
+            36%, 100% { transform: rotate(0deg); }
           }
           @keyframes armBRightMobile {
-            0%, 65% { transform: rotate(0deg); }
-            /* Extend to insert cube into PC */
-            72%, 82% { transform: rotate(45deg); }
+            0%, 30% { transform: rotate(0deg); }
+            /* Hold orb while walking - arm stays forward */
+            36%, 70% { transform: rotate(25deg); }
+            /* Extend more to insert into PC */
+            76%, 82% { transform: rotate(45deg); }
             /* Celebrate */
             88%, 100% { transform: rotate(-20deg); }
           }
@@ -3287,66 +3289,40 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
               bottom: 24px;
               opacity: 1;
             }
-            /* A walks toward B (A goes from 0% to 30%) - orb follows A's hand */
-            10% {
-              left: 12%;
-              bottom: 24px;
-              opacity: 1;
-            }
-            15% {
-              left: 20%;
-              bottom: 24px;
-              opacity: 1;
-            }
-            /* A arrives at 30%, arm extends for handoff */
+            /* A walks toward B (A goes from 0% to 25%) - orb follows A smoothly */
             22% {
-              left: 32%;
+              left: 28%;
               bottom: 24px;
               opacity: 1;
             }
-            /* Handoff moment - orb floats to B (B is at 38%) */
-            25% {
-              left: 34%;
-              bottom: 30px;
-              opacity: 1;
-            }
-            /* B catches orb with left arm */
+            /* Handoff moment - orb transfers to B (B is at 42%) */
             28% {
               left: 38%;
               bottom: 26px;
               opacity: 1;
             }
-            /* B holds orb during processing (B stays at 38% until 40%) */
-            32%, 40% {
-              left: 40%;
+            /* B holds orb steadily during processing and walking - single consistent position relative to B */
+            /* B stays at 42% until 40%, then walks to 75% */
+            40% {
+              left: 44%;
               bottom: 26px;
               opacity: 1;
             }
-            /* B walks directly to PC (38% -> 82%) - orb moves with B */
-            50% {
-              left: 55%;
-              bottom: 24px;
-              opacity: 1;
-            }
-            60% {
-              left: 68%;
-              bottom: 24px;
-              opacity: 1;
-            }
-            /* B arrives at PC (82%), extends arm to insert */
+            /* B walks to PC - orb stays in same relative position (slightly ahead of B's center) */
             70% {
-              left: 84%;
-              bottom: 24px;
+              left: 77%;
+              bottom: 26px;
               opacity: 1;
             }
-            74% {
-              left: 86%;
+            /* B extends arm to insert into PC */
+            76% {
+              left: 82%;
               bottom: 28px;
               opacity: 1;
             }
             /* Orb enters PC slot */
-            78%, 100% {
-              left: 90%;
+            82%, 100% {
+              left: 88%;
               bottom: 30px;
               opacity: 1;
             }
