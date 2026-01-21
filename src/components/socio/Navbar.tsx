@@ -80,7 +80,7 @@ export default function Navbar() {
             </motion.a>
             <motion.a
               href="#cta"
-              className="relative inline-flex items-center justify-center px-5 py-2.5 rounded-lg text-sm font-medium bg-primary text-primary-foreground overflow-hidden group"
+              className="relative inline-flex items-center justify-center px-4 py-2 rounded-lg text-xs font-medium bg-primary text-primary-foreground overflow-hidden group"
               whileHover={buttonMotion.hover}
               whileTap={buttonMotion.tap}
               transition={buttonMotion.transition}
