@@ -3619,9 +3619,9 @@ export default function Step2Visual() {
   // Calculate opacities for states
   // BEFORE state stays fully visible until progress 0.19, then INSTANTLY disappears at 0.20
   // Robots appear at 0.20 - instant cut, no fade, no duplicate elements visible
-  // PO (After) shows after robot animation completes (0.85-0.95) - gives time for orb insertion
+  // PO (After) appears INSTANTLY at 0.92 - no fade to avoid showing partial transition state
   const beforeOpacity = useTransform(smoothProgress, [0.19, 0.20], [1, 0]);
-  const afterOpacity = useTransform(smoothProgress, [0.85, 0.95], [0, 1]);
+  const afterOpacity = useTransform(smoothProgress, [0.91, 0.92], [0, 1]);
 
   const [beforeOp, setBeforeOp] = useState(1);
   const [afterOp, setAfterOp] = useState(0);
