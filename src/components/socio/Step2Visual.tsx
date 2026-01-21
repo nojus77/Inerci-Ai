@@ -810,14 +810,6 @@ function AfterState({ opacity, progress }: { opacity: number; progress: number }
     { label: "Sąskaitų klaidos", saved: "+1.7h/sav.", pct: 91 },
   ];
 
-  // Activity feed - clean, recent actions
-  const activityFeed = [
-    { icon: "✓", text: "CRM papildyta 18 lead'ų", time: "prieš 2 min" },
-    { icon: "✓", text: "Išsiųsti 7 follow-up", time: "prieš 6 min" },
-    { icon: "✓", text: "Sutvarkytos 4 sąskaitos", time: "prieš 12 min" },
-    { icon: "✓", text: "Kalendorius sinchronizuotas", time: "prieš 21 min" },
-  ];
-
   return (
     <div
       className="absolute inset-0 p-2 pt-8 pointer-events-none po-dashboard"
@@ -962,23 +954,6 @@ function AfterState({ opacity, progress }: { opacity: number; progress: number }
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════
-         ACTIVITY: Bottom feed
-         ══════════════════════════════════════════════════════════════ */}
-      <div className="po-activity">
-        <div className="po-activity-header">
-          <span className="po-activity-title">Šią savaitę</span>
-        </div>
-        <div className="po-activity-rows">
-          {activityFeed.slice(0, 3).map((item, i) => (
-            <div key={i} className="po-activity-row" style={{ animationDelay: `${i * 0.05}s` }}>
-              <span className="po-activity-check">{item.icon}</span>
-              <span className="po-activity-text">{item.text}</span>
-              <span className="po-activity-time">{item.time}</span>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
