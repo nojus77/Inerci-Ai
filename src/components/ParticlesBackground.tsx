@@ -39,6 +39,15 @@ export default function ParticlesBackground({
   const mouseRef = useRef({ x: 0.5, y: 0.5 });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isInView, setIsInView] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Check reduced motion preference
   useEffect(() => {
@@ -67,20 +76,23 @@ export default function ParticlesBackground({
 
   // Initialize particles distributed across viewport
   const initParticles = useCallback(
-    (width: number, height: number) => {
+    (width: number, height: number, mobile: boolean) => {
       // Scale count based on screen size (mobile gets fewer)
       const scaledCount = Math.min(
         particleCount,
         Math.max(40, Math.floor((width * height) / 15000))
       );
 
+      // Faster movement on mobile (2x speed)
+      const speedMultiplier = mobile ? 2.4 : 1.2;
+
       const particles: Particle[] = [];
       for (let i = 0; i < scaledCount; i++) {
         particles.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 1.2,
-          vy: (Math.random() - 0.5) * 1.2,
+          vx: (Math.random() - 0.5) * speedMultiplier,
+          vy: (Math.random() - 0.5) * speedMultiplier,
           radius: Math.random() * 2 + 1, // 1-3px
           opacity: Math.random() * 0.35 + 0.25, // 0.25-0.6
           phase: Math.random() * Math.PI * 2,
@@ -129,20 +141,13 @@ export default function ParticlesBackground({
 
       // Scale context for crisp rendering
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // Reinitialize particles if needed
-      if (particlesRef.current.length === 0) {
-        initParticles(width, height);
-      }
     };
 
     resize();
     window.addEventListener("resize", resize);
 
-    // Initialize particles
-    if (particlesRef.current.length === 0) {
-      initParticles(width, height);
-    }
+    // Initialize particles (reinitialize when mobile state changes for different speeds)
+    initParticles(width || window.innerWidth, height || window.innerHeight, isMobile);
 
     let time = 0;
     let isRunning = true;
@@ -225,7 +230,7 @@ export default function ParticlesBackground({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [initParticles, prefersReducedMotion, baseColor, minOpacity, debug, isInView]);
+  }, [initParticles, prefersReducedMotion, baseColor, minOpacity, debug, isInView, isMobile]);
 
   return (
     <div ref={containerRef} className="absolute inset-0 w-full h-full">
