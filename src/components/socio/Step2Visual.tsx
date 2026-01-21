@@ -2486,57 +2486,51 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           transform: translateZ(0);
         }
         @keyframes orbMove {
-          /* Robot A starts at 0%, orb in A's RIGHT hand */
+          /* === PHASE 1: Robot A carries orb === */
+          /* A starts at 0%, orb in A's hand. Orb offset: +4% from robot position */
           0%, 3% { left: 4%; bottom: 24px; opacity: 1; }
-          /* A walks right (to 26%), orb moves with A's right hand */
-          10% { left: 14%; bottom: 24px; opacity: 1; }
-          18% { left: 24%; bottom: 24px; opacity: 1; }
-          /* A at 26%, arm extends (-40deg rotation), orb reaches out */
+          /* A walks to 26% (timeline 3%-22%), orb stays with A's hand */
           22% { left: 30%; bottom: 24px; opacity: 1; }
-          /* A's arm extended, orb at handoff position */
-          25% { left: 32%; bottom: 30px; opacity: 1; }
-          /* Orb floats across to B's LEFT hand (B is at 38%) */
-          27% { left: 36%; bottom: 32px; opacity: 1; }
-          /* B catches with left arm (40deg rotation), orb in B's left hand */
-          30% { left: 40%; bottom: 26px; opacity: 1; }
-          /* B processes - orb lifts up above B */
-          35% { left: 40%; bottom: 45px; opacity: 1; }
-          38% { left: 42%; bottom: 48px; opacity: 1; }
-          /* Orb comes down to B's RIGHT hand as B prepares to walk right */
-          42% { left: 44%; bottom: 24px; opacity: 1; }
-          /* B walks right (to 58%), orb in B's right hand */
-          46% { left: 50%; bottom: 24px; opacity: 1; }
-          /* B at 58%, arm extends (-40deg), orb reaches toward C */
+          /* A extends arm for handoff (22-25%), orb reaches out */
+          25% { left: 33%; bottom: 28px; opacity: 1; }
+
+          /* === PHASE 2: Handoff A->B === */
+          /* Quick transfer to B's left hand. B is at 38%, orb offset: +2% */
+          28% { left: 40%; bottom: 26px; opacity: 1; }
+
+          /* === PHASE 3: Robot B processes === */
+          /* B holds orb, processes it (orb lifts slightly) */
+          32%, 36% { left: 40%; bottom: 32px; opacity: 1; }
+          /* B walks right to 58% (timeline 38-50%), orb moves with B */
           50% { left: 60%; bottom: 24px; opacity: 1; }
-          52% { left: 62%; bottom: 28px; opacity: 1; }
-          /* Orb floats to C's LEFT hand (C walked to 68%) */
-          55% { left: 66%; bottom: 32px; opacity: 1; }
-          /* C catches with left arm (40deg rotation) */
-          58% { left: 70%; bottom: 26px; opacity: 1; }
-          /* C holds orb, starts walking right */
-          62% { left: 72%; bottom: 24px; opacity: 1; }
-          /* C walks to PC (82%), orb moves with C */
-          68% { left: 74%; bottom: 24px; opacity: 1; }
-          74% { left: 78%; bottom: 24px; opacity: 1; }
-          78% { left: 82%; bottom: 24px; opacity: 1; }
-          /* C at 82%, right arm extends to insert (-40deg) */
-          80% { left: 84%; bottom: 28px; opacity: 1; }
-          83% { left: 88%; bottom: 40px; opacity: 1; }
+          /* B extends arm for handoff to C */
+          53% { left: 63%; bottom: 28px; opacity: 1; }
+
+          /* === PHASE 4: Handoff B->C === */
+          /* Quick transfer to C's left hand. C is at 68%, orb offset: +2% */
+          56% { left: 70%; bottom: 26px; opacity: 1; }
+
+          /* === PHASE 5: Robot C carries to PC === */
+          /* C holds orb, walks to 82% (timeline 65-78%) */
+          65% { left: 70%; bottom: 24px; opacity: 1; }
+          78% { left: 84%; bottom: 24px; opacity: 1; }
+          /* C extends right arm to insert (78-85%) */
+          82% { left: 88%; bottom: 35px; opacity: 1; }
           /* Orb inserts into PC slot */
-          86% { left: 91%; bottom: 52px; opacity: 1; transform: scale(0.6); }
-          /* Orb absorbed into PC with flash */
-          90%, 100% { left: 91%; bottom: 55px; opacity: 0; transform: scale(0.1); }
+          86% { left: 92%; bottom: 50px; opacity: 1; transform: scale(0.6); }
+          /* Orb absorbed into PC */
+          90%, 100% { left: 92%; bottom: 55px; opacity: 0; transform: scale(0.1); }
         }
 
         .mystic-orb {
           position: relative;
           width: 100%;
           height: 100%;
-          animation: orbPulse 1.5s ease-in-out infinite;
+          animation: orbPulse 2s ease-in-out infinite;
         }
         @keyframes orbPulse {
           0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.08); }
+          50% { transform: scale(1.04); }
         }
 
         /* Outer glow ring - scaled down for smaller orb */
