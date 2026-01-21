@@ -2486,36 +2486,40 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           transform: translateZ(0);
         }
         @keyframes orbMove {
-          /* === PHASE 1: Robot A carries orb === */
-          /* A starts at 0%, orb in A's hand. Orb offset: +4% from robot position */
+          /* === PHASE 1: Robot A carries orb (in RIGHT hand) === */
+          /* A starts at 0%, orb in A's RIGHT hand (+4% offset from robot) */
           0%, 3% { left: 4%; bottom: 24px; opacity: 1; }
-          /* A walks to 26% (timeline 3%-22%), orb stays with A's hand */
+          /* A walks to 26%, orb stays in right hand */
           22% { left: 30%; bottom: 24px; opacity: 1; }
-          /* A extends arm for handoff (22-25%), orb reaches out */
+          /* A extends right arm for handoff */
           25% { left: 33%; bottom: 28px; opacity: 1; }
 
-          /* === PHASE 2: Handoff A->B === */
-          /* Quick transfer to B's left hand. B is at 38%, orb offset: +2% */
-          28% { left: 40%; bottom: 26px; opacity: 1; }
+          /* === PHASE 2: Handoff A->B (B's LEFT hand) === */
+          /* B is at 38%, LEFT hand is at ~35% (robot center - 3%) */
+          28% { left: 35%; bottom: 26px; opacity: 1; }
 
-          /* === PHASE 3: Robot B processes === */
-          /* B holds orb, processes it (orb lifts slightly) */
-          32%, 36% { left: 40%; bottom: 32px; opacity: 1; }
-          /* B walks right to 58% (timeline 38-50%), orb moves with B */
-          50% { left: 60%; bottom: 24px; opacity: 1; }
-          /* B extends arm for handoff to C */
-          53% { left: 63%; bottom: 28px; opacity: 1; }
+          /* === PHASE 3: Robot B holds in LEFT hand, then transfers to RIGHT === */
+          /* B holds in left hand (35%), processes */
+          32% { left: 35%; bottom: 30px; opacity: 1; }
+          /* Transfer to B's RIGHT hand before walking right */
+          38% { left: 41%; bottom: 26px; opacity: 1; }
+          /* B walks right to 58%, orb in RIGHT hand (+3% offset) */
+          50% { left: 61%; bottom: 24px; opacity: 1; }
+          /* B extends right arm for handoff to C */
+          53% { left: 64%; bottom: 28px; opacity: 1; }
 
-          /* === PHASE 4: Handoff B->C === */
-          /* Quick transfer to C's left hand. C is at 68%, orb offset: +2% */
-          56% { left: 70%; bottom: 26px; opacity: 1; }
+          /* === PHASE 4: Handoff B->C (C's LEFT hand) === */
+          /* C is at 68%, LEFT hand is at ~65% */
+          56% { left: 65%; bottom: 26px; opacity: 1; }
 
-          /* === PHASE 5: Robot C carries to PC === */
-          /* C holds orb, walks to 82% (timeline 65-78%) */
-          65% { left: 70%; bottom: 24px; opacity: 1; }
-          78% { left: 84%; bottom: 24px; opacity: 1; }
-          /* C extends right arm to insert (78-85%) */
-          82% { left: 88%; bottom: 35px; opacity: 1; }
+          /* === PHASE 5: Robot C carries in LEFT hand, then RIGHT for insert === */
+          /* C holds in left hand while walking to 82% */
+          65% { left: 65%; bottom: 24px; opacity: 1; }
+          74% { left: 76%; bottom: 24px; opacity: 1; }
+          /* Transfer to C's RIGHT hand for PC insert */
+          78% { left: 85%; bottom: 26px; opacity: 1; }
+          /* C extends right arm to insert */
+          82% { left: 89%; bottom: 35px; opacity: 1; }
           /* Orb inserts into PC slot */
           86% { left: 92%; bottom: 50px; opacity: 1; transform: scale(0.6); }
           /* Orb absorbed into PC */
