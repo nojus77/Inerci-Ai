@@ -962,12 +962,12 @@ function AfterState({ opacity, progress }: { opacity: number; progress: number }
 function TransitionElements({ progress }: { progress: number }) {
   // Warnings fade out from 0.15 to 0.4
   const warningOpacity = Math.max(0, Math.min(1, (0.4 - progress) / 0.25));
-  // Checks fade in from 0.35 to 0.6, then fade out from 0.7 to 0.9
+  // Checks fade in from 0.35 to 0.6, then fade out QUICKLY from 0.7 to 0.78 (before PO appears at 0.91)
   const checkFadeIn = Math.max(0, Math.min(1, (progress - 0.35) / 0.25));
-  const checkFadeOut = Math.max(0, Math.min(1, (0.9 - progress) / 0.2));
+  const checkFadeOut = Math.max(0, Math.min(1, (0.78 - progress) / 0.08));
   const checkOpacity = Math.min(checkFadeIn, checkFadeOut);
 
-  if (progress < 0.15 || progress > 0.9) return null;
+  if (progress < 0.15 || progress > 0.78) return null;
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10">
