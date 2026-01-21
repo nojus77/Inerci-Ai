@@ -3256,24 +3256,24 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             100% { transform: rotate(0deg); }
           }
 
-          /* Robot B arms on mobile - receive with left arm, carry with right, insert into PC */
+          /* Robot B arms on mobile - receive AND carry with left arm only (no hand switching) */
           .arm-b-left { animation: armBLeftMobile 6.5s ease-in-out forwards; }
           .arm-b-right { animation: armBRightMobile 6.5s ease-in-out forwards; }
           @keyframes armBLeftMobile {
             0%, 24% { transform: rotate(0deg); }
             /* Reach to receive from A */
-            28%, 32% { transform: rotate(-45deg); }
-            /* Back down after handoff */
-            36%, 100% { transform: rotate(0deg); }
+            28% { transform: rotate(-45deg); }
+            /* Hold orb while walking - same arm, stays extended */
+            32%, 70% { transform: rotate(-30deg); }
+            /* Extend more to insert into PC */
+            76%, 82% { transform: rotate(-45deg); }
+            /* Celebrate - arm up */
+            88%, 100% { transform: rotate(-60deg); }
           }
           @keyframes armBRightMobile {
-            0%, 30% { transform: rotate(0deg); }
-            /* Hold orb while walking - arm stays forward */
-            36%, 70% { transform: rotate(25deg); }
-            /* Extend more to insert into PC */
-            76%, 82% { transform: rotate(45deg); }
-            /* Celebrate */
-            88%, 100% { transform: rotate(-20deg); }
+            /* Right arm just does a small celebration wave at the end */
+            0%, 82% { transform: rotate(0deg); }
+            88%, 100% { transform: rotate(20deg); }
           }
 
           /* Mobile orb - override wrapper animation for simplified 2-robot flow */
@@ -3295,35 +3295,36 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
               bottom: 24px;
               opacity: 1;
             }
-            /* Handoff moment - orb transfers to B (B is at 42%) */
+            /* Handoff moment - orb goes to B's left hand (B is at 42%, orb on left side = 40%) */
             28% {
-              left: 38%;
-              bottom: 26px;
-              opacity: 1;
-            }
-            /* B holds orb steadily during processing and walking - single consistent position relative to B */
-            /* B stays at 42% until 40%, then walks to 75% */
-            40% {
-              left: 44%;
-              bottom: 26px;
-              opacity: 1;
-            }
-            /* B walks to PC - orb stays in same relative position (slightly ahead of B's center) */
-            70% {
-              left: 77%;
-              bottom: 26px;
-              opacity: 1;
-            }
-            /* B extends arm to insert into PC */
-            76% {
-              left: 82%;
+              left: 40%;
               bottom: 28px;
+              opacity: 1;
+            }
+            /* B holds orb in left hand - stays ~2% left of B's center consistently */
+            /* B at 42% -> orb at 40% */
+            32%, 40% {
+              left: 40%;
+              bottom: 28px;
+              opacity: 1;
+            }
+            /* B walks to PC (42% -> 75%) - orb stays 2% left of B */
+            /* B at 75% -> orb at 73% */
+            70% {
+              left: 73%;
+              bottom: 28px;
+              opacity: 1;
+            }
+            /* B extends left arm to insert into PC */
+            76% {
+              left: 80%;
+              bottom: 30px;
               opacity: 1;
             }
             /* Orb enters PC slot */
             82%, 100% {
               left: 88%;
-              bottom: 30px;
+              bottom: 32px;
               opacity: 1;
             }
           }
