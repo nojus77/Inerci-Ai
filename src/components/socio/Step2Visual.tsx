@@ -3410,23 +3410,23 @@ function Scanline({ progress }: { progress: number }) {
       className="absolute top-0 bottom-0 w-[2px] pointer-events-none z-30"
       style={{
         left: `${progress * 100}%`,
-        background: "linear-gradient(180deg, rgba(167, 139, 250, 0.6) 0%, #a78bfa 50%, rgba(167, 139, 250, 0.6) 100%)",
+        background: "linear-gradient(180deg, rgba(167, 139, 250, 0.25) 0%, rgba(167, 139, 250, 0.4) 50%, rgba(167, 139, 250, 0.25) 100%)",
         boxShadow: `
-          0 0 15px rgba(167, 139, 250, 0.8),
-          0 0 30px rgba(167, 139, 250, 0.4)
+          0 0 10px rgba(167, 139, 250, 0.3),
+          0 0 20px rgba(167, 139, 250, 0.15)
         `,
       }}
     >
       <div
         className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full"
         style={{
-          background: "radial-gradient(circle, #a78bfa 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(167, 139, 250, 0.4) 0%, transparent 70%)",
         }}
       />
       <div
         className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full"
         style={{
-          background: "radial-gradient(circle, #a78bfa 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(167, 139, 250, 0.4) 0%, transparent 70%)",
         }}
       />
     </div>
