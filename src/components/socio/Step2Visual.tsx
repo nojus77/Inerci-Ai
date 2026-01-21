@@ -3579,8 +3579,8 @@ export default function Step2Visual() {
     let timeoutId: NodeJS.Timeout;
     let intervalId: NodeJS.Timeout;
 
-    // Mobile: 0.003 increment = ~8.3s total, Desktop: 0.002 = ~12.5s
-    const progressIncrement = isMobile ? 0.003 : 0.002;
+    // Mobile: 0.0033 increment = ~7.5s total, Desktop: 0.0022 = ~11.4s (10% faster)
+    const progressIncrement = isMobile ? 0.0033 : 0.0022;
     // Mobile: shorter pause (4s vs 6s)
     const endPause = isMobile ? 4000 : 6000;
     // Mobile: shorter initial delay (1s vs 1.5s) - show "before" less
