@@ -145,7 +145,7 @@ const AuditFinding = memo(function AuditFinding({
           </svg>
         )}
       </div>
-      <span className="text-[7px] text-white/50 whitespace-nowrap">{finding.text}</span>
+      <span className="text-[8px] text-white/70 font-semibold whitespace-nowrap">{finding.text}</span>
     </div>
   );
 });
@@ -457,7 +457,7 @@ export default function Step1Visual() {
             <svg className="w-3 h-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <span className="text-[8px] text-white/50 font-medium tracking-wide">AUDITAS</span>
+            <span className="text-[9px] text-white/70 font-bold tracking-wide">AUDITAS</span>
           </div>
 
           <div className="space-y-1.5">
