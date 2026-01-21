@@ -4,6 +4,8 @@ import "./globals.css";
 import GlobalParticles from "@/components/GlobalParticles";
 import CalWrapper from "@/components/cal/CalWrapper";
 import ExitIntentModal from "@/components/ExitIntentModal";
+import ClarityAnalytics from "@/components/ClarityAnalytics";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,6 +53,10 @@ export default function RootLayout({
 
         {/* Global particles background - fixed at z-index: 1 */}
         <GlobalParticles />
+
+        {/* Analytics */}
+        <GoogleAnalytics />
+        <ClarityAnalytics />
 
         {/* Cal.com booking modal provider */}
         <CalWrapper>
