@@ -1941,8 +1941,12 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
                 <div className="robot-body-main robot-body-c">
                   <div className="body-light body-light-c" />
                 </div>
-                {/* Arm */}
-                <div className="robot-arm arm-c">
+                {/* Arms (both sides) */}
+                <div className="robot-arm arm-c-left">
+                  <div className="arm-segment" />
+                  <div className="arm-hand" />
+                </div>
+                <div className="robot-arm arm-c-right">
                   <div className="arm-segment" />
                   <div className="arm-hand" />
                 </div>
@@ -2166,7 +2170,8 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
         .arm-a-left { left: -6px; animation: armALeftCelebrate 6.5s ease-in-out forwards; }
         .arm-b-left { left: -6px; animation: armBLeft 6.5s ease-in-out forwards; }
         .arm-b-right { right: -6px; animation: armBRight 6.5s ease-in-out forwards; }
-        .arm-c { left: -6px; animation: armC 6.5s ease-in-out forwards; }
+        .arm-c-left { left: -6px; animation: armCLeft 6.5s ease-in-out forwards; }
+        .arm-c-right { right: -6px; animation: armCRight 6.5s ease-in-out forwards; }
         .arm-segment {
           width: 100%;
           height: 10px;
@@ -2301,12 +2306,12 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           78%, 100% { left: 50%; }
         }
 
-        /* Robot C: walks from right (80%) left to meet B (68%), receives cube, walks to mini PC (88%), inserts cube */
-        /* Timeline: 0-42% idle, 42-50% walk left to 68%, 50-65% receive from B, 65-80% walk right to PC, 80-90% stand+insert, 90-100% done */
+        /* Robot C: walks from right (80%) left to meet B (68%), receives cube, walks to mini PC (82%), inserts cube */
+        /* Timeline: 0-42% idle, 42-50% walk left to 68%, 50-65% receive from B, 65-78% walk right to PC, 78-90% stand+insert, 90-100% done */
         @keyframes robotCWalk {
           0%, 42% { left: 80%; }
           50%, 65% { left: 68%; }
-          80%, 100% { left: 88%; }
+          78%, 100% { left: 82%; }
         }
 
         /* Robot B legs - walk cycle when moving */
@@ -2448,15 +2453,22 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           98% { transform: rotate(-72deg); }
           100% { transform: rotate(-80deg); }
         }
-        /* Robot C arm reaches to receive (50-58%), then extends to insert cube into PC (82-88%) */
-        .arm-c { animation: armC 6.5s ease-in-out forwards; }
-        @keyframes armC {
+        /* Robot C left arm reaches to receive (50-58%), holds during walk, then idle */
+        @keyframes armCLeft {
           0%, 48% { transform: rotate(0deg); }
+          /* Reach to receive orb from B */
           50%, 58% { transform: rotate(40deg); }
-          62%, 80% { transform: rotate(0deg); }
+          /* Hold orb during walk to PC */
+          62%, 78% { transform: rotate(20deg); }
+          /* Idle while right arm inserts */
+          80%, 100% { transform: rotate(0deg); }
+        }
+        /* Robot C right arm - idle, then extends to insert cube into PC (78-85%) */
+        @keyframes armCRight {
+          0%, 76% { transform: rotate(0deg); }
           /* Extend arm forward to insert cube into PC slot */
-          82%, 88% { transform: rotate(-35deg); }
-          90%, 100% { transform: rotate(0deg); }
+          78%, 85% { transform: rotate(-40deg); }
+          88%, 100% { transform: rotate(0deg); }
         }
 
         /* === MYSTIC ORB === */
@@ -2503,17 +2515,17 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           58% { left: 70%; bottom: 26px; opacity: 1; }
           /* C holds orb, starts walking right */
           62% { left: 72%; bottom: 24px; opacity: 1; }
-          /* C walks to PC (86%), orb moves with C */
-          68% { left: 76%; bottom: 24px; opacity: 1; }
-          74% { left: 80%; bottom: 24px; opacity: 1; }
-          80% { left: 86%; bottom: 24px; opacity: 1; }
-          /* C at PC, arm extends to insert (-35deg) */
-          82% { left: 88%; bottom: 32px; opacity: 1; }
-          85% { left: 90%; bottom: 45px; opacity: 1; }
+          /* C walks to PC (82%), orb moves with C */
+          68% { left: 74%; bottom: 24px; opacity: 1; }
+          74% { left: 78%; bottom: 24px; opacity: 1; }
+          78% { left: 82%; bottom: 24px; opacity: 1; }
+          /* C at 82%, right arm extends to insert (-40deg) */
+          80% { left: 84%; bottom: 28px; opacity: 1; }
+          83% { left: 88%; bottom: 40px; opacity: 1; }
           /* Orb inserts into PC slot */
-          88% { left: 91%; bottom: 55px; opacity: 1; transform: scale(0.6); }
+          86% { left: 91%; bottom: 52px; opacity: 1; transform: scale(0.6); }
           /* Orb absorbed into PC with flash */
-          92%, 100% { left: 91%; bottom: 55px; opacity: 0; transform: scale(0.1); }
+          90%, 100% { left: 91%; bottom: 55px; opacity: 0; transform: scale(0.1); }
         }
 
         .mystic-orb {
