@@ -3202,18 +3202,17 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
           }
 
           /* Robot B: starts at center (50%), walks left to meet A (38%), receives cube,
-             processes it (yellow), then walks right to PC (82%), inserts cube (green) */
+             processes it briefly, then walks directly to PC (82%) - no middle stop */
           .robot-b-wrapper {
             animation: robotBWalkMobile 6.5s ease-in-out forwards;
           }
           @keyframes robotBWalkMobile {
             0%, 18% { left: 50%; }
-            25%, 38% { left: 38%; }
-            50%, 58% { left: 50%; }
-            75%, 100% { left: 82%; }
+            25%, 40% { left: 38%; }
+            70%, 100% { left: 82%; }
           }
 
-          /* Robot B legs - walk cycle for mobile (left to A, back to center, then to PC) */
+          /* Robot B legs - walk cycle for mobile (left to A, then directly to PC) */
           .leg-b-left { animation: legBLeftMobile 6.5s ease-in-out forwards; }
           .leg-b-right { animation: legBRightMobile 6.5s ease-in-out forwards; }
           @keyframes legBLeftMobile {
@@ -3224,19 +3223,16 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             24% { transform: rotate(15deg); }
             25% { transform: rotate(0deg); }
             /* Idle during handoff + processing */
-            38%, 50% { transform: rotate(0deg); }
-            /* Walk back to center */
+            40% { transform: rotate(0deg); }
+            /* Walk right directly to PC (longer walk) */
+            44% { transform: rotate(-15deg); }
+            48% { transform: rotate(15deg); }
             52% { transform: rotate(-15deg); }
-            54% { transform: rotate(15deg); }
-            56% { transform: rotate(-15deg); }
-            58% { transform: rotate(0deg); }
-            /* Walk right to PC */
-            62% { transform: rotate(-15deg); }
-            65% { transform: rotate(15deg); }
+            56% { transform: rotate(15deg); }
+            60% { transform: rotate(-15deg); }
+            64% { transform: rotate(15deg); }
             68% { transform: rotate(-15deg); }
-            71% { transform: rotate(15deg); }
-            74% { transform: rotate(-15deg); }
-            75% { transform: rotate(0deg); }
+            70% { transform: rotate(0deg); }
             100% { transform: rotate(0deg); }
           }
           @keyframes legBRightMobile {
@@ -3247,19 +3243,16 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             24% { transform: rotate(-15deg); }
             25% { transform: rotate(0deg); }
             /* Idle during handoff + processing */
-            38%, 50% { transform: rotate(0deg); }
-            /* Walk back (opposite phase) */
+            40% { transform: rotate(0deg); }
+            /* Walk right directly to PC (opposite phase) */
+            44% { transform: rotate(15deg); }
+            48% { transform: rotate(-15deg); }
             52% { transform: rotate(15deg); }
-            54% { transform: rotate(-15deg); }
-            56% { transform: rotate(15deg); }
-            58% { transform: rotate(0deg); }
-            /* Walk right to PC (opposite phase) */
-            62% { transform: rotate(15deg); }
-            65% { transform: rotate(-15deg); }
+            56% { transform: rotate(-15deg); }
+            60% { transform: rotate(15deg); }
+            64% { transform: rotate(-15deg); }
             68% { transform: rotate(15deg); }
-            71% { transform: rotate(-15deg); }
-            74% { transform: rotate(15deg); }
-            75% { transform: rotate(0deg); }
+            70% { transform: rotate(0deg); }
             100% { transform: rotate(0deg); }
           }
 
@@ -3274,11 +3267,11 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
             40%, 100% { transform: rotate(0deg); }
           }
           @keyframes armBRightMobile {
-            0%, 70% { transform: rotate(0deg); }
+            0%, 65% { transform: rotate(0deg); }
             /* Extend to insert cube into PC */
-            78%, 88% { transform: rotate(45deg); }
+            72%, 82% { transform: rotate(45deg); }
             /* Celebrate */
-            92%, 100% { transform: rotate(-20deg); }
+            88%, 100% { transform: rotate(-20deg); }
           }
 
           /* Mobile orb - override wrapper animation for simplified 2-robot flow */
@@ -3323,48 +3316,36 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
               bottom: 26px;
               opacity: 1;
             }
-            /* B holds orb during processing (B at 38%) */
-            32%, 38% {
+            /* B holds orb during processing (B stays at 38% until 40%) */
+            32%, 40% {
               left: 40%;
               bottom: 26px;
               opacity: 1;
             }
-            /* B walks back to center (B goes to 50%) - orb moves with B */
+            /* B walks directly to PC (38% -> 82%) - orb moves with B */
             50% {
-              left: 52%;
+              left: 55%;
               bottom: 24px;
               opacity: 1;
             }
-            /* B at center, preparing to walk to PC */
-            58% {
-              left: 52%;
-              bottom: 24px;
-              opacity: 1;
-            }
-            /* B walks right toward PC (B goes from 50% to 82%) */
-            65% {
-              left: 65%;
-              bottom: 24px;
-              opacity: 1;
-            }
-            72% {
-              left: 76%;
+            60% {
+              left: 68%;
               bottom: 24px;
               opacity: 1;
             }
             /* B arrives at PC (82%), extends arm to insert */
-            75% {
+            70% {
               left: 84%;
               bottom: 24px;
               opacity: 1;
             }
-            78% {
+            74% {
               left: 86%;
               bottom: 28px;
               opacity: 1;
             }
             /* Orb enters PC slot */
-            82%, 100% {
+            78%, 100% {
               left: 90%;
               bottom: 30px;
               opacity: 1;
