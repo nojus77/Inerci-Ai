@@ -3351,6 +3351,78 @@ function AutomationOverlay({ progress }: { progress: MotionValue<number> }) {
               opacity: 1;
             }
           }
+
+          /* Mobile: Keep orb yellow (no green transition) - goes red -> yellow only */
+          .orb-core {
+            animation: orbCoreColorMobile 6.5s ease-in-out forwards !important;
+          }
+          @keyframes orbCoreColorMobile {
+            0%, 32% {
+              background: radial-gradient(circle at 30% 30%,
+                rgba(255, 150, 150, 0.95) 0%,
+                rgba(255, 77, 77, 0.9) 40%,
+                rgba(180, 30, 30, 0.85) 100%
+              );
+              box-shadow: 0 0 12px rgba(255, 77, 77, 0.8), inset 0 0 8px rgba(255, 200, 200, 0.4);
+            }
+            36%, 100% {
+              background: radial-gradient(circle at 30% 30%,
+                rgba(255, 255, 180, 0.95) 0%,
+                rgba(255, 204, 0, 0.9) 40%,
+                rgba(200, 150, 0, 0.85) 100%
+              );
+              box-shadow: 0 0 15px rgba(255, 204, 0, 0.9), inset 0 0 10px rgba(255, 255, 200, 0.5);
+            }
+          }
+
+          .orb-glow-ring {
+            animation: orbGlowRingMobile 6.5s ease-in-out forwards, orbRingSpin 3s linear infinite !important;
+          }
+          @keyframes orbGlowRingMobile {
+            0%, 32% {
+              border-color: rgba(255, 77, 77, 0.7);
+              box-shadow: 0 0 10px rgba(255, 77, 77, 0.5), inset 0 0 6px rgba(255, 77, 77, 0.2);
+            }
+            36%, 100% {
+              border-color: rgba(255, 204, 0, 0.8);
+              box-shadow: 0 0 12px rgba(255, 204, 0, 0.6), inset 0 0 8px rgba(255, 204, 0, 0.3);
+            }
+          }
+
+          .rune-1, .rune-2, .rune-3 {
+            animation-name: runeOrbit1, runeColorMobile !important;
+          }
+          .rune-2 {
+            animation-name: runeOrbit2, runeColorMobile !important;
+          }
+          .rune-3 {
+            animation-name: runeOrbit3, runeColorMobile !important;
+          }
+          @keyframes runeColorMobile {
+            0%, 32% { color: rgba(255, 120, 120, 0.9); text-shadow: 0 0 6px rgba(255, 77, 77, 0.8); }
+            36%, 100% { color: rgba(255, 230, 120, 0.9); text-shadow: 0 0 6px rgba(255, 204, 0, 0.8); }
+          }
+
+          .wisp-1, .wisp-2 {
+            animation-name: wispFloat1, wispColorMobile !important;
+          }
+          .wisp-2 {
+            animation-name: wispFloat2, wispColorMobile !important;
+          }
+          @keyframes wispColorMobile {
+            0%, 32% { background: rgba(255, 77, 77, 0.8); }
+            36%, 100% { background: rgba(255, 204, 0, 0.8); }
+          }
+
+          /* No flash on green since we skip green */
+          .mystic-orb::after {
+            animation: orbTransformFlashMobile 6.5s ease-out forwards !important;
+          }
+          @keyframes orbTransformFlashMobile {
+            0%, 34%, 38%, 100% { opacity: 0; transform: scale(1); }
+            35% { opacity: 0.9; transform: scale(1.4); }
+            36% { opacity: 0; transform: scale(1.6); }
+          }
         }
 
         /* Pause animations when not in view */
