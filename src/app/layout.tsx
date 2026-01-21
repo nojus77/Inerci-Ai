@@ -20,6 +20,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Inerci | AI Automatizacijos",
   description: "Kuriame aukštos kokybės AI sprendimus, kurie padeda verslams veikti efektyviau.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon.png", type: "image/png" },
+    ],
+    apple: "/favicon.png",
+  },
   openGraph: {
     title: "Inerci | AI Automatizacijos",
     description: "Kuriame aukštos kokybės AI sprendimus, kurie padeda verslams veikti efektyviau.",
