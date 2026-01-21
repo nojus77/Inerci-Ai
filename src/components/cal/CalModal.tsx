@@ -15,7 +15,7 @@ interface CalModalProps {
 }
 
 export default function CalModal({ open, onClose, calLink, namespace }: CalModalProps) {
-  // Initialize Cal API with UI config - no layout override for clean booking flow
+  // Initialize Cal API with UI config and booking event listener
   useEffect(() => {
     if (!open) return;
 
@@ -29,6 +29,19 @@ export default function CalModal({ open, onClose, calLink, namespace }: CalModal
           },
         },
         hideEventTypeDetails: false,
+      });
+
+      // Track successful bookings in Google Analytics
+      cal("on", {
+        action: "bookingSuccessful",
+        callback: () => {
+          if (typeof window !== "undefined" && typeof window.gtag === "function") {
+            window.gtag("event", "booking_completed", {
+              event_category: "conversion",
+              event_label: "cal_booking",
+            });
+          }
+        },
       });
     })();
   }, [open, namespace]);
