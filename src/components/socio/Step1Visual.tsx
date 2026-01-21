@@ -454,11 +454,9 @@ export default function Step1Visual() {
           transition={{ duration: 0.5, delay: 1 }}
         >
           <div className="flex items-center gap-1.5 mb-2">
-            <div className={`${isInView && !reducedMotion ? "animate-rotate" : ""}`}>
-              <svg className="w-3 h-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
+            <svg className="w-3 h-3 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <span className="text-[8px] text-white/50 font-medium tracking-wide">AUDITAS</span>
           </div>
 
