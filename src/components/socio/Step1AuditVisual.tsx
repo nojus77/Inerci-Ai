@@ -64,13 +64,17 @@ const OUTER_NODES = ["crm", "email", "sheets", "calendar", "slack", "api", "exce
 
 // Dot config - different speeds for mobile vs desktop
 const DOT_CONFIG = {
-  durMobile: 3.5,  // Slower on mobile for smoother feel
+  durMobile: 4.5,      // Base mobile speed (slower)
+  durMobileSlow: 6.0,  // Extra slow dots on mobile for variety
   durDesktop: 2.2,
-  durSlow: 4.5,    // Slow ambient dots (desktop only)
-  durFast: 0.6,    // Super fast burst dots (desktop only)
+  durSlow: 4.5,        // Slow ambient dots (desktop only)
+  durFast: 0.6,        // Super fast burst dots (desktop only)
   sizeMobile: 3,
   sizeDesktop: 4
 };
+
+// Paths that should be extra slow on mobile (every other one for variety)
+const SLOW_MOBILE_PATHS = ["crm", "sheets", "slack", "excel"] as const;
 
 // Slow ambient dots - these drift lazily for visual variety (desktop only)
 const SLOW_DOTS = [
@@ -438,7 +442,10 @@ export default function Step1AuditVisual() {
 
           const flowPathId = `flow-${flow.from}-${flow.to}`;
           const flowPathD = `M ${flow.x1} ${flow.y1} L ${flow.xMid} ${flow.yMid} L ${flow.x2} ${flow.y2}`;
-          const dur = `${isMobile ? DOT_CONFIG.durMobile : DOT_CONFIG.durDesktop}s`;
+          // On mobile, some dots move slower for visual variety
+          const isSlowMobilePath = SLOW_MOBILE_PATHS.includes(flow.from as typeof SLOW_MOBILE_PATHS[number]);
+          const mobileDur = isSlowMobilePath ? DOT_CONFIG.durMobileSlow : DOT_CONFIG.durMobile;
+          const dur = `${isMobile ? mobileDur : DOT_CONFIG.durDesktop}s`;
           const dotSize = isMobile ? DOT_CONFIG.sizeMobile : DOT_CONFIG.sizeDesktop;
 
           return (
