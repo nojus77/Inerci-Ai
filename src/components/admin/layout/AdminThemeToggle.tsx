@@ -1,18 +1,24 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, createContext, useContext, ReactNode } from 'react'
 import { Sun, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const STORAGE_KEY = 'admin-theme-mode'
 
-export function AdminThemeToggle() {
+interface ThemeContextType {
+  isDark: boolean
+  toggle: () => void
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
-    // Check localStorage on mount
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored === 'dark') {
       setIsDark(true)
@@ -20,7 +26,7 @@ export function AdminThemeToggle() {
     }
   }, [])
 
-  const toggleTheme = () => {
+  const toggle = () => {
     const newIsDark = !isDark
     setIsDark(newIsDark)
 
@@ -36,6 +42,37 @@ export function AdminThemeToggle() {
     }
   }
 
+  if (!mounted) {
+    return <>{children}</>
+  }
+
+  return (
+    <ThemeContext.Provider value={{ isDark, toggle }}>
+      {children}
+    </ThemeContext.Provider>
+  )
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext)
+  if (context === undefined) {
+    // Return default values if used outside provider
+    return {
+      isDark: false,
+      toggle: () => {},
+    }
+  }
+  return context
+}
+
+export function AdminThemeToggle() {
+  const { isDark, toggle } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Prevent hydration mismatch
   if (!mounted) {
     return (
@@ -49,7 +86,7 @@ export function AdminThemeToggle() {
     <Button
       variant="ghost"
       size="icon"
-      onClick={toggleTheme}
+      onClick={toggle}
       className="h-9 w-9 text-muted-foreground hover:text-foreground"
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
