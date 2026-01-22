@@ -8,6 +8,7 @@ import { AddClientModal } from '@/components/admin/shared/AddClientModal'
 import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
 import { ActivityPreviewModal } from '@/components/admin/shared/ActivityPreviewModal'
 import { ClientPreviewModal } from '@/components/admin/shared/ClientPreviewModal'
+import { TaskDetailModal } from '@/components/admin/shared/TaskDetailModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -25,6 +26,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
+import type { TaskStatus } from '@/types/database'
 
 interface DashboardStats {
   activeClients: number
@@ -36,7 +38,15 @@ interface DashboardStats {
 interface Task {
   id: string
   title: string
+  description: string | null
   due_date: string | null
+  status: TaskStatus
+  client_id: string | null
+  proposal_id: string | null
+  assigned_to: string
+  reminder_sent_at: string | null
+  created_at: string
+  completed_at: string | null
   client: { id: string; company_name: string } | null
 }
 
@@ -60,6 +70,7 @@ export default function AdminPage() {
   const [showAddTask, setShowAddTask] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -92,7 +103,7 @@ export default function AdminPage() {
 
       const { data: tasksData } = await supabase
         .from('tasks')
-        .select('id, title, due_date, client:clients(id, company_name)')
+        .select('id, title, description, due_date, status, client_id, proposal_id, assigned_to, reminder_sent_at, created_at, completed_at, client:clients(id, company_name)')
         .eq('status', 'pending')
         .order('due_date', { ascending: true, nullsFirst: false })
         .limit(5)
@@ -261,18 +272,19 @@ export default function AdminPage() {
               ) : (
                 <div className="divide-y divide-border/30">
                   {tasks.map((task) => (
-                    <div key={task.id} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors">
+                    <button
+                      key={task.id}
+                      onClick={() => setSelectedTask(task)}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors text-left"
+                    >
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{task.title}</p>
                         {task.client ? (
-                          <button
-                            onClick={() => setSelectedClientId(task.client!.id)}
-                            className="text-xs text-primary hover:underline truncate"
-                          >
+                          <span className="text-xs text-primary truncate block">
                             {task.client.company_name}
-                          </button>
+                          </span>
                         ) : (
-                          <p className="text-xs text-muted-foreground truncate">No client</p>
+                          <span className="text-xs text-muted-foreground truncate block">No client</span>
                         )}
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
@@ -290,7 +302,7 @@ export default function AdminPage() {
                           {formatDueDate(task.due_date)}
                         </span>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -383,6 +395,12 @@ export default function AdminPage() {
         open={!!selectedClientId}
         onClose={() => setSelectedClientId(null)}
         clientId={selectedClientId}
+      />
+      <TaskDetailModal
+        open={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        task={selectedTask}
+        onSuccess={fetchDashboardData}
       />
     </div>
   )

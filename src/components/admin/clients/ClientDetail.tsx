@@ -30,6 +30,9 @@ import Link from 'next/link'
 import { formatDistanceToNow, format } from 'date-fns'
 import type { Database, ClientStage } from '@/types/database'
 import { ActivityFeed } from './ActivityFeed'
+import { ProposalPreviewModal } from '@/components/admin/shared/ProposalPreviewModal'
+import { TaskDetailModal } from '@/components/admin/shared/TaskDetailModal'
+import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
 
 type ClientRow = Database['public']['Tables']['clients']['Row']
 type AuditSessionRow = Database['public']['Tables']['audit_sessions']['Row']
@@ -74,6 +77,11 @@ export function ClientDetail({ client }: ClientDetailProps) {
   const [tasks, setTasks] = useState<TaskRow[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
+
+  // Modal states
+  const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null)
+  const [selectedTask, setSelectedTask] = useState<TaskRow | null>(null)
+  const [showAddTask, setShowAddTask] = useState(false)
 
   const fetchRelatedData = useCallback(async () => {
     setLoading(true)
@@ -303,10 +311,10 @@ export function ClientDetail({ client }: ClientDetailProps) {
               ) : (
                 <div className="space-y-3">
                   {proposals.map((proposal) => (
-                    <Link
+                    <button
                       key={proposal.id}
-                      href={`/admin/clients/${client.id}/proposals/${proposal.id}`}
-                      className="block p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                      onClick={() => setSelectedProposalId(proposal.id)}
+                      className="w-full text-left p-4 rounded-lg border hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -321,7 +329,7 @@ export function ClientDetail({ client }: ClientDetailProps) {
                           {proposal.status}
                         </Badge>
                       </div>
-                    </Link>
+                    </button>
                   ))}
                 </div>
               )}
@@ -337,11 +345,9 @@ export function ClientDetail({ client }: ClientDetailProps) {
                 <CardTitle>Tasks</CardTitle>
                 <CardDescription>Follow-ups and action items</CardDescription>
               </div>
-              <Button asChild size="sm">
-                <Link href={`/admin/tasks/new?client=${client.id}`}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Task
-                </Link>
+              <Button size="sm" onClick={() => setShowAddTask(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                New Task
               </Button>
             </CardHeader>
             <CardContent>
@@ -354,9 +360,10 @@ export function ClientDetail({ client }: ClientDetailProps) {
               ) : (
                 <div className="space-y-3">
                   {tasks.map((task) => (
-                    <div
+                    <button
                       key={task.id}
-                      className={`p-4 rounded-lg border ${
+                      onClick={() => setSelectedTask(task)}
+                      className={`w-full text-left p-4 rounded-lg border hover:bg-muted/50 transition-colors ${
                         task.status === 'completed' ? 'opacity-50' : ''
                       }`}
                     >
@@ -375,7 +382,7 @@ export function ClientDetail({ client }: ClientDetailProps) {
                           {task.status}
                         </Badge>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -396,6 +403,25 @@ export function ClientDetail({ client }: ClientDetailProps) {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <ProposalPreviewModal
+        open={!!selectedProposalId}
+        onClose={() => setSelectedProposalId(null)}
+        proposalId={selectedProposalId}
+      />
+      <TaskDetailModal
+        open={!!selectedTask}
+        onClose={() => setSelectedTask(null)}
+        task={selectedTask}
+        onSuccess={fetchRelatedData}
+      />
+      <AddTaskModal
+        open={showAddTask}
+        onClose={() => setShowAddTask(false)}
+        defaultClientId={client.id}
+        onSuccess={fetchRelatedData}
+      />
     </div>
   )
 }

@@ -356,11 +356,77 @@ body:has(.admin-theme:not(.dark)) [role="dialog"] .text-muted-foreground {
   color: hsl(var(--muted-foreground) / 0.7);
 }
 
+/* Force light mode input backgrounds regardless of system preference */
+.admin-theme:not(.dark) input,
+.admin-theme:not(.dark) textarea,
+.admin-theme:not(.dark) select,
+.admin-theme:not(.dark) [data-slot="input"],
+body:has(.admin-theme:not(.dark)) [role="dialog"] input,
+body:has(.admin-theme:not(.dark)) [role="dialog"] textarea,
+body:has(.admin-theme:not(.dark)) [role="dialog"] select {
+  background-color: hsl(0 0% 100%) !important;
+  color: hsl(222 47% 11%) !important;
+  border-color: hsl(214 20% 91%) !important;
+}
+
+body:has(.admin-theme:not(.dark)) [role="dialog"] input::placeholder,
+body:has(.admin-theme:not(.dark)) [role="dialog"] textarea::placeholder {
+  color: hsl(215 16% 47%) !important;
+}
+
+/* Force dark mode input backgrounds */
+.admin-theme.dark input,
+.admin-theme.dark textarea,
+.admin-theme.dark select,
+.admin-theme.dark [data-slot="input"],
+body:has(.admin-theme.dark) [role="dialog"] input,
+body:has(.admin-theme.dark) [role="dialog"] textarea,
+body:has(.admin-theme.dark) [role="dialog"] select {
+  background-color: hsl(217 33% 12%) !important;
+  color: hsl(210 40% 98%) !important;
+  border-color: hsl(217 33% 20%) !important;
+}
+
+body:has(.admin-theme.dark) [role="dialog"] input::placeholder,
+body:has(.admin-theme.dark) [role="dialog"] textarea::placeholder {
+  color: hsl(215 20% 55%) !important;
+}
+
 /* ============================================
    BUTTON REFINEMENTS
    ============================================ */
 .admin-theme button {
   font-weight: 500;
+}
+
+/* Force light mode button backgrounds */
+.admin-theme:not(.dark) button[data-slot="button"],
+body:has(.admin-theme:not(.dark)) [role="dialog"] button[data-slot="button"] {
+  --button-bg: hsl(0 0% 100%);
+}
+
+/* Outline button in light mode */
+.admin-theme:not(.dark) button[data-variant="outline"],
+body:has(.admin-theme:not(.dark)) [role="dialog"] button[data-variant="outline"] {
+  background-color: hsl(0 0% 100%) !important;
+  border-color: hsl(214 20% 91%) !important;
+  color: hsl(222 47% 11%) !important;
+}
+
+.admin-theme:not(.dark) button[data-variant="outline"]:hover,
+body:has(.admin-theme:not(.dark)) [role="dialog"] button[data-variant="outline"]:hover {
+  background-color: hsl(214 20% 96%) !important;
+}
+
+/* Ghost button in light mode */
+.admin-theme:not(.dark) button[data-variant="ghost"],
+body:has(.admin-theme:not(.dark)) [role="dialog"] button[data-variant="ghost"] {
+  color: hsl(222 47% 11%) !important;
+}
+
+.admin-theme:not(.dark) button[data-variant="ghost"]:hover,
+body:has(.admin-theme:not(.dark)) [role="dialog"] button[data-variant="ghost"]:hover {
+  background-color: hsl(214 20% 96%) !important;
 }
 
 /* ============================================
