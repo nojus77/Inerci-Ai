@@ -15,6 +15,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 
@@ -48,10 +49,17 @@ export default function ExitIntentModal({ enabled = true }: ExitIntentModalProps
   const pageLoadTime = useRef<number>(0);
   const hasTriggered = useRef(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+
+  // Don't show on admin pages
+  const isAdminPage = pathname?.startsWith("/admin");
 
   // Check if we should even attempt to show the modal
   const shouldAttemptTrigger = useCallback(() => {
     if (typeof window === "undefined") return false;
+
+    // Never show on admin pages
+    if (isAdminPage) return false;
 
     // Desktop only: fine pointer and width >= 1024
     const isDesktop =
@@ -69,7 +77,7 @@ export default function ExitIntentModal({ enabled = true }: ExitIntentModalProps
     if (Date.now() - pageLoadTime.current < 20000) return false;
 
     return true;
-  }, []);
+  }, [isAdminPage]);
 
   // Handle mouse leave toward top
   const handleMouseLeave = useCallback((e: MouseEvent) => {
@@ -177,8 +185,8 @@ export default function ExitIntentModal({ enabled = true }: ExitIntentModalProps
     sessionStorage.setItem(SESSION_KEY_CTA_CLICKED, "1");
   }, []);
 
-  // Don't render anything if not enabled or not mounted yet
-  if (!enabled || !shouldRender) return null;
+  // Don't render anything if not enabled, not mounted, or on admin pages
+  if (!enabled || !shouldRender || isAdminPage) return null;
 
   return (
     <AnimatePresence>

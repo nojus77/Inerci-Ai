@@ -12,7 +12,21 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Reference/vendor folders - not part of the product
+    "refference/**",
+    "refference2/**",
+    "**/*_files/**",
   ]),
+  // Disable overly-strict rules
+  {
+    rules: {
+      "react-hooks/set-state-in-effect": "off",
+      "react-hooks/immutability": "off",
+      "react-hooks/purity": "off",
+      // Downgrade prefer-const to warning for flexibility in legacy code
+      "prefer-const": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

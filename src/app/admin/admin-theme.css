@@ -1,0 +1,343 @@
+/* Admin Theme - Premium Light Mode (Default) with Dark Mode Option */
+/* Scoped under .admin-theme to avoid affecting landing page */
+/* Palette: Slate/Zinc base with subtle indigo accent */
+
+/* ============================================
+   LIGHT MODE (Default) - Premium neutral palette
+   ============================================ */
+.admin-theme,
+body:has(.admin-theme) [data-radix-popper-content-wrapper],
+body:has(.admin-theme) [data-radix-portal],
+body:has(.admin-theme) [data-radix-select-content],
+body:has(.admin-theme) [data-radix-menu-content],
+body:has(.admin-theme) [data-radix-dropdown-menu-content],
+body:has(.admin-theme) [role="listbox"],
+body:has(.admin-theme) [data-state][role="menu"] {
+  color-scheme: light;
+
+  /* Background - clean slate off-white */
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+
+  /* Card - crisp white */
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+
+  /* Popover - same as card */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+
+  /* Primary - subtle indigo accent */
+  --primary: 226 70% 55%;
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary - soft slate */
+  --secondary: 214 20% 94%;
+  --secondary-foreground: 222 47% 20%;
+
+  /* Muted - subtle backgrounds */
+  --muted: 214 20% 96%;
+  --muted-foreground: 215 16% 47%;
+
+  /* Accent - indigo tinted slate */
+  --accent: 214 20% 94%;
+  --accent-foreground: 222 47% 11%;
+
+  /* Destructive */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Border - very subtle */
+  --border: 214 20% 91%;
+
+  /* Input */
+  --input: 214 20% 91%;
+
+  /* Ring - indigo focus */
+  --ring: 226 70% 55%;
+
+  /* Chart colors - professional muted palette */
+  --chart-1: 226 70% 55%;
+  --chart-2: 152 60% 40%;
+  --chart-3: 36 80% 50%;
+  --chart-4: 280 50% 55%;
+  --chart-5: 0 70% 55%;
+
+  /* Sidebar - clean white with subtle border */
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 222 47% 11%;
+  --sidebar-border: 214 20% 93%;
+  --sidebar-accent: 214 20% 97%;
+  --sidebar-accent-foreground: 222 47% 11%;
+  --sidebar-primary: 226 70% 55%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-ring: 226 70% 55%;
+
+  /* Radius */
+  --radius: 0.5rem;
+}
+
+/* ============================================
+   DARK MODE - Deep slate with indigo accents
+   ============================================ */
+.admin-theme.dark,
+body:has(.admin-theme.dark) [data-radix-popper-content-wrapper],
+body:has(.admin-theme.dark) [data-radix-portal],
+body:has(.admin-theme.dark) [data-radix-select-content],
+body:has(.admin-theme.dark) [data-radix-menu-content],
+body:has(.admin-theme.dark) [data-radix-dropdown-menu-content],
+body:has(.admin-theme.dark) [role="listbox"],
+body:has(.admin-theme.dark) [data-state][role="menu"] {
+  color-scheme: dark;
+
+  /* Background - deep slate */
+  --background: 222 47% 6%;
+  --foreground: 210 40% 98%;
+
+  /* Card - slightly lighter slate */
+  --card: 222 40% 9%;
+  --card-foreground: 210 40% 98%;
+
+  /* Popover */
+  --popover: 222 40% 9%;
+  --popover-foreground: 210 40% 98%;
+
+  /* Primary - brighter indigo for dark mode */
+  --primary: 226 76% 65%;
+  --primary-foreground: 222 47% 6%;
+
+  /* Secondary */
+  --secondary: 217 33% 14%;
+  --secondary-foreground: 210 40% 90%;
+
+  /* Muted */
+  --muted: 217 33% 12%;
+  --muted-foreground: 215 20% 55%;
+
+  /* Accent */
+  --accent: 217 33% 14%;
+  --accent-foreground: 210 40% 98%;
+
+  /* Destructive */
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  /* Border */
+  --border: 217 33% 16%;
+
+  /* Input */
+  --input: 217 33% 16%;
+
+  /* Ring */
+  --ring: 226 76% 65%;
+
+  /* Sidebar */
+  --sidebar: 222 47% 5%;
+  --sidebar-foreground: 210 40% 90%;
+  --sidebar-border: 217 33% 13%;
+  --sidebar-accent: 217 33% 10%;
+  --sidebar-accent-foreground: 210 40% 98%;
+  --sidebar-primary: 226 76% 65%;
+  --sidebar-primary-foreground: 222 47% 6%;
+  --sidebar-ring: 226 76% 65%;
+}
+
+/* ============================================
+   BASE STYLES
+   ============================================ */
+.admin-theme {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  zoom: 1.1;
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+.admin-theme .text-heading {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: hsl(var(--foreground));
+}
+
+.admin-theme .text-body {
+  font-weight: 400;
+  color: hsl(var(--foreground));
+}
+
+.admin-theme .text-muted {
+  font-weight: 400;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ============================================
+   SCROLLBAR - Minimal and clean
+   ============================================ */
+.admin-theme ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.admin-theme ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-theme ::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 2.5px;
+}
+
+.admin-theme ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+/* ============================================
+   CARD UTILITIES
+   ============================================ */
+.admin-theme .card-elevated {
+  box-shadow:
+    0 1px 2px hsl(var(--foreground) / 0.03),
+    0 1px 3px hsl(var(--foreground) / 0.02);
+}
+
+.admin-theme.dark .card-elevated {
+  box-shadow:
+    0 1px 2px hsl(0 0% 0% / 0.25),
+    0 2px 6px hsl(0 0% 0% / 0.15);
+}
+
+/* ============================================
+   FOCUS STYLES
+   ============================================ */
+.admin-theme *:focus-visible {
+  outline: 2px solid hsl(var(--ring) / 0.5);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   PORTAL OVERRIDES - Force light theme on dropdowns
+   ============================================ */
+body:has(.admin-theme:not(.dark)) [data-radix-popper-content-wrapper] *,
+body:has(.admin-theme:not(.dark)) [data-radix-portal] *,
+body:has(.admin-theme:not(.dark)) [role="listbox"],
+body:has(.admin-theme:not(.dark)) [role="listbox"] * {
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --muted: 214 20% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 214 20% 94%;
+  --accent-foreground: 222 47% 11%;
+  --border: 214 20% 91%;
+}
+
+/* Explicit background/color for Select content */
+body:has(.admin-theme:not(.dark)) [data-radix-select-viewport],
+body:has(.admin-theme:not(.dark)) [data-radix-select-content],
+body:has(.admin-theme:not(.dark)) [role="listbox"] {
+  background-color: hsl(0 0% 100%) !important;
+  color: hsl(222 47% 11%) !important;
+  border-color: hsl(214 20% 91%) !important;
+}
+
+body:has(.admin-theme:not(.dark)) [data-radix-select-item],
+body:has(.admin-theme:not(.dark)) [role="option"] {
+  color: hsl(222 47% 11%) !important;
+}
+
+body:has(.admin-theme:not(.dark)) [data-radix-select-item][data-highlighted],
+body:has(.admin-theme:not(.dark)) [role="option"][data-highlighted],
+body:has(.admin-theme:not(.dark)) [data-radix-select-item]:hover,
+body:has(.admin-theme:not(.dark)) [role="option"]:hover {
+  background-color: hsl(214 20% 96%) !important;
+  color: hsl(222 47% 11%) !important;
+}
+
+/* ============================================
+   SMOOTH TRANSITIONS (exclude animations)
+   ============================================ */
+.admin-theme,
+.admin-theme * {
+  transition-property: background-color, border-color, color;
+  transition-duration: 100ms;
+  transition-timing-function: ease-out;
+}
+
+.admin-theme [class*="animate-"],
+.admin-theme .transition-none {
+  transition-property: none;
+}
+
+/* ============================================
+   DENSE LAYOUT UTILITIES
+   ============================================ */
+
+/* Compact card headers */
+.admin-theme .card-header-compact {
+  padding: 0.75rem 1rem;
+}
+
+/* Compact card content */
+.admin-theme .card-content-compact {
+  padding: 0.75rem 1rem;
+}
+
+/* Dense list items */
+.admin-theme .list-item-dense {
+  padding: 0.5rem 0.75rem;
+}
+
+/* Tight spacing utility */
+.admin-theme .space-y-tight > * + * {
+  margin-top: 0.375rem;
+}
+
+/* ============================================
+   BADGE REFINEMENTS
+   ============================================ */
+.admin-theme [data-slot="badge"] {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================
+   INPUT REFINEMENTS
+   ============================================ */
+.admin-theme input,
+.admin-theme textarea,
+.admin-theme select {
+  font-size: 0.875rem;
+}
+
+.admin-theme input::placeholder,
+.admin-theme textarea::placeholder {
+  color: hsl(var(--muted-foreground) / 0.7);
+}
+
+/* ============================================
+   BUTTON REFINEMENTS
+   ============================================ */
+.admin-theme button {
+  font-weight: 500;
+}
+
+/* ============================================
+   TABLE REFINEMENTS
+   ============================================ */
+.admin-theme table {
+  font-size: 0.8125rem;
+}
+
+.admin-theme th {
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  letter-spacing: 0.05em;
+  color: hsl(var(--muted-foreground));
+}
+
+.admin-theme td {
+  padding: 0.625rem 0.75rem;
+}
