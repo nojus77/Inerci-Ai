@@ -79,22 +79,22 @@ export function AdminHeader({
     router.refresh()
   }
   return (
-    <header className="flex h-14 items-center justify-between border-b border-border/40 bg-card/50 backdrop-blur-sm px-6">
+    <header className="flex h-16 items-center justify-between border-b border-border/40 bg-card/50 backdrop-blur-sm px-6">
       <div className="flex items-center gap-3">
         {title && (
-          <h1 className="text-base font-semibold text-foreground tracking-tight">{title}</h1>
+          <h1 className="text-lg font-semibold text-foreground tracking-tight">{title}</h1>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         {/* Search */}
         {showSearch && (
           <div className="relative hidden md:block">
-            <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search..."
-              className="h-8 w-48 pl-8 text-xs"
+              className="h-9 w-52 pl-9 text-sm"
             />
           </div>
         )}
@@ -103,18 +103,18 @@ export function AdminHeader({
         {showQuickActions && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" className="h-7 gap-1.5 px-2.5 text-xs">
-                <Plus className="h-3.5 w-3.5" />
+              <Button size="sm" className="h-9 gap-2 px-3 text-sm">
+                <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">New</span>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuLabel className="text-xs">Quick Actions</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuLabel className="text-sm">Quick Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="text-xs">
+              <DropdownMenuItem asChild className="text-sm">
                 <Link href="/admin/clients/new">New Client</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="text-xs">
+              <DropdownMenuItem asChild className="text-sm">
                 <Link href="/admin/tasks/new">New Task</Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -127,8 +127,8 @@ export function AdminHeader({
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative h-8 w-8">
-              <Bell className="h-4 w-4" />
+            <Button variant="ghost" size="icon" className="relative h-9 w-9">
+              <Bell className="h-5 w-5" />
               <Badge
                 variant="destructive"
                 className="absolute -right-0.5 -top-0.5 h-4 w-4 rounded-full p-0 text-[10px] flex items-center justify-center"
@@ -137,31 +137,31 @@ export function AdminHeader({
               </Badge>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuLabel className="text-xs">Notifications</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel className="text-sm">Notifications</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <div className="max-h-72 overflow-y-auto">
-              <DropdownMenuItem className="flex flex-col items-start gap-0.5 py-2">
-                <span className="text-xs font-medium">New audit scheduled</span>
-                <span className="text-[10px] text-muted-foreground">
+            <div className="max-h-80 overflow-y-auto">
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-2.5">
+                <span className="text-sm font-medium">New audit scheduled</span>
+                <span className="text-xs text-muted-foreground">
                   TechCorp Ltd - Tomorrow at 2:00 PM
                 </span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-0.5 py-2">
-                <span className="text-xs font-medium">Proposal review requested</span>
-                <span className="text-[10px] text-muted-foreground">
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-2.5">
+                <span className="text-sm font-medium">Proposal review requested</span>
+                <span className="text-xs text-muted-foreground">
                   Innovation Labs - Awaiting approval
                 </span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-0.5 py-2">
-                <span className="text-xs font-medium">Task due soon</span>
-                <span className="text-[10px] text-muted-foreground">
+              <DropdownMenuItem className="flex flex-col items-start gap-1 py-2.5">
+                <span className="text-sm font-medium">Task due soon</span>
+                <span className="text-xs text-muted-foreground">
                   Follow up with StartupXYZ - Due in 2 hours
                 </span>
               </DropdownMenuItem>
             </div>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center text-xs text-primary">
+            <DropdownMenuItem className="justify-center text-sm text-primary">
               View all notifications
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -170,37 +170,37 @@ export function AdminHeader({
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="gap-1.5 px-1.5 h-8">
-              <Avatar className="h-6 w-6">
+            <Button variant="ghost" className="gap-2 px-2 h-9">
+              <Avatar className="h-7 w-7">
                 <AvatarImage src={user?.avatarUrl || ''} alt={user?.name || 'User'} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                   {user?.initials || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden text-xs font-medium md:inline">{user?.name || 'Loading...'}</span>
+              <span className="hidden text-sm font-medium md:inline">{user?.name || 'Loading...'}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuLabel className="text-xs">
+          <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuLabel className="text-sm">
               <div className="flex flex-col">
                 <span>{user?.name}</span>
-                <span className="font-normal text-muted-foreground">{user?.email}</span>
+                <span className="font-normal text-muted-foreground text-xs">{user?.email}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="text-xs">
+            <DropdownMenuItem asChild className="text-sm">
               <Link href="/admin/settings">Settings</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild className="text-xs">
+            <DropdownMenuItem asChild className="text-sm">
               <Link href="/admin/settings/users">Team</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="text-xs text-destructive cursor-pointer"
+              className="text-sm text-destructive cursor-pointer"
               onClick={handleSignOut}
               disabled={signingOut}
             >
-              <LogOut className="h-3.5 w-3.5 mr-2" />
+              <LogOut className="h-4 w-4 mr-2" />
               {signingOut ? 'Signing out...' : 'Sign out'}
             </DropdownMenuItem>
           </DropdownMenuContent>
