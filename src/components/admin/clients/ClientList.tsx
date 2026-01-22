@@ -34,6 +34,7 @@ import type { Tables } from '@/lib/supabase/types'
 import { formatDistanceToNow } from 'date-fns'
 import { formatLithuanianPhone } from '@/lib/utils'
 import { ClientPreviewModal } from '@/components/admin/shared/ClientPreviewModal'
+import { AddClientModal } from '@/components/admin/shared/AddClientModal'
 
 type ClientRow = Tables<'clients'>
 
@@ -57,6 +58,7 @@ export function ClientList() {
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState<ClientStage | 'all'>('all')
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
+  const [showAddClient, setShowAddClient] = useState(false)
   const supabase = createClient()
 
   const fetchClients = useCallback(async () => {
@@ -129,11 +131,9 @@ export function ClientList() {
             </SelectContent>
           </Select>
         </div>
-        <Button asChild>
-          <Link href="/admin/clients/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Client
-          </Link>
+        <Button onClick={() => setShowAddClient(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Client
         </Button>
       </div>
 
@@ -258,6 +258,13 @@ export function ClientList() {
         open={!!selectedClientId}
         onClose={() => setSelectedClientId(null)}
         clientId={selectedClientId}
+      />
+
+      {/* Add Client Modal */}
+      <AddClientModal
+        open={showAddClient}
+        onClose={() => setShowAddClient(false)}
+        onSuccess={fetchClients}
       />
     </div>
   )

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search, Plus, LogOut } from 'lucide-react'
+import { Bell, Search, Plus, LogOut, Users, ClipboardList } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -18,6 +18,8 @@ import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { AdminThemeToggle } from './AdminThemeToggle'
 import { createClient } from '@/lib/supabase/client'
+import { AddClientModal } from '@/components/admin/shared/AddClientModal'
+import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
 
 interface AdminHeaderProps {
   title?: string
@@ -41,6 +43,8 @@ export function AdminHeader({
   const supabase = createClient()
   const [user, setUser] = useState<UserInfo | null>(null)
   const [signingOut, setSigningOut] = useState(false)
+  const [showAddClient, setShowAddClient] = useState(false)
+  const [showAddTask, setShowAddTask] = useState(false)
 
   useEffect(() => {
     async function getUser() {
@@ -111,11 +115,19 @@ export function AdminHeader({
             <DropdownMenuContent align="end" className="w-44">
               <DropdownMenuLabel className="text-sm">Quick Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild className="text-sm">
-                <Link href="/admin/clients/new">New Client</Link>
+              <DropdownMenuItem
+                onClick={() => setShowAddClient(true)}
+                className="text-sm cursor-pointer"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                New Client
               </DropdownMenuItem>
-              <DropdownMenuItem asChild className="text-sm">
-                <Link href="/admin/tasks/new">New Task</Link>
+              <DropdownMenuItem
+                onClick={() => setShowAddTask(true)}
+                className="text-sm cursor-pointer"
+              >
+                <ClipboardList className="h-4 w-4 mr-2" />
+                New Task
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -206,6 +218,16 @@ export function AdminHeader({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Modals */}
+      <AddClientModal
+        open={showAddClient}
+        onClose={() => setShowAddClient(false)}
+      />
+      <AddTaskModal
+        open={showAddTask}
+        onClose={() => setShowAddTask(false)}
+      />
     </header>
   )
 }

@@ -18,6 +18,7 @@ import { Plus, Clock, Building, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import { format, isPast, isToday, isTomorrow, addDays } from 'date-fns'
 import type { Task } from '@/types/database'
+import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
 
 interface TaskWithClient extends Task {
   client?: { id: string; company_name: string } | null
@@ -27,6 +28,7 @@ export function TaskList() {
   const [tasks, setTasks] = useState<TaskWithClient[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('pending')
+  const [showAddTask, setShowAddTask] = useState(false)
   const supabase = createClient()
 
   const fetchTasks = useCallback(async () => {
@@ -142,11 +144,9 @@ export function TaskList() {
           </SelectContent>
         </Select>
 
-        <Button asChild size="sm" className="h-8 text-xs">
-          <Link href="/admin/tasks/new">
-            <Plus className="h-3.5 w-3.5 mr-1.5" />
-            Add Task
-          </Link>
+        <Button size="sm" className="h-8 text-xs" onClick={() => setShowAddTask(true)}>
+          <Plus className="h-3.5 w-3.5 mr-1.5" />
+          Add Task
         </Button>
       </div>
 
@@ -236,6 +236,13 @@ export function TaskList() {
           )}
         </div>
       )}
+
+      {/* Add Task Modal */}
+      <AddTaskModal
+        open={showAddTask}
+        onClose={() => setShowAddTask(false)}
+        onSuccess={fetchTasks}
+      />
     </div>
   )
 }

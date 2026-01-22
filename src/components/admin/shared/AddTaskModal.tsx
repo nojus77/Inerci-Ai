@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { ClipboardList, FileText, Building, Calendar, Flag } from 'lucide-react'
 
 interface Client {
   id: string
@@ -32,6 +34,12 @@ interface AddTaskModalProps {
   defaultClientId?: string
 }
 
+const PRIORITIES = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+]
+
 export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddTaskModalProps) {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
@@ -41,6 +49,7 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
     description: '',
     client_id: defaultClientId || '',
     due_date: '',
+    priority: 'medium',
   })
 
   useEffect(() => {
@@ -87,6 +96,7 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
         description: '',
         client_id: defaultClientId || '',
         due_date: '',
+        priority: 'medium',
       })
 
       onSuccess?.()
@@ -98,75 +108,146 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
     }
   }
 
+  const handleClose = () => {
+    // Reset form on close
+    setFormData({
+      title: '',
+      description: '',
+      client_id: defaultClientId || '',
+      due_date: '',
+      priority: 'medium',
+    })
+    onClose()
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-base">Add New Task</DialogTitle>
+          <DialogTitle className="text-lg">Create Task</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Add a new task to your workflow
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="space-y-1.5">
-            <Label htmlFor="title" className="text-xs">Task Title *</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-              placeholder="e.g., Follow up with client"
-              className="h-8 text-sm"
-            />
-          </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="description" className="text-xs">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              rows={2}
-              placeholder="Optional details..."
-              className="text-sm resize-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="client" className="text-xs">Client (optional)</Label>
-              <Select
-                value={formData.client_id}
-                onValueChange={(value) => setFormData({ ...formData, client_id: value })}
-              >
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue placeholder="Select client" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="" className="text-sm">No client</SelectItem>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id} className="text-sm">
-                      {client.company_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+          {/* Task Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-sm font-medium">
+              Task Title *
+            </Label>
+            <div className="relative">
+              <ClipboardList className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="title"
+                placeholder="e.g., Follow up with client about proposal"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+                className="pl-10"
+              />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="due_date" className="text-xs">Due Date</Label>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description" className="text-sm font-medium">
+              Description
+            </Label>
+            <div className="relative">
+              <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Textarea
+                id="description"
+                placeholder="Optional details about the task..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="pl-10 resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Client & Priority */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="client" className="text-sm font-medium">
+                Client
+              </Label>
+              <div className="relative">
+                <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
+                <Select
+                  value={formData.client_id}
+                  onValueChange={(value) => setFormData({ ...formData, client_id: value })}
+                >
+                  <SelectTrigger className="pl-10">
+                    <SelectValue placeholder="Select client" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">No client</SelectItem>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.company_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Optional: Link to a client
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="priority" className="text-sm font-medium">
+                Priority
+              </Label>
+              <div className="relative">
+                <Flag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
+                <Select
+                  value={formData.priority}
+                  onValueChange={(value) => setFormData({ ...formData, priority: value })}
+                >
+                  <SelectTrigger className="pl-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRIORITIES.map((priority) => (
+                      <SelectItem key={priority.value} value={priority.value}>
+                        {priority.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Due Date */}
+          <div className="space-y-2">
+            <Label htmlFor="due_date" className="text-sm font-medium">
+              Due Date
+            </Label>
+            <div className="relative">
+              <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="due_date"
                 type="datetime-local"
                 value={formData.due_date}
                 onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                className="h-8 text-sm"
+                className="pl-10"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              Optional: Set a deadline for this task
+            </p>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} size="sm">
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} size="sm">
-              {loading ? 'Adding...' : 'Add Task'}
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating...' : 'Create Task'}
             </Button>
           </div>
         </form>

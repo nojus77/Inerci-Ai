@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Building, User, Mail, Phone, Tag, FileText } from 'lucide-react'
 import type { ClientStage } from '@/types/database'
 
 interface AddClientModalProps {
@@ -50,6 +52,7 @@ export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps
     email: '',
     phone: '',
     stage: 'lead' as ClientStage,
+    tags: '',
     notes: '',
   })
 
@@ -58,14 +61,20 @@ export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps
     setLoading(true)
 
     try {
+      // Parse tags from comma-separated string
+      const tagsArray = formData.tags
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0)
+
       const { error } = await supabase.from('clients').insert({
         company_name: formData.company_name,
         contact_name: formData.contact_name,
         email: formData.email,
         phone: formData.phone || null,
         stage: formData.stage,
+        tags: tagsArray.length > 0 ? tagsArray : undefined,
         notes: formData.notes || null,
-        tags: [],
       })
 
       if (error) throw error
@@ -77,6 +86,7 @@ export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps
         email: '',
         phone: '',
         stage: 'lead',
+        tags: '',
         notes: '',
       })
 
@@ -89,95 +99,173 @@ export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps
     }
   }
 
+  const handleClose = () => {
+    // Reset form on close
+    setFormData({
+      company_name: '',
+      contact_name: '',
+      email: '',
+      phone: '',
+      stage: 'lead',
+      tags: '',
+      notes: '',
+    })
+    onClose()
+  }
+
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-base">Add New Client</DialogTitle>
+          <DialogTitle className="text-lg">Create Client</DialogTitle>
+          <DialogDescription className="text-sm text-muted-foreground">
+            Add a new client to your CRM
+          </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="company_name" className="text-xs">Company Name *</Label>
-              <Input
-                id="company_name"
-                value={formData.company_name}
-                onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
-                required
-                className="h-8 text-sm"
-              />
+
+        <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+          {/* Company Name & Contact Name */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="company_name" className="text-sm font-medium">
+                Company Name *
+              </Label>
+              <div className="relative">
+                <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="company_name"
+                  placeholder="Acme Corp"
+                  value={formData.company_name}
+                  onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
+                  required
+                  className="pl-10"
+                />
+              </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="contact_name" className="text-xs">Contact Name *</Label>
-              <Input
-                id="contact_name"
-                value={formData.contact_name}
-                onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
-                required
-                className="h-8 text-sm"
+            <div className="space-y-2">
+              <Label htmlFor="contact_name" className="text-sm font-medium">
+                Contact Name *
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="contact_name"
+                  placeholder="John Doe"
+                  value={formData.contact_name}
+                  onChange={(e) => setFormData({ ...formData, contact_name: e.target.value })}
+                  required
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Email & Phone */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email *
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="john@acme.com"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-sm font-medium">
+                Phone
+              </Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="phone"
+                  placeholder="+370 600 00000"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="pl-10"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Lithuanian format: +370 XXX XXXXX or 8 XXX XXXXX
+              </p>
+            </div>
+          </div>
+
+          {/* Stage & Tags */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="stage" className="text-sm font-medium">
+                Stage
+              </Label>
+              <Select
+                value={formData.stage}
+                onValueChange={(value) => setFormData({ ...formData, stage: value as ClientStage })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {STAGES.map((stage) => (
+                    <SelectItem key={stage.value} value={stage.value}>
+                      {stage.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tags" className="text-sm font-medium">
+                Tags
+              </Label>
+              <div className="relative">
+                <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="tags"
+                  placeholder="e-commerce, saas, enterprise"
+                  value={formData.tags}
+                  onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                  className="pl-10"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Comma-separated list of tags
+              </p>
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div className="space-y-2">
+            <Label htmlFor="notes" className="text-sm font-medium">
+              Notes
+            </Label>
+            <div className="relative">
+              <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Textarea
+                id="notes"
+                placeholder="Any additional notes about this client..."
+                value={formData.notes}
+                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                rows={3}
+                className="pl-10 resize-none"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs">Email *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                className="h-8 text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-xs">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="h-8 text-sm"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="stage" className="text-xs">Stage</Label>
-            <Select
-              value={formData.stage}
-              onValueChange={(value) => setFormData({ ...formData, stage: value as ClientStage })}
-            >
-              <SelectTrigger className="h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {STAGES.map((stage) => (
-                  <SelectItem key={stage.value} value={stage.value} className="text-sm">
-                    {stage.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="notes" className="text-xs">Notes</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              rows={2}
-              className="text-sm resize-none"
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={onClose} size="sm">
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} size="sm">
-              {loading ? 'Adding...' : 'Add Client'}
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Creating...' : 'Create Client'}
             </Button>
           </div>
         </form>
