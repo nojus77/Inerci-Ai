@@ -10,13 +10,11 @@ import {
   ClipboardList,
   Calendar,
   Settings,
-  LogOut,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -33,7 +31,6 @@ const secondaryNavigation = [
 export function AdminSidebar() {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
-  const supabase = createClient()
 
   const isActive = (href: string) => {
     if (href === '/admin') {
@@ -42,20 +39,15 @@ export function AdminSidebar() {
     return pathname.startsWith(href)
   }
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    window.location.href = '/admin/login'
-  }
-
   return (
     <aside
       className={cn(
-        'flex flex-col border-r border-border/40 bg-card transition-all duration-200',
+        'flex flex-col h-screen border-r border-border/40 bg-card transition-all duration-200',
         collapsed ? 'w-14' : 'w-52'
       )}
     >
       {/* Logo */}
-      <div className="flex h-12 items-center justify-between border-b border-border/40 px-3">
+      <div className="flex h-11 items-center justify-between border-b border-border/40 px-3 flex-shrink-0">
         {!collapsed && (
           <Link href="/admin" className="flex items-center gap-2">
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-semibold">
@@ -74,7 +66,7 @@ export function AdminSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 p-2">
+      <nav className="flex-1 space-y-0.5 p-2 overflow-y-auto">
         {navigation.map((item) => (
           <Link
             key={item.name}
@@ -92,8 +84,8 @@ export function AdminSidebar() {
         ))}
       </nav>
 
-      {/* Secondary navigation */}
-      <div className="border-t border-border/40 p-2">
+      {/* Secondary navigation - pinned to bottom */}
+      <div className="border-t border-border/40 p-2 flex-shrink-0 mt-auto">
         {secondaryNavigation.map((item) => (
           <Link
             key={item.name}
@@ -110,27 +102,20 @@ export function AdminSidebar() {
           </Link>
         ))}
 
-        <button
-          onClick={handleSignOut}
-          className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-        >
-          <LogOut className="h-4 w-4 flex-shrink-0" />
-          {!collapsed && <span>Sign out</span>}
-        </button>
-      </div>
-
-      {/* Collapse toggle */}
-      <div className="border-t border-border/40 p-1.5">
+        {/* Collapse toggle */}
         <Button
           variant="ghost"
           size="sm"
-          className="w-full h-7 justify-center text-muted-foreground"
+          className="w-full h-7 justify-center text-muted-foreground mt-1"
           onClick={() => setCollapsed(!collapsed)}
         >
           {collapsed ? (
             <ChevronRight className="h-3.5 w-3.5" />
           ) : (
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <>
+              <ChevronLeft className="h-3.5 w-3.5 mr-1" />
+              {!collapsed && <span className="text-xs">Collapse</span>}
+            </>
           )}
         </Button>
       </div>
