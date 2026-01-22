@@ -33,8 +33,9 @@ import type { ClientStage } from '@/types/database'
 import type { Tables } from '@/lib/supabase/types'
 import { formatDistanceToNow } from 'date-fns'
 import { formatLithuanianPhone } from '@/lib/utils'
-import { ClientPreviewModal } from '@/components/admin/shared/ClientPreviewModal'
 import { AddClientModal } from '@/components/admin/shared/AddClientModal'
+import { StageChangeModal } from '@/components/admin/shared/StageChangeModal'
+import { TagsEditModal } from '@/components/admin/shared/TagsEditModal'
 
 type ClientRow = Tables<'clients'>
 
@@ -57,8 +58,9 @@ export function ClientList() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState<ClientStage | 'all'>('all')
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
   const [showAddClient, setShowAddClient] = useState(false)
+  const [stageEditClient, setStageEditClient] = useState<ClientRow | null>(null)
+  const [tagsEditClient, setTagsEditClient] = useState<ClientRow | null>(null)
   const supabase = createClient()
 
   const fetchClients = useCallback(async () => {
@@ -169,13 +171,13 @@ export function ClientList() {
                 return (
                   <TableRow key={client.id}>
                     <TableCell>
-                      <button
-                        onClick={() => setSelectedClientId(client.id)}
-                        className="flex items-center gap-2 font-medium hover:text-primary text-left"
+                      <Link
+                        href={`/admin/clients/${client.id}`}
+                        className="flex items-center gap-2 font-medium hover:text-primary"
                       >
                         <Building className="h-4 w-4 text-muted-foreground" />
                         {client.company_name}
-                      </button>
+                      </Link>
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
@@ -195,26 +197,39 @@ export function ClientList() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge
-                        variant="secondary"
-                        className={`${stageInfo.color} text-white`}
-                      >
-                        {stageInfo.label}
-                      </Badge>
+                      <button onClick={() => setStageEditClient(client)}>
+                        <Badge
+                          variant="secondary"
+                          className={`${stageInfo.color} text-white cursor-pointer hover:opacity-80 transition-opacity`}
+                        >
+                          {stageInfo.label}
+                        </Badge>
+                      </button>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1 flex-wrap">
-                        {client.tags?.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                        {client.tags && client.tags.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{client.tags.length - 3}
-                          </Badge>
+                      <button
+                        onClick={() => setTagsEditClient(client)}
+                        className="flex gap-1 flex-wrap hover:opacity-80 transition-opacity"
+                      >
+                        {client.tags && client.tags.length > 0 ? (
+                          <>
+                            {client.tags.slice(0, 3).map((tag) => (
+                              <Badge key={tag} variant="outline" className="text-xs cursor-pointer">
+                                {tag}
+                              </Badge>
+                            ))}
+                            {client.tags.length > 3 && (
+                              <Badge variant="outline" className="text-xs cursor-pointer">
+                                +{client.tags.length - 3}
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-xs text-muted-foreground hover:text-primary">
+                            + Add tags
+                          </span>
                         )}
-                      </div>
+                      </button>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDistanceToNow(new Date(client.updated_at), { addSuffix: true })}
@@ -253,17 +268,26 @@ export function ClientList() {
         </Table>
       </div>
 
-      {/* Client Preview Modal */}
-      <ClientPreviewModal
-        open={!!selectedClientId}
-        onClose={() => setSelectedClientId(null)}
-        clientId={selectedClientId}
-      />
-
       {/* Add Client Modal */}
       <AddClientModal
         open={showAddClient}
         onClose={() => setShowAddClient(false)}
+        onSuccess={fetchClients}
+      />
+
+      {/* Stage Change Modal */}
+      <StageChangeModal
+        open={!!stageEditClient}
+        onClose={() => setStageEditClient(null)}
+        client={stageEditClient}
+        onSuccess={fetchClients}
+      />
+
+      {/* Tags Edit Modal */}
+      <TagsEditModal
+        open={!!tagsEditClient}
+        onClose={() => setTagsEditClient(null)}
+        client={tagsEditClient}
         onSuccess={fetchClients}
       />
     </div>
