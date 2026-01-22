@@ -33,6 +33,7 @@ import type { ClientStage } from '@/types/database'
 import type { Tables } from '@/lib/supabase/types'
 import { formatDistanceToNow } from 'date-fns'
 import { formatLithuanianPhone } from '@/lib/utils'
+import { ClientPreviewModal } from '@/components/admin/shared/ClientPreviewModal'
 
 type ClientRow = Tables<'clients'>
 
@@ -55,6 +56,7 @@ export function ClientList() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [stageFilter, setStageFilter] = useState<ClientStage | 'all'>('all')
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
   const supabase = createClient()
 
   const fetchClients = useCallback(async () => {
@@ -167,13 +169,13 @@ export function ClientList() {
                 return (
                   <TableRow key={client.id}>
                     <TableCell>
-                      <Link
-                        href={`/admin/clients/${client.id}`}
-                        className="flex items-center gap-2 font-medium hover:text-primary"
+                      <button
+                        onClick={() => setSelectedClientId(client.id)}
+                        className="flex items-center gap-2 font-medium hover:text-primary text-left"
                       >
                         <Building className="h-4 w-4 text-muted-foreground" />
                         {client.company_name}
-                      </Link>
+                      </button>
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
@@ -250,6 +252,13 @@ export function ClientList() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Client Preview Modal */}
+      <ClientPreviewModal
+        open={!!selectedClientId}
+        onClose={() => setSelectedClientId(null)}
+        clientId={selectedClientId}
+      />
     </div>
   )
 }

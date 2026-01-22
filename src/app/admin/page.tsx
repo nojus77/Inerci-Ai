@@ -7,6 +7,7 @@ import { useRealtimeRefresh } from '@/hooks/useRealtimeSubscription'
 import { AddClientModal } from '@/components/admin/shared/AddClientModal'
 import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
 import { ActivityPreviewModal } from '@/components/admin/shared/ActivityPreviewModal'
+import { ClientPreviewModal } from '@/components/admin/shared/ClientPreviewModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -36,7 +37,7 @@ interface Task {
   id: string
   title: string
   due_date: string | null
-  client: { company_name: string } | null
+  client: { id: string; company_name: string } | null
 }
 
 interface Activity {
@@ -58,6 +59,7 @@ export default function AdminPage() {
   const [showAddClient, setShowAddClient] = useState(false)
   const [showAddTask, setShowAddTask] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -90,7 +92,7 @@ export default function AdminPage() {
 
       const { data: tasksData } = await supabase
         .from('tasks')
-        .select('id, title, due_date, client:clients(company_name)')
+        .select('id, title, due_date, client:clients(id, company_name)')
         .eq('status', 'pending')
         .order('due_date', { ascending: true, nullsFirst: false })
         .limit(5)
@@ -262,9 +264,16 @@ export default function AdminPage() {
                     <div key={task.id} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{task.title}</p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {task.client?.company_name || 'No client'}
-                        </p>
+                        {task.client ? (
+                          <button
+                            onClick={() => setSelectedClientId(task.client!.id)}
+                            className="text-xs text-primary hover:underline truncate"
+                          >
+                            {task.client.company_name}
+                          </button>
+                        ) : (
+                          <p className="text-xs text-muted-foreground truncate">No client</p>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <Badge
@@ -313,10 +322,9 @@ export default function AdminPage() {
                   {activities.map((activity) => {
                     const activityType = getActivityType(activity.action)
                     return (
-                      <button
+                      <div
                         key={activity.id}
-                        onClick={() => setSelectedActivity(activity)}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors text-left"
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors"
                       >
                         <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
                           activityType === 'proposal' ? 'bg-primary' :
@@ -325,15 +333,27 @@ export default function AdminPage() {
                           'bg-muted-foreground/40'
                         }`} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm truncate">{activity.action.replace(/_/g, ' ')}</p>
-                          <p className="text-xs text-muted-foreground truncate">
-                            {activity.client?.company_name || 'System'}
-                          </p>
+                          <button
+                            onClick={() => setSelectedActivity(activity)}
+                            className="text-sm truncate hover:text-primary transition-colors text-left w-full"
+                          >
+                            {activity.action.replace(/_/g, ' ')}
+                          </button>
+                          {activity.client ? (
+                            <button
+                              onClick={() => setSelectedClientId(activity.client!.id)}
+                              className="text-xs text-primary hover:underline truncate"
+                            >
+                              {activity.client.company_name}
+                            </button>
+                          ) : (
+                            <p className="text-xs text-muted-foreground truncate">System</p>
+                          )}
                         </div>
                         <span className="text-[10px] text-muted-foreground whitespace-nowrap flex-shrink-0">
                           {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                         </span>
-                      </button>
+                      </div>
                     )
                   })}
                 </div>
@@ -358,6 +378,11 @@ export default function AdminPage() {
         open={!!selectedActivity}
         onClose={() => setSelectedActivity(null)}
         activity={selectedActivity}
+      />
+      <ClientPreviewModal
+        open={!!selectedClientId}
+        onClose={() => setSelectedClientId(null)}
+        clientId={selectedClientId}
       />
     </div>
   )
