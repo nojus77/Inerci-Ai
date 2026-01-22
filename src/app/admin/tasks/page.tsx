@@ -1,12 +1,17 @@
+'use client'
+
 import { AdminHeader } from '@/components/admin/layout/AdminHeader'
 import { TaskList } from '@/components/admin/tasks/TaskList'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 
 export default function TasksPage() {
+  const { t } = useLanguage()
+
   return (
     <div className="flex flex-col h-full">
-      <AdminHeader title="Tasks" />
+      <AdminHeader title={t.tasks.title} />
 
       <div className="flex-1 p-6">
         <Suspense fallback={<TaskListSkeleton />}>

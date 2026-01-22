@@ -29,18 +29,18 @@ interface AddClientModalProps {
   onSuccess?: () => void
 }
 
-const STAGES: { value: ClientStage; label: string }[] = [
-  { value: 'lead', label: 'Lead' },
-  { value: 'audit_scheduled', label: 'Audit Scheduled' },
-  { value: 'audit_done', label: 'Audit Done' },
-  { value: 'prototype_building', label: 'Prototype Building' },
-  { value: 'prototype_delivered', label: 'Prototype Delivered' },
-  { value: 'proposal_draft', label: 'Proposal Draft' },
-  { value: 'proposal_sent', label: 'Proposal Sent' },
-  { value: 'negotiation', label: 'Negotiation' },
-  { value: 'won', label: 'Won' },
-  { value: 'lost', label: 'Lost' },
-  { value: 'on_hold', label: 'On Hold' },
+const STAGES: { value: ClientStage; label: string; color: string }[] = [
+  { value: 'lead', label: 'Lead', color: 'bg-slate-500' },
+  { value: 'audit_scheduled', label: 'Audit Scheduled', color: 'bg-blue-500' },
+  { value: 'audit_done', label: 'Audit Done', color: 'bg-indigo-500' },
+  { value: 'prototype_building', label: 'Prototype Building', color: 'bg-purple-500' },
+  { value: 'prototype_delivered', label: 'Prototype Delivered', color: 'bg-violet-500' },
+  { value: 'proposal_draft', label: 'Proposal Draft', color: 'bg-amber-500' },
+  { value: 'proposal_sent', label: 'Proposal Sent', color: 'bg-yellow-500' },
+  { value: 'negotiation', label: 'Negotiation', color: 'bg-orange-500' },
+  { value: 'won', label: 'Won', color: 'bg-emerald-500' },
+  { value: 'lost', label: 'Lost', color: 'bg-red-500' },
+  { value: 'on_hold', label: 'On Hold', color: 'bg-gray-500' },
 ]
 
 export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps) {
@@ -67,11 +67,14 @@ export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0)
 
+      // Format phone number with +370 prefix if provided
+      const phoneNumber = formData.phone ? `+370${formData.phone}` : null
+
       const { error } = await supabase.from('clients').insert({
         company_name: formData.company_name,
         contact_name: formData.contact_name,
         email: formData.email,
-        phone: formData.phone || null,
+        phone: phoneNumber,
         stage: formData.stage,
         tags: tagsArray.length > 0 ? tagsArray : undefined,
         notes: formData.notes || null,
@@ -183,18 +186,25 @@ export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps
               <Label htmlFor="phone" className="text-sm font-medium">
                 Phone
               </Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <div className="flex">
+                <div className="flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-sm text-muted-foreground">
+                  +370
+                </div>
                 <Input
                   id="phone"
-                  placeholder="+370 600 00000"
+                  placeholder="600 00000"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="pl-10"
+                  onChange={(e) => {
+                    // Only allow digits, max 8 characters
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 8)
+                    setFormData({ ...formData, phone: value })
+                  }}
+                  maxLength={8}
+                  className="rounded-l-none"
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Lithuanian format: +370 XXX XXXXX or 8 XXX XXXXX
+                Enter 8 digits after +370
               </p>
             </div>
           </div>
@@ -210,12 +220,18 @@ export function AddClientModal({ open, onClose, onSuccess }: AddClientModalProps
                 onValueChange={(value) => setFormData({ ...formData, stage: value as ClientStage })}
               >
                 <SelectTrigger>
-                  <SelectValue />
+                  <div className="flex items-center gap-2">
+                    <div className={`h-2.5 w-2.5 rounded-full ${STAGES.find(s => s.value === formData.stage)?.color}`} />
+                    <SelectValue />
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
                   {STAGES.map((stage) => (
                     <SelectItem key={stage.value} value={stage.value}>
-                      {stage.label}
+                      <div className="flex items-center gap-2">
+                        <div className={`h-2.5 w-2.5 rounded-full ${stage.color}`} />
+                        {stage.label}
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -1,6 +1,7 @@
 import { headers } from 'next/headers'
 import { AdminSidebar } from '@/components/admin/layout/AdminSidebar'
 import { AdminProviders } from '@/components/admin/layout/AdminProviders'
+import { ActiveAuditWidget } from '@/components/admin/layout/ActiveAuditWidget'
 import './admin-theme.css'
 
 export const dynamic = 'force-dynamic'
@@ -41,6 +42,9 @@ export default async function AdminLayout({
               {children}
             </div>
           </main>
+
+          {/* Floating Active Audit Widget */}
+          <ActiveAuditWidget />
         </div>
       </AdminProviders>
     </div>

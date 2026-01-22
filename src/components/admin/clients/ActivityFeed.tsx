@@ -16,6 +16,7 @@ import {
 
 interface ActivityFeedProps {
   clientId: string
+  compact?: boolean
 }
 
 const ACTION_ICONS: Record<string, typeof User> = {
@@ -36,7 +37,7 @@ const ACTION_LABELS: Record<string, string> = {
   task_completed: 'Task completed',
 }
 
-export function ActivityFeed({ clientId }: ActivityFeedProps) {
+export function ActivityFeed({ clientId, compact = false }: ActivityFeedProps) {
   const [activities, setActivities] = useState<(ActivityLog & { user?: { name: string } })[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -67,45 +68,52 @@ export function ActivityFeed({ clientId }: ActivityFeedProps) {
 
   if (activities.length === 0) {
     return (
-      <p className="text-muted-foreground text-center py-8">
+      <p className={`text-muted-foreground text-center ${compact ? 'py-4 text-sm' : 'py-8'}`}>
         No activity recorded yet.
       </p>
     )
   }
 
+  const displayActivities = compact ? activities.slice(0, 6) : activities
+
   return (
-    <div className="space-y-4">
-      {activities.map((activity) => {
+    <div className={compact ? 'space-y-2' : 'space-y-4'}>
+      {displayActivities.map((activity) => {
         const Icon = ACTION_ICONS[activity.action] || User
         const label = ACTION_LABELS[activity.action] || activity.action
 
         return (
-          <div key={activity.id} className="flex gap-3">
+          <div key={activity.id} className={`flex ${compact ? 'gap-2' : 'gap-3'}`}>
             <div className="flex-shrink-0">
-              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                <Icon className="h-4 w-4 text-muted-foreground" />
+              <div className={`${compact ? 'h-6 w-6' : 'h-8 w-8'} rounded-full bg-muted flex items-center justify-center`}>
+                <Icon className={`${compact ? 'h-3 w-3' : 'h-4 w-4'} text-muted-foreground`} />
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm">
+              <p className={compact ? 'text-xs' : 'text-sm'}>
                 <span className="font-medium">{activity.user?.name || 'System'}</span>
                 {' '}
                 <span className="text-muted-foreground">{label}</span>
               </p>
-              {activity.metadata && Object.keys(activity.metadata).length > 0 && (
+              {!compact && activity.metadata && Object.keys(activity.metadata).length > 0 && (
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {activity.action === 'stage_changed' && (activity.metadata as Record<string, string>).from && (
                     <>From {String((activity.metadata as Record<string, string>).from)} to {String((activity.metadata as Record<string, string>).to)}</>
                   )}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className={`text-xs text-muted-foreground ${compact ? '' : 'mt-1'}`}>
                 {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
               </p>
             </div>
           </div>
         )
       })}
+      {compact && activities.length > 6 && (
+        <p className="text-xs text-muted-foreground text-center pt-1">
+          +{activities.length - 6} more
+        </p>
+      )}
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Bell, Search, Plus, LogOut, Users, ClipboardList, Calendar, FileText, TrendingUp } from 'lucide-react'
+import { Bell, Search, Plus, LogOut, ClipboardList, Calendar, FileText, TrendingUp, Globe, Check, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -18,8 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { AdminThemeToggle } from './AdminThemeToggle'
 import { createClient } from '@/lib/supabase/client'
-import { AddClientModal } from '@/components/admin/shared/AddClientModal'
-import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
+import { QuickActionsModal } from '@/components/admin/shared/QuickActionsModal'
 import { useLanguage } from '@/lib/i18n/LanguageContext'
 import { formatDistanceToNow, isPast, addHours } from 'date-fns'
 
@@ -45,6 +44,8 @@ interface Notification {
   createdAt: string
 }
 
+const DISMISSED_NOTIFICATIONS_KEY = 'admin_dismissed_notifications'
+
 export function AdminHeader({
   title,
   showSearch = true,
@@ -52,12 +53,38 @@ export function AdminHeader({
 }: AdminHeaderProps) {
   const router = useRouter()
   const supabase = createClient()
-  const { t } = useLanguage()
+  const { language, setLanguage, t } = useLanguage()
   const [user, setUser] = useState<UserInfo | null>(null)
   const [signingOut, setSigningOut] = useState(false)
-  const [showAddClient, setShowAddClient] = useState(false)
-  const [showAddTask, setShowAddTask] = useState(false)
+  const [quickActionsOpen, setQuickActionsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set())
+
+  // Load dismissed IDs from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem(DISMISSED_NOTIFICATIONS_KEY)
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored)
+          // Clean up old entries (older than 7 days)
+          const now = Date.now()
+          const cleanedEntries = Object.entries(parsed).filter(
+            ([, timestamp]) => now - (timestamp as number) < 7 * 24 * 60 * 60 * 1000
+          )
+          const cleanedIds = new Set(cleanedEntries.map(([id]) => id))
+          setDismissedIds(cleanedIds)
+          // Save cleaned version back
+          localStorage.setItem(
+            DISMISSED_NOTIFICATIONS_KEY,
+            JSON.stringify(Object.fromEntries(cleanedEntries))
+          )
+        } catch {
+          setDismissedIds(new Set())
+        }
+      }
+    }
+  }, [])
 
   const fetchNotifications = useCallback(async () => {
     const notifs: Notification[] = []
@@ -124,10 +151,11 @@ export function AdminHeader({
       })
     }
 
-    // Sort by date and take most recent
+    // Sort by date and take most recent, filter out dismissed
     notifs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    setNotifications(notifs.slice(0, 8))
-  }, [supabase])
+    const filteredNotifs = notifs.filter(n => !dismissedIds.has(n.id))
+    setNotifications(filteredNotifs.slice(0, 8))
+  }, [supabase, dismissedIds])
 
   useEffect(() => {
     async function getUser() {
@@ -170,6 +198,24 @@ export function AdminHeader({
     router.push(href)
   }
 
+  const handleMarkAllRead = () => {
+    // Save dismissed notification IDs to localStorage
+    if (typeof window !== 'undefined') {
+      const now = Date.now()
+      const stored = localStorage.getItem(DISMISSED_NOTIFICATIONS_KEY)
+      const existing = stored ? JSON.parse(stored) : {}
+
+      // Add current notification IDs to dismissed list
+      notifications.forEach(n => {
+        existing[n.id] = now
+      })
+
+      localStorage.setItem(DISMISSED_NOTIFICATIONS_KEY, JSON.stringify(existing))
+      setDismissedIds(new Set(Object.keys(existing)))
+    }
+    setNotifications([])
+  }
+
   const getNotificationIcon = (type: Notification['type']) => {
     switch (type) {
       case 'task_due':
@@ -210,32 +256,14 @@ export function AdminHeader({
 
         {/* Quick Actions */}
         {showQuickActions && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button size="sm" className="h-9 gap-2 px-3 text-sm">
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">{t.header.new}</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuLabel className="text-sm">{t.header.quickActions}</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => setShowAddClient(true)}
-                className="text-sm cursor-pointer"
-              >
-                <Users className="h-4 w-4 mr-2" />
-                {t.header.newClient}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setShowAddTask(true)}
-                className="text-sm cursor-pointer"
-              >
-                <ClipboardList className="h-4 w-4 mr-2" />
-                {t.header.newTask}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            size="sm"
+            className="h-9 gap-2 px-3 text-sm"
+            onClick={() => setQuickActionsOpen(true)}
+          >
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">{t.header.new}</span>
+          </Button>
         )}
 
         {/* Theme Toggle */}
@@ -257,9 +285,19 @@ export function AdminHeader({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel className="text-sm">{t.header.notifications}</DropdownMenuLabel>
+            <div className="flex items-center justify-between px-2 py-1.5">
+              <span className="text-sm font-medium">{t.header.notifications}</span>
+              {notifications.length > 0 && (
+                <button
+                  onClick={handleMarkAllRead}
+                  className="text-xs text-primary hover:underline"
+                >
+                  {t.header.markAllRead}
+                </button>
+              )}
+            </div>
             <DropdownMenuSeparator />
-            <div className="max-h-80 overflow-y-auto">
+            <div className="max-h-[240px] overflow-y-auto">
               {notifications.length === 0 ? (
                 <div className="py-6 text-center text-sm text-muted-foreground">
                   {t.header.noNotifications}
@@ -287,6 +325,11 @@ export function AdminHeader({
                 ))
               )}
             </div>
+            {notifications.length > 3 && (
+              <div className="text-center py-1 text-xs text-muted-foreground border-t">
+                {notifications.length - 3}+ more below
+              </div>
+            )}
             {notifications.length > 0 && (
               <>
                 <DropdownMenuSeparator />
@@ -313,7 +356,7 @@ export function AdminHeader({
               <span className="hidden text-sm font-medium md:inline">{user?.name || 'Loading...'}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel className="text-sm">
               <div className="flex flex-col">
                 <span>{user?.name}</span>
@@ -322,11 +365,37 @@ export function AdminHeader({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="text-sm">
-              <Link href="/admin/settings">{t.settings.title}</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="text-sm">
               <Link href="/admin/settings/users">{t.header.team}</Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel className="text-xs text-muted-foreground font-normal flex items-center gap-2">
+              <Globe className="h-3.5 w-3.5" />
+              {t.settings.language}
+            </DropdownMenuLabel>
+            <div className="flex gap-1 px-2 py-1">
+              <button
+                onClick={() => setLanguage('en')}
+                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                  language === 'en'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-muted/80 text-foreground'
+                }`}
+              >
+                {language === 'en' && <Check className="h-3 w-3" />}
+                EN
+              </button>
+              <button
+                onClick={() => setLanguage('lt')}
+                className={`flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded text-xs font-medium transition-colors ${
+                  language === 'lt'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted hover:bg-muted/80 text-foreground'
+                }`}
+              >
+                {language === 'lt' && <Check className="h-3 w-3" />}
+                LT
+              </button>
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-sm text-destructive cursor-pointer"
@@ -341,13 +410,9 @@ export function AdminHeader({
       </div>
 
       {/* Modals */}
-      <AddClientModal
-        open={showAddClient}
-        onClose={() => setShowAddClient(false)}
-      />
-      <AddTaskModal
-        open={showAddTask}
-        onClose={() => setShowAddTask(false)}
+      <QuickActionsModal
+        open={quickActionsOpen}
+        onClose={() => setQuickActionsOpen(false)}
       />
     </header>
   )

@@ -9,6 +9,7 @@ import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
 import { ActivityPreviewModal } from '@/components/admin/shared/ActivityPreviewModal'
 import { ClientPreviewModal } from '@/components/admin/shared/ClientPreviewModal'
 import { TaskDetailModal } from '@/components/admin/shared/TaskDetailModal'
+import { StartAuditModal } from '@/components/admin/shared/StartAuditModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -68,6 +69,7 @@ export default function AdminPage() {
   // Modal states
   const [showAddClient, setShowAddClient] = useState(false)
   const [showAddTask, setShowAddTask] = useState(false)
+  const [showStartAudit, setShowStartAudit] = useState(false)
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
@@ -221,13 +223,13 @@ export default function AdminPage() {
             <Plus className="h-3 w-3" />
             Add Task
           </button>
-          <Link
-            href="/admin/audit/new"
+          <button
+            onClick={() => setShowStartAudit(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
           >
             <Play className="h-3 w-3" />
             Start Audit
-          </Link>
+          </button>
           <Link
             href="/admin/pipeline"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
@@ -400,6 +402,11 @@ export default function AdminPage() {
         open={!!selectedTask}
         onClose={() => setSelectedTask(null)}
         task={selectedTask}
+        onSuccess={fetchDashboardData}
+      />
+      <StartAuditModal
+        open={showStartAudit}
+        onClose={() => setShowStartAudit(false)}
         onSuccess={fetchDashboardData}
       />
     </div>

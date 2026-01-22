@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Plus, Search, MoreHorizontal, Mail, Phone, Building } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import type { ClientStage } from '@/types/database'
 import type { Tables } from '@/lib/supabase/types'
 import { formatDistanceToNow } from 'date-fns'
@@ -36,6 +37,7 @@ import { formatLithuanianPhone } from '@/lib/utils'
 import { AddClientModal } from '@/components/admin/shared/AddClientModal'
 import { StageChangeModal } from '@/components/admin/shared/StageChangeModal'
 import { TagsEditModal } from '@/components/admin/shared/TagsEditModal'
+import { StartAuditModal } from '@/components/admin/shared/StartAuditModal'
 
 type ClientRow = Tables<'clients'>
 
@@ -61,7 +63,9 @@ export function ClientList() {
   const [showAddClient, setShowAddClient] = useState(false)
   const [stageEditClient, setStageEditClient] = useState<ClientRow | null>(null)
   const [tagsEditClient, setTagsEditClient] = useState<ClientRow | null>(null)
+  const [auditClient, setAuditClient] = useState<ClientRow | null>(null)
   const supabase = createClient()
+  const router = useRouter()
 
   const fetchClients = useCallback(async () => {
     setLoading(true)
@@ -169,15 +173,16 @@ export function ClientList() {
               clients.map((client) => {
                 const stageInfo = getStageInfo(client.stage)
                 return (
-                  <TableRow key={client.id}>
+                  <TableRow
+                    key={client.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => router.push(`/admin/clients/${client.id}`)}
+                  >
                     <TableCell>
-                      <Link
-                        href={`/admin/clients/${client.id}`}
-                        className="flex items-center gap-2 font-medium hover:text-primary"
-                      >
+                      <div className="flex items-center gap-2 font-medium">
                         <Building className="h-4 w-4 text-muted-foreground" />
                         {client.company_name}
-                      </Link>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
@@ -197,7 +202,7 @@ export function ClientList() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <button onClick={() => setStageEditClient(client)}>
+                      <button onClick={(e) => { e.stopPropagation(); setStageEditClient(client) }}>
                         <Badge
                           variant="secondary"
                           className={`${stageInfo.color} text-white cursor-pointer hover:opacity-80 transition-opacity`}
@@ -208,7 +213,7 @@ export function ClientList() {
                     </TableCell>
                     <TableCell>
                       <button
-                        onClick={() => setTagsEditClient(client)}
+                        onClick={(e) => { e.stopPropagation(); setTagsEditClient(client) }}
                         className="flex gap-1 flex-wrap hover:opacity-80 transition-opacity"
                       >
                         {client.tags && client.tags.length > 0 ? (
@@ -234,7 +239,7 @@ export function ClientList() {
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDistanceToNow(new Date(client.updated_at), { addSuffix: true })}
                     </TableCell>
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -252,10 +257,8 @@ export function ClientList() {
                               Edit
                             </Link>
                           </DropdownMenuItem>
-                          <DropdownMenuItem asChild>
-                            <Link href={`/admin/audit/new?client=${client.id}`}>
-                              Start Audit
-                            </Link>
+                          <DropdownMenuItem onClick={() => setAuditClient(client)}>
+                            Start Audit
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -288,6 +291,14 @@ export function ClientList() {
         open={!!tagsEditClient}
         onClose={() => setTagsEditClient(null)}
         client={tagsEditClient}
+        onSuccess={fetchClients}
+      />
+
+      {/* Start Audit Modal */}
+      <StartAuditModal
+        open={!!auditClient}
+        onClose={() => setAuditClient(null)}
+        defaultClientId={auditClient?.id}
         onSuccess={fetchClients}
       />
     </div>

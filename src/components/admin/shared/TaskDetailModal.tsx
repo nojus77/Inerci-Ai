@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { useLanguage } from '@/lib/i18n/LanguageContext'
 import {
   Dialog,
   DialogContent,
@@ -9,11 +10,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
 import {
   Select,
   SelectContent,
@@ -31,6 +30,7 @@ import {
   CheckCircle2,
   Circle,
 } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Link from 'next/link'
 import { format, formatDistanceToNow } from 'date-fns'
 import type { Task } from '@/types/database'
@@ -38,6 +38,13 @@ import type { Task } from '@/types/database'
 interface Client {
   id: string
   company_name: string
+}
+
+interface UserInfo {
+  id: string
+  name: string
+  email: string
+  avatar_url: string | null
 }
 
 interface TaskWithClient extends Task {
@@ -52,15 +59,18 @@ interface TaskDetailModalProps {
 }
 
 export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailModalProps) {
+  const { t } = useLanguage()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [clients, setClients] = useState<Client[]>([])
+  const [users, setUsers] = useState<UserInfo[]>([])
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    client_id: '',
+    client_id: '_none',
     due_date: '',
+    assigned_to: '_none',
     status: 'pending' as 'pending' | 'completed',
   })
   const [hasChanges, setHasChanges] = useState(false)
@@ -76,21 +86,43 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
     }
   }, [supabase])
 
+  const fetchUsers = useCallback(async () => {
+    const { data } = await supabase
+      .from('users')
+      .select('id, name, email, avatar_url')
+      .order('name')
+
+    if (data) {
+      setUsers(data)
+    }
+  }, [supabase])
+
   useEffect(() => {
     if (open) {
       fetchClients()
+      fetchUsers()
       if (task) {
+        let formattedDueDate = ''
+        try {
+          if (task.due_date) {
+            formattedDueDate = format(new Date(task.due_date), "yyyy-MM-dd'T'HH:mm")
+          }
+        } catch (e) {
+          console.error('Error formatting due date:', e)
+        }
+
         setFormData({
-          title: task.title,
+          title: task.title || '',
           description: task.description || '',
-          client_id: task.client_id || '',
-          due_date: task.due_date ? format(new Date(task.due_date), "yyyy-MM-dd'T'HH:mm") : '',
-          status: task.status as 'pending' | 'completed',
+          client_id: task.client_id || '_none',
+          due_date: formattedDueDate,
+          assigned_to: task.assigned_to || '_none',
+          status: (task.status as 'pending' | 'completed') || 'pending',
         })
         setHasChanges(false)
       }
     }
-  }, [open, task, fetchClients])
+  }, [open, task, fetchClients, fetchUsers])
 
   if (!task) return null
 
@@ -114,8 +146,9 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
         .update({
           title: formData.title,
           description: formData.description || null,
-          client_id: formData.client_id || null,
+          client_id: formData.client_id === '_none' ? null : formData.client_id || null,
           due_date: formData.due_date || null,
+          assigned_to: formData.assigned_to === '_none' ? null : formData.assigned_to || null,
           status: formData.status,
           completed_at: formData.status === 'completed' ? new Date().toISOString() : null,
         } as never)
@@ -176,7 +209,7 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg flex items-center gap-2">
               <ClipboardList className="h-5 w-5" />
-              Task Details
+              {t.modals.taskDetails}
             </DialogTitle>
             <div className="flex items-center gap-2">
               <button
@@ -190,12 +223,12 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
                 {formData.status === 'completed' ? (
                   <>
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    Completed
+                    {t.tasks.completed}
                   </>
                 ) : (
                   <>
                     <Circle className="h-3.5 w-3.5" />
-                    Pending
+                    {t.tasks.pending}
                   </>
                 )}
               </button>
@@ -207,13 +240,13 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-sm font-medium">
-              Task Title *
+              {t.modals.taskTitle} *
             </Label>
             <Input
               id="title"
               value={formData.title}
               onChange={(e) => handleChange('title', e.target.value)}
-              placeholder="What needs to be done?"
+              placeholder="..."
               className="text-base"
             />
           </div>
@@ -221,18 +254,18 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description" className="text-sm font-medium">
-              Description / Notes
+              {t.modals.descriptionNotes}
             </Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => handleChange('description', e.target.value)}
-              placeholder="Add detailed notes, context, links, or any information you need to track..."
+              placeholder={t.modals.descriptionPlaceholder}
               rows={6}
               className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              Use this space to add as much detail as you need
+              {t.modals.descriptionHint}
             </p>
           </div>
 
@@ -240,17 +273,17 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="client" className="text-sm font-medium">
-                Linked Client
+                {t.modals.linkedClient}
               </Label>
               <Select
                 value={formData.client_id}
                 onValueChange={(value) => handleChange('client_id', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a client" />
+                  <SelectValue placeholder={t.modals.selectClient} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No client</SelectItem>
+                  <SelectItem value="_none">{t.modals.noClient}</SelectItem>
                   {clients.map((client) => (
                     <SelectItem key={client.id} value={client.id}>
                       {client.company_name}
@@ -265,13 +298,13 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
                   onClick={onClose}
                 >
                   <Building className="h-3 w-3" />
-                  View {task.client.company_name}
+                  {t.modals.view} {task.client.company_name}
                 </Link>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="due_date" className="text-sm font-medium">
-                Due Date
+                {t.modals.dueDate}
               </Label>
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -286,16 +319,61 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
             </div>
           </div>
 
+          {/* Assignee */}
+          <div className="space-y-2">
+            <Label htmlFor="assigned_to" className="text-sm font-medium">
+              {t.common.assignTo}
+            </Label>
+            <Select
+              value={formData.assigned_to}
+              onValueChange={(value) => handleChange('assigned_to', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t.common.selectTeamMember}>
+                  {formData.assigned_to && users.find(u => u.id === formData.assigned_to) && (
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-5 w-5">
+                        <AvatarImage src={users.find(u => u.id === formData.assigned_to)?.avatar_url || ''} />
+                        <AvatarFallback className="text-[10px]">
+                          {users.find(u => u.id === formData.assigned_to)?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="truncate">{users.find(u => u.id === formData.assigned_to)?.name}</span>
+                    </div>
+                  )}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">{t.common.unassigned}</SelectItem>
+                {users.map((user) => (
+                  <SelectItem key={user.id} value={user.id}>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-5 w-5">
+                        <AvatarImage src={user.avatar_url || ''} />
+                        <AvatarFallback className="text-[10px]">
+                          {user.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span>{user.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Metadata */}
           <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t">
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              Created {formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
-            </span>
+            {task.created_at && (
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {t.common.created} {formatDistanceToNow(new Date(task.created_at), { addSuffix: true })}
+              </span>
+            )}
             {task.completed_at && (
               <span className="flex items-center gap-1">
                 <CheckCircle2 className="h-3 w-3 text-emerald-500" />
-                Completed {formatDistanceToNow(new Date(task.completed_at), { addSuffix: true })}
+                {t.tasks.completed} {formatDistanceToNow(new Date(task.completed_at), { addSuffix: true })}
               </span>
             )}
           </div>
@@ -311,15 +389,15 @@ export function TaskDetailModal({ open, onClose, task, onSuccess }: TaskDetailMo
             className="text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4 mr-1.5" />
-            {deleting ? 'Deleting...' : 'Delete'}
+            {deleting ? t.modals.deleting : t.modals.delete}
           </Button>
           <div className="flex gap-2">
             <Button variant="outline" onClick={onClose}>
-              Cancel
+              {t.modals.cancel}
             </Button>
             <Button onClick={handleSave} disabled={loading || !formData.title.trim()}>
               <Save className="h-4 w-4 mr-1.5" />
-              {loading ? 'Saving...' : 'Save Changes'}
+              {loading ? t.modals.saving : t.modals.saveChanges}
             </Button>
           </div>
         </div>

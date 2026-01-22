@@ -551,3 +551,55 @@ export type ClientUpdate = Database['public']['Tables']['clients']['Update']
 export type AuditSessionUpdate = Database['public']['Tables']['audit_sessions']['Update']
 export type ProposalUpdate = Database['public']['Tables']['proposals']['Update']
 export type TaskUpdate = Database['public']['Tables']['tasks']['Update']
+
+// Audit Script Types
+export type QuestionStatus = 'pending' | 'asked' | 'done' | 'skipped'
+
+export interface AuditScript {
+  id: string
+  name: string
+  description: string | null
+  created_by: string
+  is_template: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface AuditScriptSection {
+  id: string
+  script_id: string
+  title: string
+  order: number
+  created_at: string
+}
+
+export interface AuditScriptQuestion {
+  id: string
+  section_id: string
+  text: string
+  order: number
+  tags: string[]
+  created_at: string
+}
+
+// Full script with nested sections and questions
+export interface AuditScriptFull extends AuditScript {
+  sections: (AuditScriptSection & {
+    questions: AuditScriptQuestion[]
+  })[]
+}
+
+// Per-session question state (stored in audit_sessions.structured_data.script_state)
+export interface ScriptQuestionState {
+  question_id: string
+  status: QuestionStatus
+  skip_reason?: string
+  notes?: string
+  asked_at?: string
+  completed_at?: string
+}
+
+export interface SessionScriptState {
+  active_script_id: string | null
+  question_states: Record<string, ScriptQuestionState>
+}

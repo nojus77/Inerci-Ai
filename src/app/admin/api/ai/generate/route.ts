@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { routeAIRequest } from '@/lib/ai/router'
 import { PROPOSAL_DRAFT_PROMPT } from '@/lib/ai/prompts'
+import { requirePermission } from '@/lib/permissions-server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,6 +12,10 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Check AI permission
+    const { allowed, error } = await requirePermission('run_ai')
+    if (!allowed) return error
 
     const { proposalId, sessionId, language } = await request.json()
 

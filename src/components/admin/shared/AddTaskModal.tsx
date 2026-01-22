@@ -20,11 +20,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ClipboardList, FileText, Building, Calendar, Flag } from 'lucide-react'
+import { ClipboardList, FileText, Building, Calendar, User } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 interface Client {
   id: string
   company_name: string
+}
+
+interface UserInfo {
+  id: string
+  name: string
+  email: string
+  avatar_url: string | null
 }
 
 interface AddTaskModalProps {
@@ -34,27 +42,24 @@ interface AddTaskModalProps {
   defaultClientId?: string
 }
 
-const PRIORITIES = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-]
-
 export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddTaskModalProps) {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [clients, setClients] = useState<Client[]>([])
+  const [users, setUsers] = useState<UserInfo[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string>('')
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    client_id: defaultClientId || '',
+    client_id: defaultClientId || '_none',
     due_date: '',
-    priority: 'medium',
+    assigned_to: '_none',
   })
 
   useEffect(() => {
     if (open) {
       fetchClients()
+      fetchUsers()
       if (defaultClientId) {
         setFormData(prev => ({ ...prev, client_id: defaultClientId }))
       }
@@ -72,19 +77,34 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
     }
   }
 
+  const fetchUsers = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      setCurrentUserId(user.id)
+      setFormData(prev => ({ ...prev, assigned_to: user.id }))
+    }
+
+    const { data } = await supabase
+      .from('users')
+      .select('id, name, email, avatar_url')
+      .order('name')
+
+    if (data) {
+      setUsers(data)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-
       const { error } = await supabase.from('tasks').insert({
         title: formData.title,
         description: formData.description || null,
-        client_id: formData.client_id || null,
+        client_id: formData.client_id === '_none' ? null : formData.client_id || null,
         due_date: formData.due_date || null,
-        assigned_to: user?.id,
+        assigned_to: formData.assigned_to === '_none' ? null : formData.assigned_to || null,
         status: 'pending',
       } as never)
 
@@ -96,7 +116,7 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
         description: '',
         client_id: defaultClientId || '',
         due_date: '',
-        priority: 'medium',
+        assigned_to: currentUserId,
       })
 
       onSuccess?.()
@@ -115,7 +135,7 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
       description: '',
       client_id: defaultClientId || '',
       due_date: '',
-      priority: 'medium',
+      assigned_to: currentUserId,
     })
     onClose()
   }
@@ -167,7 +187,7 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
             </div>
           </div>
 
-          {/* Client & Priority */}
+          {/* Client & Assignee */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="client" className="text-sm font-medium">
@@ -183,7 +203,7 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
                     <SelectValue placeholder="Select client" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No client</SelectItem>
+                    <SelectItem value="_none">No client</SelectItem>
                     {clients.map((client) => (
                       <SelectItem key={client.id} value={client.id}>
                         {client.company_name}
@@ -197,27 +217,48 @@ export function AddTaskModal({ open, onClose, onSuccess, defaultClientId }: AddT
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="priority" className="text-sm font-medium">
-                Priority
+              <Label htmlFor="assigned_to" className="text-sm font-medium">
+                Assign to
               </Label>
-              <div className="relative">
-                <Flag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10" />
-                <Select
-                  value={formData.priority}
-                  onValueChange={(value) => setFormData({ ...formData, priority: value })}
-                >
-                  <SelectTrigger className="pl-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PRIORITIES.map((priority) => (
-                      <SelectItem key={priority.value} value={priority.value}>
-                        {priority.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select
+                value={formData.assigned_to}
+                onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select team member">
+                    {formData.assigned_to && users.find(u => u.id === formData.assigned_to) && (
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-5 w-5">
+                          <AvatarImage src={users.find(u => u.id === formData.assigned_to)?.avatar_url || ''} />
+                          <AvatarFallback className="text-[10px]">
+                            {users.find(u => u.id === formData.assigned_to)?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="truncate">{users.find(u => u.id === formData.assigned_to)?.name}</span>
+                      </div>
+                    )}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">Unassigned</SelectItem>
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="h-5 w-5">
+                          <AvatarImage src={user.avatar_url || ''} />
+                          <AvatarFallback className="text-[10px]">
+                            {user.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span>{user.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Assign task to a team member
+              </p>
             </div>
           </div>
 

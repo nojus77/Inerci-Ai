@@ -6,7 +6,9 @@ import {
   FOLLOW_UP_QUESTIONS_PROMPT,
   TOP_PROCESSES_PROMPT,
   ROI_ESTIMATE_PROMPT,
+  NEXT_QUESTIONS_PROMPT,
 } from '@/lib/ai/prompts'
+import { requirePermission } from '@/lib/permissions-server'
 import type { AuditSession } from '@/types/database'
 
 export async function POST(request: NextRequest) {
@@ -17,6 +19,10 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Check AI permission
+    const { allowed, error } = await requirePermission('run_ai')
+    if (!allowed) return error
 
     const { sessionId, analysisType } = await request.json()
 
@@ -62,6 +68,20 @@ export async function POST(request: NextRequest) {
       case 'roi':
         prompt = `${ROI_ESTIMATE_PROMPT}\n\nConversation:\n${conversationContext}`
         taskType = 'roi_estimate'
+        break
+      case 'next_questions':
+        // Include skipped questions context
+        const skipped = (session.structured_data as { skipped_questions?: Array<{ question: string; reason: string }> })?.skipped_questions || []
+        let skippedContext = ''
+        if (skipped.length > 0) {
+          const skippedList = skipped.map((s) => {
+            const reasonText = s.reason === 'not_relevant' ? 'neaktualu' : s.reason === 'already_discussed' ? 'jau aptarta' : 'praleista'
+            return `- "${s.question}" (${reasonText})`
+          }).join('\n')
+          skippedContext = `\n\nPRALEISTI KLAUSIMAI (NEKLAUSTI PANAŠIŲ):\n${skippedList}`
+        }
+        prompt = `${NEXT_QUESTIONS_PROMPT}${skippedContext}\n\nConversation:\n${conversationContext}`
+        taskType = 'follow_up_questions'
         break
       default:
         return NextResponse.json({ error: 'Invalid analysis type' }, { status: 400 })

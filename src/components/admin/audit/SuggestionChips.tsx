@@ -53,47 +53,45 @@ export function SuggestionChips({ sessionId }: SuggestionChipsProps) {
   }
 
   return (
-    <div className="border-t bg-muted/30 px-4 py-3">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center gap-2 mb-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-xs font-medium text-muted-foreground">
-            Suggested follow-up questions
-          </span>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="ml-auto h-6 text-xs"
-            onClick={fetchSuggestions}
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="h-3 w-3 animate-spin mr-1" />
-            ) : (
-              'Refresh'
-            )}
-          </Button>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {suggestions.length > 0 ? (
-            suggestions.map((suggestion, i) => (
-              <Button
-                key={i}
-                variant="outline"
-                size="sm"
-                className="text-xs h-7"
-                onClick={() => handleSuggestionClick(suggestion)}
-              >
-                {suggestion.length > 60 ? `${suggestion.slice(0, 60)}...` : suggestion}
-              </Button>
-            ))
+    <div className="shrink-0 border-t bg-muted/20 px-4 lg:px-6 py-2.5">
+      <div className="flex items-center gap-2 mb-2">
+        <Sparkles className="h-4 w-4 text-primary" />
+        <span className="text-xs font-medium text-muted-foreground">
+          💡 AI siūlomi klausimai
+        </span>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="ml-auto h-6 px-2 text-xs"
+          onClick={fetchSuggestions}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
           ) : (
-            <span className="text-xs text-muted-foreground">
-              {loading ? 'Generating suggestions...' : 'Click Refresh to generate suggestions'}
-            </span>
+            'Atnaujinti'
           )}
-        </div>
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {suggestions.length > 0 ? (
+          suggestions.map((suggestion, i) => (
+            <Button
+              key={i}
+              variant="outline"
+              size="sm"
+              className="text-xs h-7 px-3 bg-background/50 hover:bg-background"
+              onClick={() => handleSuggestionClick(suggestion)}
+            >
+              {suggestion.length > 60 ? `${suggestion.slice(0, 60)}...` : suggestion}
+            </Button>
+          ))
+        ) : (
+          <span className="text-xs text-muted-foreground py-0.5">
+            {loading ? 'Generuojama...' : 'Spauskite Atnaujinti, kad sugeneruoti pasiūlymus'}
+          </span>
+        )}
       </div>
     </div>
   )
