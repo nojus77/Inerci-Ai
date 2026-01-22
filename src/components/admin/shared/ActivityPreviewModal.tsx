@@ -46,7 +46,7 @@ export function ActivityPreviewModal({ open, onClose, activity }: ActivityPrevie
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-base flex items-center gap-2">
             <div className={`h-2 w-2 rounded-full ${getActivityColor(activity.action)}`} />

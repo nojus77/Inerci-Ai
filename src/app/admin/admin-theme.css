@@ -255,6 +255,46 @@ body:has(.admin-theme:not(.dark)) [role="option"]:hover {
   color: hsl(222 47% 11%) !important;
 }
 
+/* Dialog/Modal - Force light theme */
+body:has(.admin-theme:not(.dark)) [role="dialog"],
+body:has(.admin-theme:not(.dark)) [data-radix-dialog-content],
+body:has(.admin-theme:not(.dark)) [data-state="open"][role="dialog"] {
+  background-color: hsl(0 0% 100%) !important;
+  color: hsl(222 47% 11%) !important;
+  border-color: hsl(214 20% 91%) !important;
+}
+
+body:has(.admin-theme:not(.dark)) [role="dialog"] *,
+body:has(.admin-theme:not(.dark)) [data-radix-dialog-content] * {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --muted: 214 20% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 214 20% 94%;
+  --accent-foreground: 222 47% 11%;
+  --border: 214 20% 91%;
+  --primary: 226 70% 55%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 214 20% 94%;
+  --secondary-foreground: 222 47% 20%;
+}
+
+body:has(.admin-theme:not(.dark)) [role="dialog"] h2,
+body:has(.admin-theme:not(.dark)) [role="dialog"] h3,
+body:has(.admin-theme:not(.dark)) [role="dialog"] p,
+body:has(.admin-theme:not(.dark)) [role="dialog"] span,
+body:has(.admin-theme:not(.dark)) [role="dialog"] label {
+  color: hsl(222 47% 11%) !important;
+}
+
+body:has(.admin-theme:not(.dark)) [role="dialog"] .text-muted-foreground {
+  color: hsl(215 16% 47%) !important;
+}
+
 /* ============================================
    SMOOTH TRANSITIONS (exclude animations)
    ============================================ */
