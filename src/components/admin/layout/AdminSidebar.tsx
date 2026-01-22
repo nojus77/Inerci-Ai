@@ -18,6 +18,7 @@ import {
   DollarSign,
   Building,
   Users2,
+  FileText,
 } from 'lucide-react'
 
 const navigationKeys = [
@@ -26,6 +27,7 @@ const navigationKeys = [
   { key: 'pipeline', href: '/admin/pipeline', icon: Kanban },
   { key: 'clients', href: '/admin/clients', icon: Users },
   { key: 'tasks', href: '/admin/tasks', icon: ClipboardList },
+  { key: 'scripts', href: '/admin/scripts', icon: FileText },
 ] as const
 
 const settingsKeys = [

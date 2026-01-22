@@ -296,18 +296,11 @@ export default function ScriptsPage() {
     <div className="p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Audit Script'ai</h1>
-            <p className="text-sm text-muted-foreground">
-              Sukurkite ir tvarkykite audito script'us
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold">Audit Script'ai</h1>
+          <p className="text-sm text-muted-foreground">
+            Sukurkite ir tvarkykite audito script'us
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
