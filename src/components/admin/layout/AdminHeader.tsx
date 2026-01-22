@@ -1,6 +1,8 @@
 'use client'
 
-import { Bell, Search, Plus } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Bell, Search, Plus, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -15,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import Link from 'next/link'
 import { AdminThemeToggle } from './AdminThemeToggle'
+import { createClient } from '@/lib/supabase/client'
 
 interface AdminHeaderProps {
   title?: string
@@ -22,11 +25,59 @@ interface AdminHeaderProps {
   showQuickActions?: boolean
 }
 
+interface UserInfo {
+  email: string
+  name: string
+  avatarUrl: string | null
+  initials: string
+}
+
 export function AdminHeader({
   title,
   showSearch = true,
   showQuickActions = true,
 }: AdminHeaderProps) {
+  const router = useRouter()
+  const supabase = createClient()
+  const [user, setUser] = useState<UserInfo | null>(null)
+  const [signingOut, setSigningOut] = useState(false)
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+      if (authUser) {
+        // Try to get user profile from users table
+        const { data: profile } = await supabase
+          .from('users')
+          .select('name, avatar_url')
+          .eq('id', authUser.id)
+          .single()
+
+        const name = profile?.name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'User'
+        const initials = name
+          .split(' ')
+          .map((n: string) => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2)
+
+        setUser({
+          email: authUser.email || '',
+          name: name,
+          avatarUrl: profile?.avatar_url || authUser.user_metadata?.avatar_url || null,
+          initials: initials || 'U'
+        })
+      }
+    }
+    getUser()
+  }, [supabase])
+
+  const handleSignOut = async () => {
+    setSigningOut(true)
+    await supabase.auth.signOut()
+    router.push('/admin/login')
+    router.refresh()
+  }
   return (
     <header className="flex h-12 items-center justify-between border-b border-border/40 bg-card/50 backdrop-blur-sm px-5">
       <div className="flex items-center gap-3">
@@ -121,16 +172,21 @@ export function AdminHeader({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="gap-1.5 px-1.5 h-8">
               <Avatar className="h-6 w-6">
-                <AvatarImage src="" alt="User" />
+                <AvatarImage src={user?.avatarUrl || ''} alt={user?.name || 'User'} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
-                  AD
+                  {user?.initials || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <span className="hidden text-xs font-medium md:inline">Admin</span>
+              <span className="hidden text-xs font-medium md:inline">{user?.name || 'Loading...'}</span>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuLabel className="text-xs">My Account</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuLabel className="text-xs">
+              <div className="flex flex-col">
+                <span>{user?.name}</span>
+                <span className="font-normal text-muted-foreground">{user?.email}</span>
+              </div>
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="text-xs">
               <Link href="/admin/settings">Settings</Link>
@@ -139,8 +195,13 @@ export function AdminHeader({
               <Link href="/admin/settings/users">Team</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-xs text-destructive">
-              Sign out
+            <DropdownMenuItem
+              className="text-xs text-destructive cursor-pointer"
+              onClick={handleSignOut}
+              disabled={signingOut}
+            >
+              <LogOut className="h-3.5 w-3.5 mr-2" />
+              {signingOut ? 'Signing out...' : 'Sign out'}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
