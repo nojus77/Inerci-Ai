@@ -125,51 +125,49 @@ export function TaskList() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 justify-between">
+      <div className="flex items-center gap-3 justify-between">
         <Select
           value={filter}
           onValueChange={(v) => setFilter(v as 'all' | 'pending' | 'completed')}
         >
-          <SelectTrigger className="w-[180px]">
+          <SelectTrigger className="w-[140px] h-8 text-xs">
             <SelectValue placeholder="Filter tasks" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-            <SelectItem value="all">All Tasks</SelectItem>
+            <SelectItem value="pending" className="text-xs">Pending</SelectItem>
+            <SelectItem value="completed" className="text-xs">Completed</SelectItem>
+            <SelectItem value="all" className="text-xs">All Tasks</SelectItem>
           </SelectContent>
         </Select>
 
-        <Button asChild>
+        <Button asChild size="sm" className="h-8 text-xs">
           <Link href="/admin/tasks/new">
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-3.5 w-3.5 mr-1.5" />
             Add Task
           </Link>
         </Button>
       </div>
 
       {loading ? (
-        <p className="text-muted-foreground">Loading tasks...</p>
+        <p className="text-xs text-muted-foreground">Loading tasks...</p>
       ) : tasks.length === 0 ? (
-        <Card>
-          <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">
-              No tasks found. Create one to get started.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="py-8 text-center border border-dashed border-border/50 rounded-lg">
+          <p className="text-xs text-muted-foreground">
+            No tasks found. Create one to get started.
+          </p>
+        </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Overdue */}
           {groupedTasks.overdue.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-destructive flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
+            <div className="space-y-1.5">
+              <h3 className="text-xs font-medium text-destructive flex items-center gap-1.5">
+                <AlertCircle className="h-3 w-3" />
                 Overdue ({groupedTasks.overdue.length})
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {groupedTasks.overdue.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -184,9 +182,9 @@ export function TaskList() {
 
           {/* Today */}
           {groupedTasks.today.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium">Today ({groupedTasks.today.length})</h3>
-              <div className="space-y-2">
+            <div className="space-y-1.5">
+              <h3 className="text-xs font-medium">Today ({groupedTasks.today.length})</h3>
+              <div className="space-y-1">
                 {groupedTasks.today.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -201,11 +199,11 @@ export function TaskList() {
 
           {/* Upcoming */}
           {groupedTasks.upcoming.length > 0 && filter !== 'completed' && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">
+            <div className="space-y-1.5">
+              <h3 className="text-xs font-medium text-muted-foreground">
                 Upcoming ({groupedTasks.upcoming.length})
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {groupedTasks.upcoming.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -220,11 +218,11 @@ export function TaskList() {
 
           {/* Completed */}
           {groupedTasks.completed.length > 0 && filter !== 'pending' && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">
+            <div className="space-y-1.5">
+              <h3 className="text-xs font-medium text-muted-foreground">
                 Completed ({groupedTasks.completed.length})
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {groupedTasks.completed.map((task) => (
                   <TaskItem
                     key={task.id}
@@ -255,44 +253,32 @@ function TaskItem({
   const isCompleted = task.status === 'completed'
 
   return (
-    <Card className={isCompleted ? 'opacity-60' : ''}>
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <Checkbox
-            checked={isCompleted}
-            onCheckedChange={() => onToggle(task)}
-            className="mt-1"
-          />
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                <p className={`font-medium ${isCompleted ? 'line-through' : ''}`}>
-                  {task.title}
-                </p>
-                {task.description && (
-                  <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                    {task.description}
-                  </p>
-                )}
-              </div>
-              <Badge variant={dueDateInfo.variant}>
-                <Clock className="h-3 w-3 mr-1" />
-                {dueDateInfo.label}
-              </Badge>
-            </div>
-
-            {task.client && (
-              <Link
-                href={`/admin/clients/${task.client.id}`}
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary mt-2"
-              >
-                <Building className="h-3 w-3" />
-                {task.client.company_name}
-              </Link>
-            )}
-          </div>
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-md border border-border/50 bg-card hover:bg-muted/30 transition-colors ${isCompleted ? 'opacity-50' : ''}`}>
+      <Checkbox
+        checked={isCompleted}
+        onCheckedChange={() => onToggle(task)}
+        className="h-3.5 w-3.5"
+      />
+      <div className="flex-1 min-w-0 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-medium truncate ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
+            {task.title}
+          </p>
+          {task.client && (
+            <Link
+              href={`/admin/clients/${task.client.id}`}
+              className="inline-flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary"
+            >
+              <Building className="h-2.5 w-2.5" />
+              {task.client.company_name}
+            </Link>
+          )}
         </div>
-      </CardContent>
-    </Card>
+        <Badge variant={dueDateInfo.variant} className="text-[10px] px-1.5 py-0 h-5 flex-shrink-0">
+          <Clock className="h-2.5 w-2.5 mr-0.5" />
+          {dueDateInfo.label}
+        </Badge>
+      </div>
+    </div>
   )
 }

@@ -32,31 +32,31 @@ export function AdminSidebar() {
   }
 
   return (
-    <aside className="w-52 flex-shrink-0 border-r border-border/40 bg-card">
+    <aside className="w-56 flex-shrink-0 border-r border-border/40 bg-card">
       {/* Logo */}
-      <div className="flex h-11 items-center border-b border-border/40 px-3">
-        <Link href="/admin" className="flex items-center gap-2">
-          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-semibold">
+      <div className="flex h-14 items-center border-b border-border/40 px-4">
+        <Link href="/admin" className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-semibold">
             I
           </div>
-          <span className="text-sm font-medium text-foreground">Inerci</span>
+          <span className="text-base font-semibold text-foreground">Inerci</span>
         </Link>
       </div>
 
       {/* Navigation - all items in one list */}
-      <nav className="p-2 space-y-0.5">
+      <nav className="p-3 space-y-1">
         {navigation.map((item) => (
           <Link
             key={item.name}
             href={item.href}
             className={cn(
-              'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors',
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
               isActive(item.href)
                 ? 'bg-muted text-foreground'
                 : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
             )}
           >
-            <item.icon className="h-4 w-4 flex-shrink-0" />
+            <item.icon className="h-5 w-5 flex-shrink-0" />
             <span>{item.name}</span>
           </Link>
         ))}

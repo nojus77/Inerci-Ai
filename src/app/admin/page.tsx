@@ -4,6 +4,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { AdminHeader } from '@/components/admin/layout/AdminHeader'
 import { useRealtimeRefresh } from '@/hooks/useRealtimeSubscription'
+import { AddClientModal } from '@/components/admin/shared/AddClientModal'
+import { AddTaskModal } from '@/components/admin/shared/AddTaskModal'
+import { ActivityPreviewModal } from '@/components/admin/shared/ActivityPreviewModal'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -40,7 +43,8 @@ interface Activity {
   id: string
   action: string
   created_at: string
-  client: { company_name: string } | null
+  metadata?: Record<string, unknown>
+  client: { id: string; company_name: string } | null
 }
 
 export default function AdminPage() {
@@ -49,6 +53,11 @@ export default function AdminPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Modal states
+  const [showAddClient, setShowAddClient] = useState(false)
+  const [showAddTask, setShowAddTask] = useState(false)
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null)
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -92,7 +101,7 @@ export default function AdminPage() {
 
       const { data: activityData } = await supabase
         .from('activity_log')
-        .select('id, action, created_at, client:clients(company_name)')
+        .select('id, action, created_at, metadata, client:clients(id, company_name)')
         .order('created_at', { ascending: false })
         .limit(6)
 
@@ -106,12 +115,10 @@ export default function AdminPage() {
     }
   }, [supabase])
 
-  // Initial fetch
   useEffect(() => {
     fetchDashboardData()
   }, [fetchDashboardData])
 
-  // Real-time updates
   useRealtimeRefresh(['clients', 'tasks', 'activity_log', 'proposals'], fetchDashboardData)
 
   const statsConfig = [
@@ -119,13 +126,6 @@ export default function AdminPage() {
     { name: 'Open Proposals', value: stats?.openProposals ?? 0, icon: FileText, href: '/admin/proposals/new' },
     { name: 'Pending Tasks', value: stats?.pendingTasks ?? 0, icon: ClipboardList, href: '/admin/tasks' },
     { name: 'Won This Month', value: stats?.wonThisMonth ?? 0, icon: TrendingUp, href: '/admin/pipeline' },
-  ]
-
-  const quickActions = [
-    { name: 'Add Client', icon: Plus, href: '/admin/clients/new' },
-    { name: 'Start Audit', icon: Play, href: '/admin/audit/new' },
-    { name: 'View Pipeline', icon: LayoutGrid, href: '/admin/pipeline' },
-    { name: 'Calendar', icon: Calendar, href: '/admin/calendar' },
   ]
 
   const getTaskPriority = (dueDate: string | null): 'high' | 'medium' | 'low' => {
@@ -174,7 +174,7 @@ export default function AdminPage() {
       <AdminHeader title="Dashboard" />
 
       <div className="flex-1 p-5 space-y-4">
-        {/* Stats Row - Compact */}
+        {/* Stats Row */}
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
           {statsConfig.map((stat) => (
             <Link key={stat.name} href={stat.href}>
@@ -191,22 +191,47 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Quick Actions - Inline */}
+        {/* Quick Actions - Using modals */}
         <div className="flex items-center gap-2 py-1">
           <span className="text-xs text-muted-foreground mr-1">Quick:</span>
-          {quickActions.map((action) => (
-            <Link
-              key={action.name}
-              href={action.href}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
-            >
-              <action.icon className="h-3 w-3" />
-              {action.name}
-            </Link>
-          ))}
+          <button
+            onClick={() => setShowAddClient(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
+          >
+            <Plus className="h-3 w-3" />
+            Add Client
+          </button>
+          <button
+            onClick={() => setShowAddTask(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
+          >
+            <Plus className="h-3 w-3" />
+            Add Task
+          </button>
+          <Link
+            href="/admin/audit/new"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
+          >
+            <Play className="h-3 w-3" />
+            Start Audit
+          </Link>
+          <Link
+            href="/admin/pipeline"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
+          >
+            <LayoutGrid className="h-3 w-3" />
+            Pipeline
+          </Link>
+          <Link
+            href="/admin/calendar"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md border border-border/50 hover:bg-muted/50 hover:border-border transition-colors"
+          >
+            <Calendar className="h-3 w-3" />
+            Calendar
+          </Link>
         </div>
 
-        {/* Two Column Layout - Tasks & Activity */}
+        {/* Two Column Layout */}
         <div className="grid gap-4 lg:grid-cols-2">
           {/* Upcoming Tasks */}
           <Card className="border-border/50">
@@ -224,9 +249,12 @@ export default function AdminPage() {
                 <div className="text-center py-8 text-muted-foreground">
                   <ClipboardList className="h-6 w-6 mx-auto mb-1.5 opacity-40" />
                   <p className="text-xs">No pending tasks</p>
-                  <Link href="/admin/tasks/new" className="text-xs text-primary hover:underline">
+                  <button
+                    onClick={() => setShowAddTask(true)}
+                    className="text-xs text-primary hover:underline"
+                  >
                     Create task
-                  </Link>
+                  </button>
                 </div>
               ) : (
                 <div className="divide-y divide-border/30">
@@ -264,28 +292,32 @@ export default function AdminPage() {
           <Card className="border-border/50">
             <CardHeader className="flex flex-row items-center justify-between px-4 py-3 border-b border-border/30">
               <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
-              <Link
-                href="/admin/clients"
-                className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-0.5 transition-colors"
-              >
-                All <ArrowRight className="h-3 w-3" />
-              </Link>
+              <span className="text-xs text-muted-foreground">
+                {activities.length} events
+              </span>
             </CardHeader>
             <CardContent className="p-0">
               {activities.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <TrendingUp className="h-6 w-6 mx-auto mb-1.5 opacity-40" />
                   <p className="text-xs">No recent activity</p>
-                  <Link href="/admin/clients/new" className="text-xs text-primary hover:underline">
+                  <button
+                    onClick={() => setShowAddClient(true)}
+                    className="text-xs text-primary hover:underline"
+                  >
                     Add client
-                  </Link>
+                  </button>
                 </div>
               ) : (
                 <div className="divide-y divide-border/30">
                   {activities.map((activity) => {
                     const activityType = getActivityType(activity.action)
                     return (
-                      <div key={activity.id} className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors">
+                      <button
+                        key={activity.id}
+                        onClick={() => setSelectedActivity(activity)}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors text-left"
+                      >
                         <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${
                           activityType === 'proposal' ? 'bg-primary' :
                           activityType === 'stage' ? 'bg-amber-500' :
@@ -293,7 +325,7 @@ export default function AdminPage() {
                           'bg-muted-foreground/40'
                         }`} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm truncate">{activity.action}</p>
+                          <p className="text-sm truncate">{activity.action.replace(/_/g, ' ')}</p>
                           <p className="text-xs text-muted-foreground truncate">
                             {activity.client?.company_name || 'System'}
                           </p>
@@ -301,7 +333,7 @@ export default function AdminPage() {
                         <span className="text-[10px] text-muted-foreground whitespace-nowrap flex-shrink-0">
                           {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                         </span>
-                      </div>
+                      </button>
                     )
                   })}
                 </div>
@@ -310,6 +342,23 @@ export default function AdminPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <AddClientModal
+        open={showAddClient}
+        onClose={() => setShowAddClient(false)}
+        onSuccess={fetchDashboardData}
+      />
+      <AddTaskModal
+        open={showAddTask}
+        onClose={() => setShowAddTask(false)}
+        onSuccess={fetchDashboardData}
+      />
+      <ActivityPreviewModal
+        open={!!selectedActivity}
+        onClose={() => setSelectedActivity(null)}
+        activity={selectedActivity}
+      />
     </div>
   )
 }
