@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Bell, Search, Plus, LogOut, ClipboardList, Calendar, FileText, TrendingUp, Globe, Check, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -59,6 +59,12 @@ export function AdminHeader({
   const [quickActionsOpen, setQuickActionsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set())
+  const dismissedIdsRef = useRef<Set<string>>(new Set())
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    dismissedIdsRef.current = dismissedIds
+  }, [dismissedIds])
 
   // Load dismissed IDs from localStorage on mount
   useEffect(() => {
@@ -74,6 +80,7 @@ export function AdminHeader({
           )
           const cleanedIds = new Set(cleanedEntries.map(([id]) => id))
           setDismissedIds(cleanedIds)
+          dismissedIdsRef.current = cleanedIds
           // Save cleaned version back
           localStorage.setItem(
             DISMISSED_NOTIFICATIONS_KEY,
@@ -153,9 +160,9 @@ export function AdminHeader({
 
     // Sort by date and take most recent, filter out dismissed
     notifs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    const filteredNotifs = notifs.filter(n => !dismissedIds.has(n.id))
+    const filteredNotifs = notifs.filter(n => !dismissedIdsRef.current.has(n.id))
     setNotifications(filteredNotifs.slice(0, 8))
-  }, [supabase, dismissedIds])
+  }, [supabase])
 
   useEffect(() => {
     async function getUser() {
@@ -211,7 +218,9 @@ export function AdminHeader({
       })
 
       localStorage.setItem(DISMISSED_NOTIFICATIONS_KEY, JSON.stringify(existing))
-      setDismissedIds(new Set(Object.keys(existing)))
+      const newDismissedIds = new Set<string>(Object.keys(existing))
+      setDismissedIds(newDismissedIds)
+      dismissedIdsRef.current = newDismissedIds
     }
     setNotifications([])
   }
