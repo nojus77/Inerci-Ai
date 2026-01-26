@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { navigation } from "@/content/copy.lt";
-import { useCalModal } from "@/components/cal/CalContext";
+import { markCtaClicked } from "@/components/ExitIntentModal";
 import Logo from "@/components/Logo";
 
 // Nav items with section IDs
@@ -32,10 +33,11 @@ export default function PillNavbar() {
   const [isCtaPressed, setIsCtaPressed] = useState(false);
   const [hoveredNavItem, setHoveredNavItem] = useState<string | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const { openCalModal } = useCalModal();
+  const router = useRouter();
 
   const handleCallClick = () => {
-    openCalModal();
+    markCtaClicked();
+    router.push("/booking");
   };
 
   // IntersectionObserver for active section detection

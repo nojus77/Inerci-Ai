@@ -1,9 +1,10 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { services, hero } from "@/content/copy.lt";
 import { servicesMotion, scrollReveal, easing, buttonMotion } from "@/content/socioMotion";
-import { useCalModal } from "@/components/cal/CalContext";
+import { markCtaClicked } from "@/components/ExitIntentModal";
 import Step1Visual from "@/components/socio/Step1Visual";
 import Step1AuditVisual from "@/components/socio/Step1AuditVisual";
 import Step2Visual from "@/components/socio/Step2Visual";
@@ -13,7 +14,12 @@ import ScrollConnector from "@/components/socio/ScrollConnector";
 const serviceKeys = ["voiceAgent", "platform", "consulting"] as const;
 
 export default function HowItWorks() {
-  const { openCalModal } = useCalModal();
+  const router = useRouter();
+
+  const handleBookingClick = () => {
+    markCtaClicked();
+    router.push("/booking");
+  };
 
   return (
     <section id="services" className="py-20 md:py-32">
@@ -155,7 +161,7 @@ export default function HowItWorks() {
                   {/* CTA Button for consulting (3rd section) - Desktop only */}
                   {key === "consulting" && (
                     <motion.button
-                      onClick={openCalModal}
+                      onClick={handleBookingClick}
                       className="hidden md:inline-flex mt-6 relative items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
                       whileHover={buttonMotion.hover}
                       whileTap={buttonMotion.tap}
@@ -217,7 +223,7 @@ export default function HowItWorks() {
                   className="md:hidden mt-8 flex justify-center"
                 >
                   <motion.button
-                    onClick={openCalModal}
+                    onClick={handleBookingClick}
                     className="relative inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-semibold text-primary-foreground overflow-hidden group cursor-pointer"
                     whileTap={{ scale: 0.97 }}
                   >

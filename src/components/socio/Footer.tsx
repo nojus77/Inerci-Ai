@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { footer } from "@/content/copy.lt";
 import Logo from "@/components/Logo";
-import { useCalModal } from "@/components/cal/CalContext";
+import { markCtaClicked } from "@/components/ExitIntentModal";
 
 // Wave SVG divider component
 function WaveDivider() {
@@ -62,7 +63,12 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
 
 export default function Footer() {
   const [isCtaHovered, setIsCtaHovered] = useState(false);
-  const { openCalModal } = useCalModal();
+  const router = useRouter();
+
+  const handleBookingClick = () => {
+    markCtaClicked();
+    router.push("/booking");
+  };
 
   return (
     <footer className="relative mt-8 md:mt-12">
@@ -129,7 +135,7 @@ export default function Footer() {
                   </motion.a>
                   {/* CTA Button - mobile */}
                   <motion.button
-                    onClick={() => openCalModal()}
+                    onClick={handleBookingClick}
                     className="relative px-4 py-2 rounded-full text-xs font-semibold text-white overflow-hidden cursor-pointer"
                     whileTap={{ scale: 0.97 }}
                     style={{
@@ -271,7 +277,7 @@ export default function Footer() {
 
                   {/* CTA Button */}
                   <motion.button
-                    onClick={() => openCalModal()}
+                    onClick={handleBookingClick}
                     className="relative mt-4 px-5 py-2.5 rounded-full text-sm font-semibold text-white overflow-hidden cursor-pointer"
                     onMouseEnter={() => setIsCtaHovered(true)}
                     onMouseLeave={() => setIsCtaHovered(false)}

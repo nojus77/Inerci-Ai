@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { hero } from "@/content/copy.lt";
 import {
@@ -11,7 +12,7 @@ import {
   easing,
 } from "@/content/socioMotion";
 import HeroKpi from "@/components/HeroKpi";
-import { useCalModal } from "@/components/cal/CalContext";
+import { markCtaClicked } from "@/components/ExitIntentModal";
 
 // Find the longest word to use as ghost for reserving space
 function getLongestWord(words: string[]): string {
@@ -87,10 +88,11 @@ function FlipWords({ words }: { words: string[] }) {
 }
 
 export default function Hero() {
-  const { openCalModal } = useCalModal();
+  const router = useRouter();
 
   const handleAuditClick = () => {
-    openCalModal();
+    markCtaClicked();
+    router.push("/booking");
   };
 
   return (
