@@ -42,34 +42,21 @@ import type {
   AuditScriptQuestion,
 } from '@/types/database'
 
-// Section name aliases for matching parsed headers to existing sections
-// Format: sectionTitle -> [letter codes, name aliases...]
-const SECTION_ALIASES: Record<string, string[]> = {
-  'Įvadas ir kontekstas': ['A', 'Warm-up', 'Warmup', 'Įvadas', 'Kontekstas', 'Pradžia', 'Intro', 'žmogiškas įėjimas'],
-  'Procesai ir darbo eiga': ['B', 'Įmonės snapshot', 'Įmonės apžvalga', 'Procesai', 'Darbo eiga', 'Business snapshot', 'Company overview'],
-  'Technologijos ir įrankiai': ['C', 'Įrankiai ir sistemos', 'Technologijos', 'Įrankiai', 'Tools', 'Tech stack', 'Sistemos'],
-  'Skausmo taškai': ['D', 'TOP 3 laiko ėdikai', 'Laiko ėdikai', 'Pain points', 'Skausmas', 'Problems', 'Issues', 'Challenges'],
-  'Apibendrinimas': ['E', 'Summary', 'Pabaiga', 'Išvados', 'Conclusion', 'Wrap-up', 'Prioritetai', 'pilotas'],
-  // Additional common sections
-  'Klientų aptarnavimas': ['M', 'Support', 'Requests', 'Customer service'],
-  'Komunikacija': ['F', 'Communication', 'Bendravimas'],
-  'Finansai': ['G', 'Finance', 'Apskaita', 'Accounting'],
-  'Pardavimai': ['H', 'Sales', 'Prekyba'],
-  'Marketingas': ['I', 'Marketing'],
-  'HR': ['J', 'Žmogiškieji ištekliai', 'Human resources', 'Personnel'],
-  'Teisė': ['K', 'Legal', 'Contracts', 'Sutartys'],
-  'IT': ['L', 'Technologijos', 'Technology'],
-  'Operacijos': ['N', 'Operations', 'Procesai'],
-  'Prioritetai': ['O', 'Priorities', 'pilotas', 'Pilot'],
-  'Kiti': ['P', 'Other', 'Papildomi'],
-}
-
 // Parsed section from pasted text
 interface ParsedSection {
-  headerRaw: string        // Original header text (e.g., "A. Warm-up")
-  headerClean: string      // Cleaned header (e.g., "Warm-up")
-  headerLetter: string     // Letter code (e.g., "A")
+  headerRaw: string        // Original header text as pasted
+  headerNormalized: string // Normalized for matching (lowercase, no punctuation, no parentheses)
   questions: string[]      // List of questions
+}
+
+// Normalize a string for matching: lowercase, trim, remove punctuation, collapse spaces, remove parentheses content
+function normalizeForMatching(str: string): string {
+  return str
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, '') // Remove text in parentheses
+    .replace(/[^\p{L}\p{N}\s]/gu, ' ') // Remove punctuation, keep letters/numbers/spaces
+    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .trim()
 }
 
 // Match result for a parsed section
@@ -114,99 +101,108 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
 
   const supabase = createClient()
 
+  // Check if a line is a bullet line
+  const isBulletLine = (line: string): boolean => {
+    const trimmed = line.trim()
+    return /^[•\-\*]\s+/.test(trimmed)
+  }
+
+  // Extract question text from bullet line
+  const extractQuestion = (line: string): string => {
+    const trimmed = line.trim()
+    const match = trimmed.match(/^[•\-\*]\s+(.+)$/)
+    return match ? match[1].trim() : trimmed
+  }
+
   // Parse full script text into sections and questions
+  // A section header is any non-empty, non-bullet line followed by at least one bullet line
   const parseFullScript = (text: string): ParsedSection[] => {
     const lines = text.split('\n')
     const result: ParsedSection[] = []
-    let currentSection: ParsedSection | null = null
+
+    // First pass: identify potential headers (non-empty, non-bullet lines that have bullets after them)
+    const potentialSections: { headerIndex: number; headerText: string }[] = []
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      const trimmedLine = line.trim()
+      const line = lines[i].trim()
 
-      // Skip empty lines
-      if (!trimmedLine) {
+      // Skip empty lines and bullet lines
+      if (!line || isBulletLine(lines[i])) {
         continue
       }
 
-      // Check for section header: "A. Title" or "A. Title (subtitle)"
-      // Matches: A. Warm-up, M. Klientų aptarnavimas (support/requests), O. Prioritetai + pilotas
-      const headerMatch = trimmedLine.match(/^([A-Z])\.\s+(.+)$/)
-      if (headerMatch) {
-        // Finalize previous section
-        if (currentSection) {
-          result.push(currentSection)
-        }
-        // Start new section - extract clean title (without parentheses content)
-        const fullTitle = headerMatch[2].trim()
-        // Remove parenthetical content for cleaner matching but keep full for display
-        const cleanTitle = fullTitle.replace(/\s*\([^)]*\)\s*/g, ' ').trim()
+      // Check if there's at least one bullet line following this line (before next non-bullet, non-empty line)
+      let hasBulletsAfter = false
+      for (let j = i + 1; j < lines.length; j++) {
+        const nextLine = lines[j].trim()
+        if (!nextLine) continue // Skip empty lines
 
-        currentSection = {
-          headerRaw: trimmedLine,
-          headerClean: cleanTitle,
-          headerLetter: headerMatch[1],
-          questions: [],
+        if (isBulletLine(lines[j])) {
+          hasBulletsAfter = true
+          break
+        } else {
+          // Hit another non-bullet line, stop looking
+          break
         }
-        continue
       }
 
-      // If we don't have a section yet, skip this line
-      if (!currentSection) {
-        continue
-      }
-
-      // Check for question bullet: •, -, *, or numbered (1., 2., etc.)
-      const bulletMatch = trimmedLine.match(/^[•\-\*]\s*(.+)$/) ||
-                          trimmedLine.match(/^\d+[\.\)]\s*(.+)$/)
-      if (bulletMatch) {
-        const questionText = bulletMatch[1].trim()
-        if (questionText) {
-          currentSection.questions.push(questionText)
-        }
-        continue
-      }
-
-      // Plain non-empty line also becomes a question (if not a header pattern)
-      // This handles cases where questions aren't bulleted
-      if (trimmedLine.length > 0 && trimmedLine.length < 500) {
-        // Make sure it's not looking like a header for another section
-        if (!trimmedLine.match(/^[A-Z]\.\s+/)) {
-          currentSection.questions.push(trimmedLine)
-        }
+      if (hasBulletsAfter) {
+        potentialSections.push({ headerIndex: i, headerText: line })
       }
     }
 
-    // Finalize last section
-    if (currentSection) {
-      result.push(currentSection)
+    // Second pass: collect questions for each section
+    for (let s = 0; s < potentialSections.length; s++) {
+      const section = potentialSections[s]
+      const nextSectionIndex = s + 1 < potentialSections.length
+        ? potentialSections[s + 1].headerIndex
+        : lines.length
+
+      const questions: string[] = []
+
+      // Collect all bullet lines between this header and the next
+      for (let i = section.headerIndex + 1; i < nextSectionIndex; i++) {
+        const line = lines[i]
+        if (isBulletLine(line)) {
+          const questionText = extractQuestion(line)
+          if (questionText) {
+            questions.push(questionText)
+          }
+        }
+      }
+
+      if (questions.length > 0) {
+        result.push({
+          headerRaw: section.headerText,
+          headerNormalized: normalizeForMatching(section.headerText),
+          questions,
+        })
+      }
     }
 
-    // Filter out sections with no questions
-    return result.filter(s => s.questions.length > 0)
+    return result
   }
 
-  // Calculate string similarity (Levenshtein-based)
-  const stringSimilarity = (a: string, b: string): number => {
-    const aLower = a.toLowerCase()
-    const bLower = b.toLowerCase()
+  // Calculate word-based similarity score
+  const calculateSimilarity = (a: string, b: string): number => {
+    if (a === b) return 1
 
-    if (aLower === bLower) return 1
-    if (aLower.includes(bLower) || bLower.includes(aLower)) return 0.8
+    // Word overlap score
+    const aWords = new Set(a.split(/\s+/).filter(w => w.length > 1))
+    const bWords = new Set(b.split(/\s+/).filter(w => w.length > 1))
 
-    // Simple word overlap score
-    const aWords = new Set(aLower.split(/\s+/))
-    const bWords = new Set(bLower.split(/\s+/))
+    if (aWords.size === 0 || bWords.size === 0) return 0
+
     const intersection = [...aWords].filter(w => bWords.has(w)).length
     const union = new Set([...aWords, ...bWords]).size
+
     return union > 0 ? intersection / union : 0
   }
 
-  // Match parsed sections to existing sections
+  // Match parsed sections to existing sections by normalized title
   const matchSections = (parsedSections: ParsedSection[]): SectionMatch[] => {
     return parsedSections.map(parsed => {
-      const headerLower = parsed.headerClean.toLowerCase()
-      const headerLetter = parsed.headerLetter
+      const parsedNorm = parsed.headerNormalized
       let bestMatch: SectionMatch = {
         parsedSection: parsed,
         matchedSectionId: null,
@@ -215,13 +211,13 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
         confidence: 0,
       }
 
-      const alternativeMatches: { id: string; title: string; score: number }[] = []
+      const candidates: { id: string; title: string; score: number; type: 'exact' | 'contains' | 'fuzzy' }[] = []
 
       for (const section of sections) {
-        const titleLower = section.title.toLowerCase()
+        const sectionNorm = normalizeForMatching(section.title)
 
-        // 1. Exact title match
-        if (titleLower === headerLower) {
+        // 1. Exact normalized match
+        if (sectionNorm === parsedNorm) {
           return {
             parsedSection: parsed,
             matchedSectionId: section.id,
@@ -231,76 +227,50 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
           }
         }
 
-        // 2. Check aliases (including letter codes)
-        const aliases = SECTION_ALIASES[section.title] || []
-        for (const alias of aliases) {
-          const aliasLower = alias.toLowerCase()
-          // Match by letter code (e.g., "A" matches section with alias "A")
-          if (alias === headerLetter) {
-            return {
-              parsedSection: parsed,
-              matchedSectionId: section.id,
-              matchedSectionTitle: section.title,
-              matchType: 'alias' as const,
-              confidence: 0.98,
-            }
-          }
-          // Match by alias name
-          if (aliasLower === headerLower) {
-            return {
-              parsedSection: parsed,
-              matchedSectionId: section.id,
-              matchedSectionTitle: section.title,
-              matchType: 'alias' as const,
-              confidence: 0.95,
-            }
-          }
-          // Partial match - alias contained in header or vice versa
-          if (headerLower.includes(aliasLower) || aliasLower.includes(headerLower)) {
-            const score = Math.min(aliasLower.length, headerLower.length) / Math.max(aliasLower.length, headerLower.length)
-            if (score > 0.4) {
-              alternativeMatches.push({
-                id: section.id,
-                title: section.title,
-                score: score * 0.9, // Slightly lower than exact match
-              })
-            }
-          }
+        // 2. Contains match (either direction)
+        if (parsedNorm.includes(sectionNorm) || sectionNorm.includes(parsedNorm)) {
+          const shorter = Math.min(parsedNorm.length, sectionNorm.length)
+          const longer = Math.max(parsedNorm.length, sectionNorm.length)
+          const score = shorter / longer
+          candidates.push({
+            id: section.id,
+            title: section.title,
+            score: score * 0.95, // Slightly below exact
+            type: 'contains',
+          })
+          continue
         }
 
-        // 3. Fuzzy match on title
-        const similarity = stringSimilarity(parsed.headerClean, section.title)
+        // 3. Word-based similarity
+        const similarity = calculateSimilarity(parsedNorm, sectionNorm)
         if (similarity > 0.3) {
-          // Check if we already have this section in alternatives
-          const existing = alternativeMatches.find(m => m.id === section.id)
-          if (existing) {
-            existing.score = Math.max(existing.score, similarity)
-          } else {
-            alternativeMatches.push({
-              id: section.id,
-              title: section.title,
-              score: similarity,
-            })
-          }
+          candidates.push({
+            id: section.id,
+            title: section.title,
+            score: similarity,
+            type: 'fuzzy',
+          })
         }
       }
 
-      // Sort alternatives by score
-      alternativeMatches.sort((a, b) => b.score - a.score)
+      // Sort candidates by score
+      candidates.sort((a, b) => b.score - a.score)
 
-      // If we have a good fuzzy match
-      if (alternativeMatches.length > 0 && alternativeMatches[0].score >= 0.5) {
+      // Pick best match if good enough
+      if (candidates.length > 0 && candidates[0].score >= 0.5) {
         bestMatch = {
           parsedSection: parsed,
-          matchedSectionId: alternativeMatches[0].id,
-          matchedSectionTitle: alternativeMatches[0].title,
-          matchType: 'fuzzy',
-          confidence: alternativeMatches[0].score,
-          alternativeMatches: alternativeMatches.length > 1 ? alternativeMatches.slice(1) : undefined,
+          matchedSectionId: candidates[0].id,
+          matchedSectionTitle: candidates[0].title,
+          matchType: candidates[0].type === 'contains' ? 'alias' : 'fuzzy',
+          confidence: candidates[0].score,
+          alternativeMatches: candidates.length > 1
+            ? candidates.slice(1).map(c => ({ id: c.id, title: c.title, score: c.score }))
+            : undefined,
         }
-      } else if (alternativeMatches.length > 0) {
-        // Low confidence - show alternatives
-        bestMatch.alternativeMatches = alternativeMatches
+      } else if (candidates.length > 0) {
+        // Low confidence - show as alternatives
+        bestMatch.alternativeMatches = candidates.map(c => ({ id: c.id, title: c.title, score: c.score }))
       }
 
       return bestMatch
