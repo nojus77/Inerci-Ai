@@ -68,27 +68,64 @@ export async function POST() {
     }
 
     // Fetch bookings from Cal.com API
-    const calResponse = await fetch(
-      `https://api.cal.com/v1/bookings?apiKey=${calConfig.api_key}&status=upcoming,past`,
+    // Try v2 API first with Bearer token, fall back to v1 with query param
+    let calResponse = await fetch(
+      'https://api.cal.com/v2/bookings?status=upcoming&status=past&take=50',
       {
         method: 'GET',
         headers: {
+          'Authorization': `Bearer ${calConfig.api_key}`,
           'Content-Type': 'application/json',
+          'cal-api-version': '2024-08-13',
         },
       }
     )
 
+    // If v2 fails, try v1 API
+    if (!calResponse.ok && calResponse.status === 401) {
+      console.log('Cal.com v2 API failed, trying v1...')
+      calResponse = await fetch(
+        `https://api.cal.com/v1/bookings?apiKey=${calConfig.api_key}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+    }
+
     if (!calResponse.ok) {
       const errorText = await calResponse.text()
-      console.error('Cal.com API error:', errorText)
+      console.error('Cal.com API error:', calResponse.status, errorText)
       return NextResponse.json(
-        { error: `Cal.com API error: ${calResponse.status}` },
+        {
+          error: `Cal.com API error: ${calResponse.status}`,
+          details: errorText,
+          hint: 'Make sure your API key is valid. Get a new one from Cal.com → Settings → Developer → API Keys'
+        },
         { status: calResponse.status }
       )
     }
 
-    const calData: CalApiResponse = await calResponse.json()
-    const bookings = calData.bookings || []
+    const calData = await calResponse.json()
+    console.log('Cal.com API response:', JSON.stringify(calData).slice(0, 500))
+
+    // Handle both v1 and v2 response formats
+    // v1: { bookings: [...] }
+    // v2: { status: "success", data: [...] }
+    const bookings: CalBooking[] = calData.bookings || calData.data || []
+
+    if (bookings.length === 0) {
+      return NextResponse.json({
+        success: true,
+        total: 0,
+        synced: 0,
+        skipped: 0,
+        errors: 0,
+        message: 'No bookings found in Cal.com',
+      })
+    }
 
     let synced = 0
     let skipped = 0
