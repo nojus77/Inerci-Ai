@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle ping test - Cal.com sends a minimal payload to test connectivity
-    if (!payload.triggerEvent || payload.triggerEvent === 'PING') {
+    if (!payload.triggerEvent || (payload.triggerEvent as string) === 'PING') {
       console.log('Cal webhook: Ping test received, responding OK')
       return NextResponse.json({ success: true, message: 'Webhook is working!' })
     }
