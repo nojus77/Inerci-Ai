@@ -4,7 +4,14 @@ import { useState, useEffect, use } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   ArrowLeft,
   Plus,
@@ -13,6 +20,7 @@ import {
   ChevronDown,
   ChevronRight,
   Save,
+  FileUp,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -46,6 +54,9 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
   const [editingQuestion, setEditingQuestion] = useState<string | null>(null)
   const [newSectionTitle, setNewSectionTitle] = useState('')
   const [showAddSection, setShowAddSection] = useState(false)
+  const [bulkImportSection, setBulkImportSection] = useState<string | null>(null)
+  const [bulkImportText, setBulkImportText] = useState('')
+  const [bulkImporting, setBulkImporting] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -276,6 +287,62 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
     )
   }
 
+  // Bulk import questions
+  const handleBulkImport = async () => {
+    if (!bulkImportSection || !bulkImportText.trim()) return
+
+    const section = sections.find((s) => s.id === bulkImportSection)
+    if (!section) return
+
+    setBulkImporting(true)
+
+    // Parse newline-separated questions (filter empty lines)
+    const questions = bulkImportText
+      .split('\n')
+      .map((q) => q.trim())
+      .filter((q) => q.length > 0)
+
+    if (questions.length === 0) {
+      setBulkImporting(false)
+      return
+    }
+
+    const startOrder = section.questions.length
+    const newQuestions: AuditScriptQuestion[] = []
+
+    // Insert all questions
+    for (let i = 0; i < questions.length; i++) {
+      const { data } = await supabase
+        .from('audit_script_questions')
+        .insert({
+          section_id: bulkImportSection,
+          text: questions[i],
+          order: startOrder + i,
+          tags: [],
+        } as never)
+        .select()
+        .single()
+
+      if (data) {
+        newQuestions.push(data as AuditScriptQuestion)
+      }
+    }
+
+    // Update state
+    setSections(
+      sections.map((s) =>
+        s.id === bulkImportSection
+          ? { ...s, questions: [...s.questions, ...newQuestions] }
+          : s
+      )
+    )
+
+    // Reset and close
+    setBulkImportText('')
+    setBulkImportSection(null)
+    setBulkImporting(false)
+  }
+
   const toggleSection = (sectionId: string) => {
     const newExpanded = new Set(expandedSections)
     if (newExpanded.has(sectionId)) {
@@ -484,15 +551,26 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
                             )}
                           </Droppable>
 
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="mt-2 h-7 text-xs gap-1 text-muted-foreground"
-                            onClick={() => addQuestion(section.id)}
-                          >
-                            <Plus className="h-3 w-3" />
-                            Pridėti klausimą
-                          </Button>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs gap-1 text-muted-foreground"
+                              onClick={() => addQuestion(section.id)}
+                            >
+                              <Plus className="h-3 w-3" />
+                              Pridėti klausimą
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs gap-1 text-muted-foreground"
+                              onClick={() => setBulkImportSection(section.id)}
+                            >
+                              <FileUp className="h-3 w-3" />
+                              Įkelti daug
+                            </Button>
+                          </div>
                         </CardContent>
                       )}
                     </Card>
@@ -551,6 +629,52 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
           </Button>
         )}
       </div>
+
+      {/* Bulk Import Dialog */}
+      <Dialog open={!!bulkImportSection} onOpenChange={(open) => !open && setBulkImportSection(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileUp className="h-5 w-5 text-primary" />
+              Įkelti daug klausimų
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div>
+              <p className="text-sm text-muted-foreground mb-2">
+                Įveskite klausimus - kiekvienas klausimas naujoje eilutėje:
+              </p>
+              <Textarea
+                value={bulkImportText}
+                onChange={(e) => setBulkImportText(e.target.value)}
+                placeholder="Kaip vyksta jūsų komunikacija?&#10;Kokie įrankiai naudojami?&#10;Ar yra problemų su informacijos dalijimusi?&#10;Kiek laiko užtrunka sutarčių pasirašymas?"
+                className="min-h-[200px] text-sm"
+                autoFocus
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                {bulkImportText.split('\n').filter((l) => l.trim()).length} klausimų bus pridėta
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setBulkImportSection(null)
+                  setBulkImportText('')
+                }}
+              >
+                Atšaukti
+              </Button>
+              <Button
+                onClick={handleBulkImport}
+                disabled={!bulkImportText.trim() || bulkImporting}
+              >
+                {bulkImporting ? 'Įkeliama...' : 'Įkelti klausimus'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

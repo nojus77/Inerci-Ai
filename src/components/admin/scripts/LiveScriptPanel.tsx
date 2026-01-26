@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,6 +24,8 @@ import {
   X,
   FileText,
   StickyNote,
+  CheckCircle2,
+  Sparkles,
 } from 'lucide-react'
 import type {
   AuditScript,
@@ -33,6 +35,8 @@ import type {
   QuestionStatus,
   ScriptQuestionState,
   SessionScriptState,
+  SectionCoverageState,
+  AdHocQuestion,
   AuditSession,
 } from '@/types/database'
 
@@ -43,6 +47,22 @@ interface LiveScriptPanelProps {
   onSessionUpdate: (session: AuditSession) => void
 }
 
+// Generate UUID for ad-hoc questions
+function generateId(): string {
+  return crypto.randomUUID()
+}
+
+// Default script state
+function getDefaultScriptState(): SessionScriptState {
+  return {
+    active_script_id: null,
+    question_states: {},
+    ad_hoc_questions: [],
+    quick_notes: '',
+    section_overrides: {},
+  }
+}
+
 export function LiveScriptPanel({
   sessionId,
   session,
@@ -51,16 +71,14 @@ export function LiveScriptPanel({
 }: LiveScriptPanelProps) {
   const [scripts, setScripts] = useState<AuditScript[]>([])
   const [activeScript, setActiveScript] = useState<AuditScriptFull | null>(null)
-  const [scriptState, setScriptState] = useState<SessionScriptState>({
-    active_script_id: null,
-    question_states: {},
-  })
+  const [scriptState, setScriptState] = useState<SessionScriptState>(getDefaultScriptState())
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set())
   const [editMode, setEditMode] = useState(false)
-  const [showAddQuestion, setShowAddQuestion] = useState<string | null>(null)
-  const [newQuestionText, setNewQuestionText] = useState('')
+  const [showAddAdHoc, setShowAddAdHoc] = useState(false)
+  const [newAdHocText, setNewAdHocText] = useState('')
   const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null)
   const [skipReason, setSkipReason] = useState('')
+  const [showQuickNotes, setShowQuickNotes] = useState(false)
   const supabase = createClient()
 
   // Load scripts list
@@ -82,7 +100,11 @@ export function LiveScriptPanel({
   useEffect(() => {
     const stored = session.structured_data?.script_state as SessionScriptState | undefined
     if (stored) {
-      setScriptState(stored)
+      // Ensure all new fields have defaults
+      setScriptState({
+        ...getDefaultScriptState(),
+        ...stored,
+      })
       if (stored.active_script_id) {
         loadFullScript(stored.active_script_id)
       }
@@ -193,6 +215,50 @@ export function LiveScriptPanel({
     })
   }
 
+  // Calculate section coverage
+  const getSectionCoverage = useCallback(
+    (section: AuditScriptSection & { questions: AuditScriptQuestion[] }): SectionCoverageState => {
+      // Check manual override first
+      if (scriptState.section_overrides[section.id]) {
+        return 'covered'
+      }
+
+      if (section.questions.length === 0) {
+        return 'empty'
+      }
+
+      const answered = section.questions.filter((q) => {
+        const state = getQuestionState(q.id)
+        return state.status === 'done' || state.status === 'skipped'
+      }).length
+
+      const ratio = answered / section.questions.length
+
+      if (ratio === 0) return 'empty'
+      if (ratio >= 0.5) return 'covered' // 50% threshold
+      return 'partial'
+    },
+    [scriptState.question_states, scriptState.section_overrides]
+  )
+
+  // Coverage hint data
+  const coverageHint = useMemo(() => {
+    if (!activeScript) return { covered: [], partial: [], empty: [] }
+
+    const covered: string[] = []
+    const partial: string[] = []
+    const empty: string[] = []
+
+    activeScript.sections.forEach((section) => {
+      const coverage = getSectionCoverage(section)
+      if (coverage === 'covered') covered.push(section.title)
+      else if (coverage === 'partial') partial.push(section.title)
+      else empty.push(section.title)
+    })
+
+    return { covered, partial, empty }
+  }, [activeScript, getSectionCoverage])
+
   const handleAskQuestion = async (question: AuditScriptQuestion) => {
     onAskQuestion(question.text)
     await updateQuestionState(question.id, {
@@ -219,32 +285,88 @@ export function LiveScriptPanel({
     setSkipReason('')
   }
 
-  const handleAddQuestion = async (sectionId: string) => {
-    if (!newQuestionText.trim() || !activeScript) return
+  // Toggle section coverage override
+  const toggleSectionOverride = async (sectionId: string) => {
+    const newOverrides = {
+      ...scriptState.section_overrides,
+      [sectionId]: !scriptState.section_overrides[sectionId],
+    }
+    await saveScriptState({
+      ...scriptState,
+      section_overrides: newOverrides,
+    })
+  }
 
-    const section = activeScript.sections.find((s) => s.id === sectionId)
-    if (!section) return
+  // Ad-hoc questions handlers
+  const handleAddAdHoc = async () => {
+    if (!newAdHocText.trim()) return
 
-    const newOrder = section.questions.length
-
-    const { data } = await supabase
-      .from('audit_script_questions')
-      .insert({
-        section_id: sectionId,
-        text: newQuestionText.trim(),
-        order: newOrder,
-        tags: [],
-      } as never)
-      .select()
-      .single()
-
-    if (data) {
-      // Reload script
-      await loadFullScript(activeScript.id)
+    const newQuestion: AdHocQuestion = {
+      id: generateId(),
+      text: newAdHocText.trim(),
+      status: 'pending',
     }
 
-    setNewQuestionText('')
-    setShowAddQuestion(null)
+    const newAdHocQuestions = [...(scriptState.ad_hoc_questions || []), newQuestion]
+    await saveScriptState({
+      ...scriptState,
+      ad_hoc_questions: newAdHocQuestions,
+    })
+
+    setNewAdHocText('')
+    setShowAddAdHoc(false)
+  }
+
+  const handleAskAdHoc = async (question: AdHocQuestion) => {
+    onAskQuestion(question.text)
+    const updatedQuestions = scriptState.ad_hoc_questions.map((q) =>
+      q.id === question.id ? { ...q, status: 'asked' as QuestionStatus, asked_at: new Date().toISOString() } : q
+    )
+    await saveScriptState({
+      ...scriptState,
+      ad_hoc_questions: updatedQuestions,
+    })
+  }
+
+  const handleAdHocDone = async (questionId: string) => {
+    const updatedQuestions = scriptState.ad_hoc_questions.map((q) =>
+      q.id === questionId ? { ...q, status: 'done' as QuestionStatus, completed_at: new Date().toISOString() } : q
+    )
+    await saveScriptState({
+      ...scriptState,
+      ad_hoc_questions: updatedQuestions,
+    })
+    setExpandedQuestion(null)
+  }
+
+  const handleAdHocSkip = async (questionId: string, reason: string) => {
+    const updatedQuestions = scriptState.ad_hoc_questions.map((q) =>
+      q.id === questionId
+        ? { ...q, status: 'skipped' as QuestionStatus, skip_reason: reason, completed_at: new Date().toISOString() }
+        : q
+    )
+    await saveScriptState({
+      ...scriptState,
+      ad_hoc_questions: updatedQuestions,
+    })
+    setExpandedQuestion(null)
+    setSkipReason('')
+  }
+
+  const handleDeleteAdHoc = async (questionId: string) => {
+    const updatedQuestions = scriptState.ad_hoc_questions.filter((q) => q.id !== questionId)
+    await saveScriptState({
+      ...scriptState,
+      ad_hoc_questions: updatedQuestions,
+    })
+  }
+
+  // Quick notes handler
+  const handleQuickNotesChange = async (value: string) => {
+    await saveScriptState({
+      ...scriptState,
+      quick_notes: value,
+    })
   }
 
   const toggleSection = (sectionId: string) => {
@@ -257,7 +379,7 @@ export function LiveScriptPanel({
     setExpandedSections(newExpanded)
   }
 
-  // Calculate progress
+  // Calculate overall progress
   const getProgress = () => {
     if (!activeScript) return { done: 0, total: 0 }
     const allQuestions = activeScript.sections.flatMap((s) => s.questions)
@@ -265,10 +387,28 @@ export function LiveScriptPanel({
       const state = getQuestionState(q.id)
       return state.status === 'done' || state.status === 'skipped'
     })
-    return { done: doneOrSkipped.length, total: allQuestions.length }
+    // Include ad-hoc questions
+    const adHocDone = (scriptState.ad_hoc_questions || []).filter(
+      (q) => q.status === 'done' || q.status === 'skipped'
+    )
+    return {
+      done: doneOrSkipped.length + adHocDone.length,
+      total: allQuestions.length + (scriptState.ad_hoc_questions || []).length,
+    }
   }
 
   const progress = getProgress()
+
+  const getCoverageIcon = (coverage: SectionCoverageState) => {
+    switch (coverage) {
+      case 'covered':
+        return <span className="text-green-500">🟩</span>
+      case 'partial':
+        return <span className="text-yellow-500">🟨</span>
+      default:
+        return <span className="text-muted-foreground">⬜</span>
+    }
+  }
 
   const getStatusIcon = (status: QuestionStatus) => {
     switch (status) {
@@ -282,6 +422,16 @@ export function LiveScriptPanel({
         return <div className="h-3.5 w-3.5 rounded-full border border-muted-foreground/30" />
     }
   }
+
+  // Ad-hoc section coverage
+  const adHocCoverage = useMemo((): SectionCoverageState => {
+    const questions = scriptState.ad_hoc_questions || []
+    if (questions.length === 0) return 'empty'
+    const done = questions.filter((q) => q.status === 'done' || q.status === 'skipped').length
+    if (done === 0) return 'empty'
+    if (done / questions.length >= 0.5) return 'covered'
+    return 'partial'
+  }, [scriptState.ad_hoc_questions])
 
   if (scripts.length === 0 && !activeScript) {
     return (
@@ -302,7 +452,7 @@ export function LiveScriptPanel({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="h-4 w-4 text-primary" />
-            <span className="font-semibold text-sm">Script'as</span>
+            <span className="font-semibold text-sm">Audito Lenta</span>
           </div>
           <Button
             variant="ghost"
@@ -331,7 +481,34 @@ export function LiveScriptPanel({
           </SelectContent>
         </Select>
 
-        {/* Progress */}
+        {/* Coverage Awareness Hint */}
+        {activeScript && (
+          <div className="bg-muted/50 rounded-lg p-2 text-xs space-y-1">
+            {coverageHint.covered.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span>🟩</span>
+                <span className="text-muted-foreground">Padengta:</span>
+                <span className="font-medium truncate">{coverageHint.covered.join(', ')}</span>
+              </div>
+            )}
+            {coverageHint.partial.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span>🟨</span>
+                <span className="text-muted-foreground">Dalinai:</span>
+                <span className="font-medium truncate">{coverageHint.partial.join(', ')}</span>
+              </div>
+            )}
+            {coverageHint.empty.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                <span>⬜</span>
+                <span className="text-muted-foreground">Neliesta:</span>
+                <span className="font-medium truncate">{coverageHint.empty.join(', ')}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Overall Progress (secondary) */}
         {activeScript && (
           <div className="flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -352,171 +529,343 @@ export function LiveScriptPanel({
       {/* Script Content */}
       {activeScript && (
         <div className="flex-1 overflow-y-auto">
-          {activeScript.sections.map((section) => (
-            <Collapsible
-              key={section.id}
-              open={expandedSections.has(section.id)}
-              onOpenChange={() => toggleSection(section.id)}
-            >
-              <CollapsibleTrigger className="w-full">
-                <div className="flex items-center gap-2 p-3 hover:bg-muted/50 border-b">
-                  {expandedSections.has(section.id) ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                  <span className="font-medium text-sm flex-1 text-left">{section.title}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {section.questions.filter((q) => {
-                      const s = getQuestionState(q.id)
-                      return s.status === 'done' || s.status === 'skipped'
-                    }).length}
-                    /{section.questions.length}
-                  </span>
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="py-1">
-                  {section.questions.map((question) => {
-                    const qState = getQuestionState(question.id)
-                    const isExpanded = expandedQuestion === question.id
+          {/* Regular Sections */}
+          {activeScript.sections.map((section) => {
+            const coverage = getSectionCoverage(section)
+            const isOverridden = scriptState.section_overrides[section.id]
+            const sectionDone = section.questions.filter((q) => {
+              const s = getQuestionState(q.id)
+              return s.status === 'done' || s.status === 'skipped'
+            }).length
 
-                    return (
-                      <div key={question.id} className="border-b border-muted/50 last:border-0">
-                        <div
-                          className={`flex items-start gap-2 px-3 py-2 hover:bg-muted/30 cursor-pointer ${
-                            qState.status === 'done' || qState.status === 'skipped'
-                              ? 'opacity-60'
-                              : ''
-                          }`}
-                          onClick={() =>
-                            setExpandedQuestion(isExpanded ? null : question.id)
-                          }
-                        >
-                          <div className="mt-0.5">{getStatusIcon(qState.status)}</div>
-                          <p
-                            className={`text-xs flex-1 ${
-                              qState.status === 'done' ? 'line-through' : ''
+            return (
+              <Collapsible
+                key={section.id}
+                open={expandedSections.has(section.id)}
+                onOpenChange={() => toggleSection(section.id)}
+              >
+                <CollapsibleTrigger className="w-full">
+                  <div className="flex items-center gap-2 p-3 hover:bg-muted/50 border-b">
+                    {expandedSections.has(section.id) ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                    {getCoverageIcon(coverage)}
+                    <span className="font-medium text-sm flex-1 text-left">{section.title}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {sectionDone}/{section.questions.length}
+                    </span>
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="py-1">
+                    {/* Pakankama (Sufficient) toggle */}
+                    <div className="px-3 py-1.5 border-b border-muted/30">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          toggleSectionOverride(section.id)
+                        }}
+                        className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded transition-colors ${
+                          isOverridden
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-muted hover:bg-muted/80 text-muted-foreground'
+                        }`}
+                      >
+                        {isOverridden ? (
+                          <CheckCircle2 className="h-3 w-3" />
+                        ) : (
+                          <div className="h-3 w-3 rounded-full border" />
+                        )}
+                        {isOverridden ? 'Pakankama ✓' : 'Pažymėti kaip pakankama'}
+                      </button>
+                    </div>
+
+                    {section.questions.map((question) => {
+                      const qState = getQuestionState(question.id)
+                      const isExpanded = expandedQuestion === question.id
+
+                      return (
+                        <div key={question.id} className="border-b border-muted/50 last:border-0">
+                          <div
+                            className={`flex items-start gap-2 px-3 py-2 hover:bg-muted/30 cursor-pointer ${
+                              qState.status === 'done' || qState.status === 'skipped'
+                                ? 'opacity-60'
+                                : ''
                             }`}
+                            onClick={() =>
+                              setExpandedQuestion(isExpanded ? null : question.id)
+                            }
                           >
-                            {question.text}
-                          </p>
-                          <ChevronRight
-                            className={`h-3 w-3 text-muted-foreground transition-transform ${
-                              isExpanded ? 'rotate-90' : ''
-                            }`}
-                          />
-                        </div>
+                            <div className="mt-0.5">{getStatusIcon(qState.status)}</div>
+                            <p
+                              className={`text-xs flex-1 ${
+                                qState.status === 'done' ? 'line-through' : ''
+                              }`}
+                            >
+                              {question.text}
+                            </p>
+                            <ChevronRight
+                              className={`h-3 w-3 text-muted-foreground transition-transform ${
+                                isExpanded ? 'rotate-90' : ''
+                              }`}
+                            />
+                          </div>
 
-                        {/* Expanded Actions */}
-                        {isExpanded && (
-                          <div className="px-3 pb-2 ml-5 space-y-2">
-                            <div className="flex flex-wrap gap-1.5">
-                              <Button
-                                variant="default"
-                                size="sm"
-                                className="h-7 text-xs gap-1"
-                                onClick={() => handleAskQuestion(question)}
-                              >
-                                <MessageSquare className="h-3 w-3" />
-                                Klausti
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-7 text-xs gap-1"
-                                onClick={() => handleMarkDone(question.id)}
-                              >
-                                <Check className="h-3 w-3" />
-                                Done
-                              </Button>
+                          {/* Expanded Actions */}
+                          {isExpanded && (
+                            <div className="px-3 pb-2 ml-5 space-y-2">
+                              <div className="flex flex-wrap gap-1.5">
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  className="h-7 text-xs gap-1"
+                                  onClick={() => handleAskQuestion(question)}
+                                >
+                                  <MessageSquare className="h-3 w-3" />
+                                  Klausti
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 text-xs gap-1"
+                                  onClick={() => handleMarkDone(question.id)}
+                                >
+                                  <Check className="h-3 w-3" />
+                                  Done
+                                </Button>
+                              </div>
+
+                              {/* Skip with reason */}
+                              <div className="flex gap-1.5">
+                                <Input
+                                  value={skipReason}
+                                  onChange={(e) => setSkipReason(e.target.value)}
+                                  placeholder="Priežastis (neprivaloma)..."
+                                  className="h-7 text-xs flex-1"
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 text-xs gap-1"
+                                  onClick={() => handleSkip(question.id, skipReason)}
+                                >
+                                  <SkipForward className="h-3 w-3" />
+                                  Skip
+                                </Button>
+                              </div>
+
+                              {/* Notes */}
+                              {qState.notes && (
+                                <div className="flex items-start gap-1 text-xs text-muted-foreground">
+                                  <StickyNote className="h-3 w-3 mt-0.5" />
+                                  <span>{qState.notes}</span>
+                                </div>
+                              )}
                             </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )
+          })}
 
-                            {/* Skip with reason */}
-                            <div className="flex gap-1.5">
-                              <Input
-                                value={skipReason}
-                                onChange={(e) => setSkipReason(e.target.value)}
-                                placeholder="Priežastis (neprivaloma)..."
-                                className="h-7 text-xs flex-1"
-                              />
+          {/* Ad-Hoc Questions Section */}
+          <Collapsible
+            open={expandedSections.has('ad-hoc')}
+            onOpenChange={() => toggleSection('ad-hoc')}
+          >
+            <CollapsibleTrigger className="w-full">
+              <div className="flex items-center gap-2 p-3 hover:bg-muted/50 border-b bg-muted/20">
+                {expandedSections.has('ad-hoc') ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+                {getCoverageIcon(adHocCoverage)}
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span className="font-medium text-sm flex-1 text-left">Situaciniai klausimai</span>
+                <span className="text-xs text-muted-foreground">
+                  ({scriptState.ad_hoc_questions?.length || 0})
+                </span>
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="py-1">
+                {(scriptState.ad_hoc_questions || []).map((question) => {
+                  const isExpanded = expandedQuestion === `adhoc-${question.id}`
+
+                  return (
+                    <div key={question.id} className="border-b border-muted/50 last:border-0">
+                      <div
+                        className={`flex items-start gap-2 px-3 py-2 hover:bg-muted/30 cursor-pointer ${
+                          question.status === 'done' || question.status === 'skipped'
+                            ? 'opacity-60'
+                            : ''
+                        }`}
+                        onClick={() =>
+                          setExpandedQuestion(isExpanded ? null : `adhoc-${question.id}`)
+                        }
+                      >
+                        <div className="mt-0.5">{getStatusIcon(question.status)}</div>
+                        <p
+                          className={`text-xs flex-1 ${
+                            question.status === 'done' ? 'line-through' : ''
+                          }`}
+                        >
+                          {question.text}
+                        </p>
+                        <ChevronRight
+                          className={`h-3 w-3 text-muted-foreground transition-transform ${
+                            isExpanded ? 'rotate-90' : ''
+                          }`}
+                        />
+                      </div>
+
+                      {/* Expanded Actions */}
+                      {isExpanded && (
+                        <div className="px-3 pb-2 ml-5 space-y-2">
+                          <div className="flex flex-wrap gap-1.5">
+                            <Button
+                              variant="default"
+                              size="sm"
+                              className="h-7 text-xs gap-1"
+                              onClick={() => handleAskAdHoc(question)}
+                            >
+                              <MessageSquare className="h-3 w-3" />
+                              Klausti
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-7 text-xs gap-1"
+                              onClick={() => handleAdHocDone(question.id)}
+                            >
+                              <Check className="h-3 w-3" />
+                              Done
+                            </Button>
+                            {editMode && (
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 text-xs gap-1"
-                                onClick={() => handleSkip(question.id, skipReason)}
+                                className="h-7 text-xs gap-1 text-destructive"
+                                onClick={() => handleDeleteAdHoc(question.id)}
                               >
-                                <SkipForward className="h-3 w-3" />
-                                Skip
+                                <X className="h-3 w-3" />
+                                Ištrinti
                               </Button>
-                            </div>
-
-                            {/* Notes */}
-                            {qState.notes && (
-                              <div className="flex items-start gap-1 text-xs text-muted-foreground">
-                                <StickyNote className="h-3 w-3 mt-0.5" />
-                                <span>{qState.notes}</span>
-                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                    )
-                  })}
 
-                  {/* Add Question (Edit Mode) */}
-                  {editMode && (
-                    <div className="px-3 py-2">
-                      {showAddQuestion === section.id ? (
-                        <div className="flex gap-1.5">
-                          <Input
-                            value={newQuestionText}
-                            onChange={(e) => setNewQuestionText(e.target.value)}
-                            onKeyDown={(e) =>
-                              e.key === 'Enter' && handleAddQuestion(section.id)
-                            }
-                            placeholder="Naujas klausimas..."
-                            className="h-7 text-xs flex-1"
-                            autoFocus
-                          />
-                          <Button
-                            variant="default"
-                            size="sm"
-                            className="h-7 text-xs"
-                            onClick={() => handleAddQuestion(section.id)}
-                            disabled={!newQuestionText.trim()}
-                          >
-                            Pridėti
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => {
-                              setShowAddQuestion(null)
-                              setNewQuestionText('')
-                            }}
-                          >
-                            <X className="h-3 w-3" />
-                          </Button>
+                          {/* Skip with reason */}
+                          <div className="flex gap-1.5">
+                            <Input
+                              value={skipReason}
+                              onChange={(e) => setSkipReason(e.target.value)}
+                              placeholder="Priežastis (neprivaloma)..."
+                              className="h-7 text-xs flex-1"
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs gap-1"
+                              onClick={() => handleAdHocSkip(question.id, skipReason)}
+                            >
+                              <SkipForward className="h-3 w-3" />
+                              Skip
+                            </Button>
+                          </div>
                         </div>
-                      ) : (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 text-xs gap-1 w-full justify-start text-muted-foreground"
-                          onClick={() => setShowAddQuestion(section.id)}
-                        >
-                          <Plus className="h-3 w-3" />
-                          Pridėti klausimą
-                        </Button>
                       )}
                     </div>
+                  )
+                })}
+
+                {/* Add Ad-Hoc Question */}
+                <div className="px-3 py-2">
+                  {showAddAdHoc ? (
+                    <div className="flex gap-1.5">
+                      <Input
+                        value={newAdHocText}
+                        onChange={(e) => setNewAdHocText(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddAdHoc()}
+                        placeholder="Naujas klausimas..."
+                        className="h-7 text-xs flex-1"
+                        autoFocus
+                      />
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="h-7 text-xs"
+                        onClick={handleAddAdHoc}
+                        disabled={!newAdHocText.trim()}
+                      >
+                        Pridėti
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => {
+                          setShowAddAdHoc(false)
+                          setNewAdHocText('')
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs gap-1 w-full justify-start text-muted-foreground"
+                      onClick={() => setShowAddAdHoc(true)}
+                    >
+                      <Plus className="h-3 w-3" />
+                      Pridėti situacinį klausimą
+                    </Button>
                   )}
                 </div>
-              </CollapsibleContent>
-            </Collapsible>
-          ))}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Quick Notes Section */}
+          <Collapsible open={showQuickNotes} onOpenChange={setShowQuickNotes}>
+            <CollapsibleTrigger className="w-full">
+              <div className="flex items-center gap-2 p-3 hover:bg-muted/50 border-b bg-amber-50/50 dark:bg-amber-950/20">
+                {showQuickNotes ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+                <StickyNote className="h-4 w-4 text-amber-600" />
+                <span className="font-medium text-sm flex-1 text-left">Greitos pastabos</span>
+                {scriptState.quick_notes && (
+                  <span className="text-xs text-muted-foreground">
+                    {scriptState.quick_notes.length > 0 ? '📝' : ''}
+                  </span>
+                )}
+              </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <div className="p-3">
+                <Textarea
+                  value={scriptState.quick_notes || ''}
+                  onChange={(e) => handleQuickNotesChange(e.target.value)}
+                  placeholder="Mintys, rizikos, idėjos, emocijos...&#10;&#10;#risk - mažas biudžetas&#10;#idea - invoicing automatizacija&#10;#followup - paklauskti apie HR procesus"
+                  className="min-h-[120px] text-xs resize-none"
+                />
+                <p className="text-[10px] text-muted-foreground mt-1.5">
+                  Šios pastabos bus matomos kuriant pasiūlymą
+                </p>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       )}
     </div>

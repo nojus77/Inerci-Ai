@@ -555,6 +555,9 @@ export type TaskUpdate = Database['public']['Tables']['tasks']['Update']
 // Audit Script Types
 export type QuestionStatus = 'pending' | 'asked' | 'done' | 'skipped'
 
+// Section coverage states for Audit Board
+export type SectionCoverageState = 'empty' | 'partial' | 'covered'
+
 export interface AuditScript {
   id: string
   name: string
@@ -599,7 +602,25 @@ export interface ScriptQuestionState {
   completed_at?: string
 }
 
+// Ad-hoc question (session-level, not saved to script template)
+export interface AdHocQuestion {
+  id: string           // UUID generated client-side
+  text: string
+  status: QuestionStatus
+  asked_at?: string
+  completed_at?: string
+  skip_reason?: string
+  notes?: string
+}
+
+// Extended session script state with Audit Board features
 export interface SessionScriptState {
   active_script_id: string | null
   question_states: Record<string, ScriptQuestionState>
+  // Audit Board: Ad-hoc/freestyle questions (session-only)
+  ad_hoc_questions: AdHocQuestion[]
+  // Audit Board: Quick notes area
+  quick_notes?: string
+  // Audit Board: Section coverage overrides (manual "sufficient" marking)
+  section_overrides: Record<string, boolean>
 }
