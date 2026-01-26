@@ -110,18 +110,42 @@ export default function CalendarPage() {
     const monthEnd = endOfMonth(currentDate)
 
     // Fetch audit sessions with scheduled times
-    const { data: sessionsData } = await supabase
+    const { data: sessionsData, error: sessionsError } = await supabase
       .from('audit_sessions')
       .select('id, title, status, structured_data, client:clients(id, company_name)')
       .not('structured_data', 'is', null)
 
+    // Debug: log what we got from database
+    const sessionsForLog = sessionsData as unknown as AuditSession[] | null
+    console.log('Calendar: Fetched audit_sessions:', {
+      count: sessionsForLog?.length || 0,
+      error: sessionsError,
+      sessions: sessionsForLog?.map(s => ({
+        id: s.id,
+        title: s.title,
+        scheduled_time: s.structured_data?.scheduled_time,
+        status: s.status
+      }))
+    })
+
     // Fetch tasks with due dates in the current month range
-    const { data: tasksData } = await supabase
+    const { data: tasksData, error: tasksError } = await supabase
       .from('tasks')
       .select('id, title, due_date, status, client:clients(id, company_name)')
       .gte('due_date', monthStart.toISOString())
       .lte('due_date', monthEnd.toISOString())
       .eq('status', 'pending')
+
+    const tasksForLog = tasksData as unknown as Task[] | null
+    console.log('Calendar: Fetched tasks:', {
+      count: tasksForLog?.length || 0,
+      error: tasksError,
+      tasks: tasksForLog?.map(t => ({
+        id: t.id,
+        title: t.title,
+        due_date: t.due_date
+      }))
+    })
 
     const calendarEvents: CalendarEvent[] = []
 
@@ -130,9 +154,11 @@ export default function CalendarPage() {
       const sessions = sessionsData as unknown as AuditSession[]
       sessions.forEach((session) => {
         const scheduledTime = session.structured_data?.scheduled_time
+        console.log('Processing session:', session.title, 'scheduled_time:', scheduledTime)
         if (scheduledTime) {
           try {
             const date = parseISO(scheduledTime)
+            console.log('Parsed date:', date, 'for session:', session.title)
             calendarEvents.push({
               id: session.id,
               title: session.title,
@@ -142,8 +168,8 @@ export default function CalendarPage() {
               clientId: session.client?.id,
               status: session.status
             })
-          } catch {
-            // Invalid date, skip
+          } catch (e) {
+            console.error('Failed to parse date:', scheduledTime, e)
           }
         }
       })
