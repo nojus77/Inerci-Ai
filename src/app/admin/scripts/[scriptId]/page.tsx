@@ -43,18 +43,32 @@ import type {
 } from '@/types/database'
 
 // Section name aliases for matching parsed headers to existing sections
+// Format: sectionTitle -> [letter codes, name aliases...]
 const SECTION_ALIASES: Record<string, string[]> = {
-  'Įvadas ir kontekstas': ['Warm-up', 'Warmup', 'Įvadas', 'Kontekstas', 'Pradžia', 'Intro'],
-  'Procesai ir darbo eiga': ['Įmonės snapshot', 'Įmonės apžvalga', 'Procesai', 'Darbo eiga', 'Business snapshot', 'Company overview'],
-  'Technologijos ir įrankiai': ['Įrankiai ir sistemos', 'Technologijos', 'Įrankiai', 'Tools', 'Tech stack', 'Sistemos'],
-  'Skausmo taškai': ['TOP 3 laiko ėdikai', 'Laiko ėdikai', 'Pain points', 'Skausmas', 'Problems', 'Issues', 'Challenges'],
-  'Apibendrinimas': ['Summary', 'Pabaiga', 'Išvados', 'Conclusion', 'Wrap-up'],
+  'Įvadas ir kontekstas': ['A', 'Warm-up', 'Warmup', 'Įvadas', 'Kontekstas', 'Pradžia', 'Intro', 'žmogiškas įėjimas'],
+  'Procesai ir darbo eiga': ['B', 'Įmonės snapshot', 'Įmonės apžvalga', 'Procesai', 'Darbo eiga', 'Business snapshot', 'Company overview'],
+  'Technologijos ir įrankiai': ['C', 'Įrankiai ir sistemos', 'Technologijos', 'Įrankiai', 'Tools', 'Tech stack', 'Sistemos'],
+  'Skausmo taškai': ['D', 'TOP 3 laiko ėdikai', 'Laiko ėdikai', 'Pain points', 'Skausmas', 'Problems', 'Issues', 'Challenges'],
+  'Apibendrinimas': ['E', 'Summary', 'Pabaiga', 'Išvados', 'Conclusion', 'Wrap-up', 'Prioritetai', 'pilotas'],
+  // Additional common sections
+  'Klientų aptarnavimas': ['M', 'Support', 'Requests', 'Customer service'],
+  'Komunikacija': ['F', 'Communication', 'Bendravimas'],
+  'Finansai': ['G', 'Finance', 'Apskaita', 'Accounting'],
+  'Pardavimai': ['H', 'Sales', 'Prekyba'],
+  'Marketingas': ['I', 'Marketing'],
+  'HR': ['J', 'Žmogiškieji ištekliai', 'Human resources', 'Personnel'],
+  'Teisė': ['K', 'Legal', 'Contracts', 'Sutartys'],
+  'IT': ['L', 'Technologijos', 'Technology'],
+  'Operacijos': ['N', 'Operations', 'Procesai'],
+  'Prioritetai': ['O', 'Priorities', 'pilotas', 'Pilot'],
+  'Kiti': ['P', 'Other', 'Papildomi'],
 }
 
 // Parsed section from pasted text
 interface ParsedSection {
   headerRaw: string        // Original header text (e.g., "A. Warm-up")
   headerClean: string      // Cleaned header (e.g., "Warm-up")
+  headerLetter: string     // Letter code (e.g., "A")
   questions: string[]      // List of questions
 }
 
@@ -105,7 +119,6 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
     const lines = text.split('\n')
     const result: ParsedSection[] = []
     let currentSection: ParsedSection | null = null
-    let currentQuestion = ''
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
@@ -113,76 +126,59 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
 
       // Skip empty lines
       if (!trimmedLine) {
-        // If we have a pending multi-line question, finalize it
-        if (currentQuestion && currentSection) {
-          currentSection.questions.push(currentQuestion.trim())
-          currentQuestion = ''
-        }
         continue
       }
 
-      // Check for section header: "A. Title", "B. Title", etc.
+      // Check for section header: "A. Title" or "A. Title (subtitle)"
+      // Matches: A. Warm-up, M. Klientų aptarnavimas (support/requests), O. Prioritetai + pilotas
       const headerMatch = trimmedLine.match(/^([A-Z])\.\s+(.+)$/)
       if (headerMatch) {
         // Finalize previous section
         if (currentSection) {
-          if (currentQuestion) {
-            currentSection.questions.push(currentQuestion.trim())
-            currentQuestion = ''
-          }
-          if (currentSection.questions.length > 0 || result.length === 0) {
-            result.push(currentSection)
-          }
+          result.push(currentSection)
         }
-        // Start new section
+        // Start new section - extract clean title (without parentheses content)
+        const fullTitle = headerMatch[2].trim()
+        // Remove parenthetical content for cleaner matching but keep full for display
+        const cleanTitle = fullTitle.replace(/\s*\([^)]*\)\s*/g, ' ').trim()
+
         currentSection = {
           headerRaw: trimmedLine,
-          headerClean: headerMatch[2].trim(),
+          headerClean: cleanTitle,
+          headerLetter: headerMatch[1],
           questions: [],
         }
+        continue
+      }
+
+      // If we don't have a section yet, skip this line
+      if (!currentSection) {
         continue
       }
 
       // Check for question bullet: •, -, *, or numbered (1., 2., etc.)
       const bulletMatch = trimmedLine.match(/^[•\-\*]\s*(.+)$/) ||
-                          trimmedLine.match(/^\d+\.\s*(.+)$/)
-      if (bulletMatch && currentSection) {
-        // Finalize previous question
-        if (currentQuestion) {
-          currentSection.questions.push(currentQuestion.trim())
-        }
-        currentQuestion = bulletMatch[1].trim()
-        continue
-      }
-
-      // Check for indented continuation (multi-line question)
-      const isIndented = line.startsWith('  ') || line.startsWith('\t')
-      if (isIndented && currentQuestion && currentSection) {
-        currentQuestion += ' ' + trimmedLine
-        continue
-      }
-
-      // Plain line that could be a section name (fallback)
-      if (!currentSection && trimmedLine.length > 0 && trimmedLine.length < 100) {
-        currentSection = {
-          headerRaw: trimmedLine,
-          headerClean: trimmedLine,
-          questions: [],
+                          trimmedLine.match(/^\d+[\.\)]\s*(.+)$/)
+      if (bulletMatch) {
+        const questionText = bulletMatch[1].trim()
+        if (questionText) {
+          currentSection.questions.push(questionText)
         }
         continue
       }
 
-      // Otherwise, if we have a current question, append to it
-      if (currentQuestion && currentSection) {
-        currentQuestion += ' ' + trimmedLine
+      // Plain non-empty line also becomes a question (if not a header pattern)
+      // This handles cases where questions aren't bulleted
+      if (trimmedLine.length > 0 && trimmedLine.length < 500) {
+        // Make sure it's not looking like a header for another section
+        if (!trimmedLine.match(/^[A-Z]\.\s+/)) {
+          currentSection.questions.push(trimmedLine)
+        }
       }
     }
 
     // Finalize last section
     if (currentSection) {
-      if (currentQuestion) {
-        currentSection.questions.push(currentQuestion.trim())
-      }
       result.push(currentSection)
     }
 
@@ -210,6 +206,7 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
   const matchSections = (parsedSections: ParsedSection[]): SectionMatch[] => {
     return parsedSections.map(parsed => {
       const headerLower = parsed.headerClean.toLowerCase()
+      const headerLetter = parsed.headerLetter
       let bestMatch: SectionMatch = {
         parsedSection: parsed,
         matchedSectionId: null,
@@ -223,7 +220,7 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
       for (const section of sections) {
         const titleLower = section.title.toLowerCase()
 
-        // 1. Exact match
+        // 1. Exact title match
         if (titleLower === headerLower) {
           return {
             parsedSection: parsed,
@@ -234,10 +231,22 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
           }
         }
 
-        // 2. Check aliases
+        // 2. Check aliases (including letter codes)
         const aliases = SECTION_ALIASES[section.title] || []
         for (const alias of aliases) {
-          if (alias.toLowerCase() === headerLower) {
+          const aliasLower = alias.toLowerCase()
+          // Match by letter code (e.g., "A" matches section with alias "A")
+          if (alias === headerLetter) {
+            return {
+              parsedSection: parsed,
+              matchedSectionId: section.id,
+              matchedSectionTitle: section.title,
+              matchType: 'alias' as const,
+              confidence: 0.98,
+            }
+          }
+          // Match by alias name
+          if (aliasLower === headerLower) {
             return {
               parsedSection: parsed,
               matchedSectionId: section.id,
@@ -246,16 +255,33 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
               confidence: 0.95,
             }
           }
+          // Partial match - alias contained in header or vice versa
+          if (headerLower.includes(aliasLower) || aliasLower.includes(headerLower)) {
+            const score = Math.min(aliasLower.length, headerLower.length) / Math.max(aliasLower.length, headerLower.length)
+            if (score > 0.4) {
+              alternativeMatches.push({
+                id: section.id,
+                title: section.title,
+                score: score * 0.9, // Slightly lower than exact match
+              })
+            }
+          }
         }
 
-        // 3. Fuzzy match
+        // 3. Fuzzy match on title
         const similarity = stringSimilarity(parsed.headerClean, section.title)
         if (similarity > 0.3) {
-          alternativeMatches.push({
-            id: section.id,
-            title: section.title,
-            score: similarity,
-          })
+          // Check if we already have this section in alternatives
+          const existing = alternativeMatches.find(m => m.id === section.id)
+          if (existing) {
+            existing.score = Math.max(existing.score, similarity)
+          } else {
+            alternativeMatches.push({
+              id: section.id,
+              title: section.title,
+              score: similarity,
+            })
+          }
         }
       }
 
