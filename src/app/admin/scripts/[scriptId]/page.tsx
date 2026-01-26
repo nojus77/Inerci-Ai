@@ -50,17 +50,22 @@ interface ParsedSection {
   questions: string[]      // List of questions
 }
 
-// Strip letter prefix (A., B., etc.) from header
+// Strip letter/number prefix (A., B., 1., 1), A), etc.) from header
 function stripLetterPrefix(str: string): string {
-  // Match patterns like "A.", "B.", "A)", "1.", "1)" at the start
-  return str.replace(/^[A-Za-z0-9][.)]\s*/, '').trim()
+  // Match patterns like "A.", "B.", "A)", "1.", "1)", "10.", "10)" at the start
+  return str.replace(/^[A-Za-z0-9]+[.)]\s*/, '').trim()
 }
 
-// Normalize a string for matching: lowercase, trim, remove punctuation, collapse spaces, remove parentheses content
+// Remove diacritics from string (ą→a, ę→e, etc.)
+function removeDiacritics(str: string): string {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
+// Normalize a string for matching: lowercase, trim, remove punctuation, collapse spaces, remove parentheses content, remove diacritics
 function normalizeForMatching(str: string): string {
   // First strip letter prefix, then normalize
   const stripped = stripLetterPrefix(str)
-  return stripped
+  return removeDiacritics(stripped)
     .toLowerCase()
     .replace(/\([^)]*\)/g, '') // Remove text in parentheses
     .replace(/[^\p{L}\p{N}\s]/gu, ' ') // Remove punctuation, keep letters/numbers/spaces
@@ -110,52 +115,101 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
 
   const supabase = createClient()
 
-  // Check if a line is a bullet line
+  // Check if a line starts with a bullet (•, -, *)
   const isBulletLine = (line: string): boolean => {
     const trimmed = line.trim()
     return /^[•\-\*]\s+/.test(trimmed)
   }
 
-  // Extract question text from bullet line
-  const extractQuestion = (line: string): string => {
+  // Check if a line is a question line (starts with bullet OR ends with ?)
+  const isQuestionLine = (line: string): boolean => {
+    const trimmed = line.trim()
+    if (!trimmed) return false
+    return isBulletLine(line) || trimmed.endsWith('?')
+  }
+
+  // Check if a line contains a question mark (used for continuation logic)
+  const containsQuestionMark = (line: string): boolean => {
+    return line.includes('?')
+  }
+
+  // Extract question text from bullet line (strip bullet prefix)
+  const extractQuestionText = (line: string): string => {
     const trimmed = line.trim()
     const match = trimmed.match(/^[•\-\*]\s+(.+)$/)
     return match ? match[1].trim() : trimmed
   }
 
+  // Split text containing multiple ? into separate questions
+  // Preserves the ? at the end of each question
+  const splitMultipleQuestions = (text: string): string[] => {
+    if (!text.includes('?')) return [text]
+
+    // Split at ? but keep the ? with each question
+    const parts = text.split(/(\?)/g)
+    const questions: string[] = []
+    let current = ''
+
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i] === '?') {
+        current += '?'
+        const trimmed = current.trim()
+        if (trimmed && trimmed !== '?') {
+          questions.push(trimmed)
+        }
+        current = ''
+      } else {
+        current += parts[i]
+      }
+    }
+
+    // Handle any remaining text (no trailing ?)
+    const remaining = current.trim()
+    if (remaining) {
+      questions.push(remaining)
+    }
+
+    return questions.filter(q => q.length > 0)
+  }
+
   // Parse full script text into sections and questions
-  // A section header is any non-empty, non-bullet line followed by at least one bullet line
+  // A section header is any non-empty line that is followed by question lines
+  // Questions can be: bullet lines (•, -, *) OR any line ending with ?
+  // Lines with multiple ? are split into separate questions
+  // Continuation: if next line has no ? and no bullet, it's appended to current question
   const parseFullScript = (text: string): ParsedSection[] => {
     const lines = text.split('\n')
     const result: ParsedSection[] = []
 
-    // First pass: identify potential headers (non-empty, non-bullet lines that have bullets after them)
+    // First pass: identify potential headers
+    // A header is a non-empty, non-question line followed by at least one question line
     const potentialSections: { headerIndex: number; headerText: string }[] = []
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim()
 
-      // Skip empty lines and bullet lines
-      if (!line || isBulletLine(lines[i])) {
-        continue
-      }
+      // Skip empty lines
+      if (!line) continue
 
-      // Check if there's at least one bullet line following this line (before next non-bullet, non-empty line)
-      let hasBulletsAfter = false
+      // Skip if this line is a question line (bullet or ends with ?)
+      if (isQuestionLine(lines[i])) continue
+
+      // Check if there's at least one question line following this line
+      let hasQuestionsAfter = false
       for (let j = i + 1; j < lines.length; j++) {
         const nextLine = lines[j].trim()
         if (!nextLine) continue // Skip empty lines
 
-        if (isBulletLine(lines[j])) {
-          hasBulletsAfter = true
+        if (isQuestionLine(lines[j])) {
+          hasQuestionsAfter = true
           break
         } else {
-          // Hit another non-bullet line, stop looking
+          // Hit another non-question, non-empty line - stop looking
           break
         }
       }
 
-      if (hasBulletsAfter) {
+      if (hasQuestionsAfter) {
         potentialSections.push({ headerIndex: i, headerText: line })
       }
     }
@@ -167,25 +221,65 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
         ? potentialSections[s + 1].headerIndex
         : lines.length
 
-      const questions: string[] = []
+      const rawQuestions: string[] = []
+      let currentQuestion = ''
 
-      // Collect all bullet lines between this header and the next
+      // Collect all question lines between this header and the next
       for (let i = section.headerIndex + 1; i < nextSectionIndex; i++) {
         const line = lines[i]
-        if (isBulletLine(line)) {
-          const questionText = extractQuestion(line)
-          if (questionText) {
-            questions.push(questionText)
+        const trimmed = line.trim()
+
+        if (!trimmed) {
+          // Empty line - finalize current question if any
+          if (currentQuestion) {
+            rawQuestions.push(currentQuestion)
+            currentQuestion = ''
           }
+          continue
+        }
+
+        if (isQuestionLine(line)) {
+          // This is a question line - finalize previous question first
+          if (currentQuestion) {
+            rawQuestions.push(currentQuestion)
+          }
+          // Start new question (strip bullet if present)
+          currentQuestion = extractQuestionText(line)
+        } else if (containsQuestionMark(line)) {
+          // Line contains ? but doesn't start with bullet
+          // Finalize previous question first
+          if (currentQuestion) {
+            rawQuestions.push(currentQuestion)
+          }
+          // This line is a new question
+          currentQuestion = trimmed
+        } else {
+          // Line has no ? and no bullet - it's a continuation of current question
+          if (currentQuestion) {
+            currentQuestion += ' ' + trimmed
+          }
+          // If no current question, skip this orphan line
         }
       }
 
-      if (questions.length > 0) {
+      // Don't forget the last question
+      if (currentQuestion) {
+        rawQuestions.push(currentQuestion)
+      }
+
+      // Now split any questions that contain multiple ?
+      const finalQuestions: string[] = []
+      for (const q of rawQuestions) {
+        const split = splitMultipleQuestions(q)
+        finalQuestions.push(...split)
+      }
+
+      if (finalQuestions.length > 0) {
         result.push({
           headerRaw: section.headerText,
           headerClean: stripLetterPrefix(section.headerText),
           headerNormalized: normalizeForMatching(section.headerText),
-          questions,
+          questions: finalQuestions,
         })
       }
     }
@@ -1106,8 +1200,8 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
             <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
               <p className="font-medium text-foreground mb-1">Formatas:</p>
               <p>Sekcijos antraštės - bet kokia eilutė, po kurios seka klausimai</p>
-              <p>Klausimai prasideda • arba - arba *</p>
-              <p className="mt-1 text-xs">Automatiškai atpažins sekcijas pagal pavadinimą. Naujos sekcijos bus sukurtos automatiškai.</p>
+              <p>Klausimai: prasideda • / - / * arba baigiasi klaustuku (?)</p>
+              <p className="mt-1 text-xs">Eilutė su keliais ? bus išskaidyta į atskirus klausimus. Sekcijos atpažįstamos pagal pavadinimą (fuzzy).</p>
             </div>
 
             {/* Textarea */}
@@ -1115,18 +1209,18 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
               <Textarea
                 value={fullImportText}
                 onChange={(e) => setFullImportText(e.target.value)}
-                placeholder={`Warm-up
-• Kaip sekasi šiandien?
-• Kiek laiko turime pokalbiui?
+                placeholder={`A. Warm-up
+Kaip sekasi šiandien?
+Kiek laiko turime pokalbiui?
 
-Įmonės snapshot
-• Kuo užsiima jūsų įmonė?
-• Kiek darbuotojų turi kompanija?
+B. Įmonės snapshot
+Kuo užsiima jūsų įmonė?
+Kiek darbuotojų? Kiek metų veikiate?
 • Kokie pagrindiniai procesai?
 
-Įrankiai ir sistemos
-• Kokias sistemas naudojate?
-• Ar turite CRM?`}
+C. Įrankiai ir sistemos
+- Kokias sistemas naudojate?
+- Ar turite CRM?`}
                 className="min-h-[200px] text-sm font-mono"
                 autoFocus
               />
@@ -1203,14 +1297,14 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
                           {match.matchedSectionId && (
                             <p className="text-xs text-muted-foreground mt-0.5 ml-6">
                               → {match.matchedSectionTitle}
-                              {match.matchType === 'alias' && (
-                                <Badge variant="secondary" className="ml-1.5 text-[10px] py-0">
-                                  panašus
+                              {match.matchType === 'exact' && (
+                                <Badge variant="secondary" className="ml-1.5 text-[10px] py-0 bg-emerald-100 text-emerald-700">
+                                  100%
                                 </Badge>
                               )}
-                              {match.matchType === 'fuzzy' && (
+                              {(match.matchType === 'alias' || match.matchType === 'fuzzy') && (
                                 <Badge variant="secondary" className="ml-1.5 text-[10px] py-0">
-                                  fuzzy ({Math.round(match.confidence * 100)}%)
+                                  {Math.round(match.confidence * 100)}%
                                 </Badge>
                               )}
                             </p>
@@ -1231,7 +1325,7 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
                 <p className="font-medium">Nepavyko atpažinti sekcijų</p>
                 <p className="text-xs mt-1">
                   Patikrinkite ar tekstas turi sekcijos antraštę, po kurios seka klausimai
-                  su • arba - simboliu.
+                  (eilutės su • / - / * arba baigiasi klaustuku).
                 </p>
               </div>
             )}
