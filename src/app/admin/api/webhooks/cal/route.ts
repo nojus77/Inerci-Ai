@@ -84,14 +84,25 @@ const EVENT_DESCRIPTIONS: Record<CalEventType, string> = {
 
 // Verify Cal.com webhook signature
 function verifySignature(payload: string, signature: string, secret: string): boolean {
-  const expectedSignature = crypto
-    .createHmac('sha256', secret)
-    .update(payload)
-    .digest('hex')
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  )
+  try {
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(payload)
+      .digest('hex')
+
+    // timingSafeEqual requires same length buffers
+    if (signature.length !== expectedSignature.length) {
+      return false
+    }
+
+    return crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature)
+    )
+  } catch (e) {
+    console.error('Cal webhook: Signature verification error:', e)
+    return false
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -130,6 +141,18 @@ export async function POST(request: NextRequest) {
     } catch (e) {
       console.error('Cal webhook: Invalid JSON payload', e)
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+    }
+
+    // Handle ping test - Cal.com sends a minimal payload to test connectivity
+    if (!payload.triggerEvent || payload.triggerEvent === 'PING') {
+      console.log('Cal webhook: Ping test received, responding OK')
+      return NextResponse.json({ success: true, message: 'Webhook is working!' })
+    }
+
+    // Ensure we have the required payload structure
+    if (!payload.payload) {
+      console.log('Cal webhook: No payload data, might be a test - responding OK')
+      return NextResponse.json({ success: true, message: 'Webhook received' })
     }
 
     const eventType = payload.triggerEvent
