@@ -1,11 +1,14 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
   DialogContent,
@@ -21,6 +24,10 @@ import {
   ChevronRight,
   Save,
   FileUp,
+  FileText,
+  Check,
+  AlertTriangle,
+  HelpCircle,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -34,6 +41,32 @@ import type {
   AuditScriptSection,
   AuditScriptQuestion,
 } from '@/types/database'
+
+// Section name aliases for matching parsed headers to existing sections
+const SECTION_ALIASES: Record<string, string[]> = {
+  'Įvadas ir kontekstas': ['Warm-up', 'Warmup', 'Įvadas', 'Kontekstas', 'Pradžia', 'Intro'],
+  'Procesai ir darbo eiga': ['Įmonės snapshot', 'Įmonės apžvalga', 'Procesai', 'Darbo eiga', 'Business snapshot', 'Company overview'],
+  'Technologijos ir įrankiai': ['Įrankiai ir sistemos', 'Technologijos', 'Įrankiai', 'Tools', 'Tech stack', 'Sistemos'],
+  'Skausmo taškai': ['TOP 3 laiko ėdikai', 'Laiko ėdikai', 'Pain points', 'Skausmas', 'Problems', 'Issues', 'Challenges'],
+  'Apibendrinimas': ['Summary', 'Pabaiga', 'Išvados', 'Conclusion', 'Wrap-up'],
+}
+
+// Parsed section from pasted text
+interface ParsedSection {
+  headerRaw: string        // Original header text (e.g., "A. Warm-up")
+  headerClean: string      // Cleaned header (e.g., "Warm-up")
+  questions: string[]      // List of questions
+}
+
+// Match result for a parsed section
+interface SectionMatch {
+  parsedSection: ParsedSection
+  matchedSectionId: string | null
+  matchedSectionTitle: string | null
+  matchType: 'exact' | 'alias' | 'fuzzy' | 'none'
+  confidence: number       // 0-1
+  alternativeMatches?: { id: string; title: string; score: number }[]
+}
 
 interface ScriptEditorProps {
   params: Promise<{ scriptId: string }>
@@ -57,7 +90,298 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
   const [bulkImportSection, setBulkImportSection] = useState<string | null>(null)
   const [bulkImportText, setBulkImportText] = useState('')
   const [bulkImporting, setBulkImporting] = useState(false)
+
+  // Full script import state
+  const [showFullImport, setShowFullImport] = useState(false)
+  const [fullImportText, setFullImportText] = useState('')
+  const [fullImportReplaceMode, setFullImportReplaceMode] = useState(true)
+  const [fullImporting, setFullImporting] = useState(false)
+  const [importToast, setImportToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+
   const supabase = createClient()
+
+  // Parse full script text into sections and questions
+  const parseFullScript = (text: string): ParsedSection[] => {
+    const lines = text.split('\n')
+    const result: ParsedSection[] = []
+    let currentSection: ParsedSection | null = null
+    let currentQuestion = ''
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const trimmedLine = line.trim()
+
+      // Skip empty lines
+      if (!trimmedLine) {
+        // If we have a pending multi-line question, finalize it
+        if (currentQuestion && currentSection) {
+          currentSection.questions.push(currentQuestion.trim())
+          currentQuestion = ''
+        }
+        continue
+      }
+
+      // Check for section header: "A. Title", "B. Title", etc.
+      const headerMatch = trimmedLine.match(/^([A-Z])\.\s+(.+)$/)
+      if (headerMatch) {
+        // Finalize previous section
+        if (currentSection) {
+          if (currentQuestion) {
+            currentSection.questions.push(currentQuestion.trim())
+            currentQuestion = ''
+          }
+          if (currentSection.questions.length > 0 || result.length === 0) {
+            result.push(currentSection)
+          }
+        }
+        // Start new section
+        currentSection = {
+          headerRaw: trimmedLine,
+          headerClean: headerMatch[2].trim(),
+          questions: [],
+        }
+        continue
+      }
+
+      // Check for question bullet: •, -, *, or numbered (1., 2., etc.)
+      const bulletMatch = trimmedLine.match(/^[•\-\*]\s*(.+)$/) ||
+                          trimmedLine.match(/^\d+\.\s*(.+)$/)
+      if (bulletMatch && currentSection) {
+        // Finalize previous question
+        if (currentQuestion) {
+          currentSection.questions.push(currentQuestion.trim())
+        }
+        currentQuestion = bulletMatch[1].trim()
+        continue
+      }
+
+      // Check for indented continuation (multi-line question)
+      const isIndented = line.startsWith('  ') || line.startsWith('\t')
+      if (isIndented && currentQuestion && currentSection) {
+        currentQuestion += ' ' + trimmedLine
+        continue
+      }
+
+      // Plain line that could be a section name (fallback)
+      if (!currentSection && trimmedLine.length > 0 && trimmedLine.length < 100) {
+        currentSection = {
+          headerRaw: trimmedLine,
+          headerClean: trimmedLine,
+          questions: [],
+        }
+        continue
+      }
+
+      // Otherwise, if we have a current question, append to it
+      if (currentQuestion && currentSection) {
+        currentQuestion += ' ' + trimmedLine
+      }
+    }
+
+    // Finalize last section
+    if (currentSection) {
+      if (currentQuestion) {
+        currentSection.questions.push(currentQuestion.trim())
+      }
+      result.push(currentSection)
+    }
+
+    // Filter out sections with no questions
+    return result.filter(s => s.questions.length > 0)
+  }
+
+  // Calculate string similarity (Levenshtein-based)
+  const stringSimilarity = (a: string, b: string): number => {
+    const aLower = a.toLowerCase()
+    const bLower = b.toLowerCase()
+
+    if (aLower === bLower) return 1
+    if (aLower.includes(bLower) || bLower.includes(aLower)) return 0.8
+
+    // Simple word overlap score
+    const aWords = new Set(aLower.split(/\s+/))
+    const bWords = new Set(bLower.split(/\s+/))
+    const intersection = [...aWords].filter(w => bWords.has(w)).length
+    const union = new Set([...aWords, ...bWords]).size
+    return union > 0 ? intersection / union : 0
+  }
+
+  // Match parsed sections to existing sections
+  const matchSections = (parsedSections: ParsedSection[]): SectionMatch[] => {
+    return parsedSections.map(parsed => {
+      const headerLower = parsed.headerClean.toLowerCase()
+      let bestMatch: SectionMatch = {
+        parsedSection: parsed,
+        matchedSectionId: null,
+        matchedSectionTitle: null,
+        matchType: 'none',
+        confidence: 0,
+      }
+
+      const alternativeMatches: { id: string; title: string; score: number }[] = []
+
+      for (const section of sections) {
+        const titleLower = section.title.toLowerCase()
+
+        // 1. Exact match
+        if (titleLower === headerLower) {
+          return {
+            parsedSection: parsed,
+            matchedSectionId: section.id,
+            matchedSectionTitle: section.title,
+            matchType: 'exact' as const,
+            confidence: 1,
+          }
+        }
+
+        // 2. Check aliases
+        const aliases = SECTION_ALIASES[section.title] || []
+        for (const alias of aliases) {
+          if (alias.toLowerCase() === headerLower) {
+            return {
+              parsedSection: parsed,
+              matchedSectionId: section.id,
+              matchedSectionTitle: section.title,
+              matchType: 'alias' as const,
+              confidence: 0.95,
+            }
+          }
+        }
+
+        // 3. Fuzzy match
+        const similarity = stringSimilarity(parsed.headerClean, section.title)
+        if (similarity > 0.3) {
+          alternativeMatches.push({
+            id: section.id,
+            title: section.title,
+            score: similarity,
+          })
+        }
+      }
+
+      // Sort alternatives by score
+      alternativeMatches.sort((a, b) => b.score - a.score)
+
+      // If we have a good fuzzy match
+      if (alternativeMatches.length > 0 && alternativeMatches[0].score >= 0.5) {
+        bestMatch = {
+          parsedSection: parsed,
+          matchedSectionId: alternativeMatches[0].id,
+          matchedSectionTitle: alternativeMatches[0].title,
+          matchType: 'fuzzy',
+          confidence: alternativeMatches[0].score,
+          alternativeMatches: alternativeMatches.length > 1 ? alternativeMatches.slice(1) : undefined,
+        }
+      } else if (alternativeMatches.length > 0) {
+        // Low confidence - show alternatives
+        bestMatch.alternativeMatches = alternativeMatches
+      }
+
+      return bestMatch
+    })
+  }
+
+  // Memoized parsing and matching
+  const importPreview = useMemo(() => {
+    if (!fullImportText.trim()) return null
+    const parsed = parseFullScript(fullImportText)
+    const matches = matchSections(parsed)
+    return {
+      parsed,
+      matches,
+      totalQuestions: parsed.reduce((sum, s) => sum + s.questions.length, 0),
+      matchedSections: matches.filter(m => m.matchedSectionId).length,
+      unmatchedSections: matches.filter(m => !m.matchedSectionId).length,
+    }
+  }, [fullImportText, sections])
+
+  // Apply the full import
+  const handleFullImport = async () => {
+    if (!importPreview || importPreview.matchedSections === 0) return
+
+    setFullImporting(true)
+
+    try {
+      let totalQuestionsImported = 0
+      let sectionsUpdated = 0
+
+      for (const match of importPreview.matches) {
+        if (!match.matchedSectionId) continue
+
+        const section = sections.find(s => s.id === match.matchedSectionId)
+        if (!section) continue
+
+        // If replace mode, delete existing questions first
+        if (fullImportReplaceMode) {
+          await supabase
+            .from('audit_script_questions')
+            .delete()
+            .eq('section_id', match.matchedSectionId)
+        }
+
+        // Calculate starting order
+        const startOrder = fullImportReplaceMode ? 0 : section.questions.length
+
+        // Insert new questions
+        const newQuestions: AuditScriptQuestion[] = []
+        for (let i = 0; i < match.parsedSection.questions.length; i++) {
+          const questionText = match.parsedSection.questions[i]
+          if (!questionText.trim()) continue
+
+          const { data } = await supabase
+            .from('audit_script_questions')
+            .insert({
+              section_id: match.matchedSectionId,
+              text: questionText.trim(),
+              order: startOrder + i,
+              tags: [],
+            } as never)
+            .select()
+            .single()
+
+          if (data) {
+            newQuestions.push(data as AuditScriptQuestion)
+            totalQuestionsImported++
+          }
+        }
+
+        // Update local state
+        setSections(prev => prev.map(s => {
+          if (s.id === match.matchedSectionId) {
+            return {
+              ...s,
+              questions: fullImportReplaceMode ? newQuestions : [...s.questions, ...newQuestions],
+            }
+          }
+          return s
+        }))
+
+        sectionsUpdated++
+      }
+
+      // Show success toast
+      setImportToast({
+        message: `Importuota ${totalQuestionsImported} klausimų į ${sectionsUpdated} sekcijas`,
+        type: 'success',
+      })
+
+      // Close dialog and reset
+      setShowFullImport(false)
+      setFullImportText('')
+
+      // Auto-hide toast after 4 seconds
+      setTimeout(() => setImportToast(null), 4000)
+    } catch (error) {
+      console.error('Import error:', error)
+      setImportToast({
+        message: 'Klaida importuojant skriptą',
+        type: 'error',
+      })
+      setTimeout(() => setImportToast(null), 4000)
+    } finally {
+      setFullImporting(false)
+    }
+  }
 
   useEffect(() => {
     fetchScript()
@@ -378,6 +702,24 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
+      {/* Toast notification */}
+      {importToast && (
+        <div
+          className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium ${
+            importToast.type === 'success'
+              ? 'bg-emerald-500 text-white'
+              : 'bg-destructive text-destructive-foreground'
+          }`}
+        >
+          {importToast.type === 'success' ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <AlertTriangle className="h-4 w-4" />
+          )}
+          {importToast.message}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -393,12 +735,23 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
             )}
           </div>
         </div>
-        {saving && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Save className="h-4 w-4 animate-pulse" />
-            Saugoma...
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setShowFullImport(true)}
+          >
+            <FileText className="h-4 w-4" />
+            Įkelti visą skriptą
+          </Button>
+          {saving && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Save className="h-4 w-4 animate-pulse" />
+              Saugoma...
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Drag & Drop Context */}
@@ -672,6 +1025,178 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
                 {bulkImporting ? 'Įkeliama...' : 'Įkelti klausimus'}
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Full Script Import Dialog */}
+      <Dialog open={showFullImport} onOpenChange={setShowFullImport}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              Įkelti visą skriptą
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto space-y-4 pt-2">
+            {/* Instructions */}
+            <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
+              <p className="font-medium text-foreground mb-1">Formatas:</p>
+              <p>Sekcijos pradedamos raide ir tašku (pvz., &quot;A. Warm-up&quot;)</p>
+              <p>Klausimai prasideda • arba - arba *</p>
+              <p className="mt-1 text-xs">Automatiškai atpažins sekcijas ir priskirs klausimus.</p>
+            </div>
+
+            {/* Textarea */}
+            <div>
+              <Textarea
+                value={fullImportText}
+                onChange={(e) => setFullImportText(e.target.value)}
+                placeholder={`A. Warm-up
+• Kaip sekasi šiandien?
+• Kiek laiko turime pokalbiui?
+
+B. Įmonės snapshot
+• Kuo užsiima jūsų įmonė?
+• Kiek darbuotojų turi kompanija?
+• Kokie pagrindiniai procesai?
+
+C. Įrankiai ir sistemos
+• Kokias sistemas naudojate?
+• Ar turite CRM?`}
+                className="min-h-[200px] text-sm font-mono"
+                autoFocus
+              />
+            </div>
+
+            {/* Replace vs Append toggle */}
+            <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
+              <div>
+                <Label htmlFor="replace-mode" className="text-sm font-medium">
+                  Pakeisti esamus klausimus
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {fullImportReplaceMode
+                    ? 'Esami klausimai bus ištrinti ir pakeisti naujais'
+                    : 'Nauji klausimai bus pridėti prie esamų'}
+                </p>
+              </div>
+              <Switch
+                id="replace-mode"
+                checked={fullImportReplaceMode}
+                onCheckedChange={setFullImportReplaceMode}
+              />
+            </div>
+
+            {/* Preview */}
+            {importPreview && importPreview.parsed.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium">Peržiūra</h3>
+                  <div className="flex items-center gap-3 text-xs">
+                    <span className="text-muted-foreground">
+                      {importPreview.totalQuestions} klausimų
+                    </span>
+                    <span className="text-emerald-600">
+                      {importPreview.matchedSections} atpažinta
+                    </span>
+                    {importPreview.unmatchedSections > 0 && (
+                      <span className="text-amber-600">
+                        {importPreview.unmatchedSections} neatpažinta
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                  {importPreview.matches.map((match, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-lg border text-sm ${
+                        match.matchedSectionId
+                          ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800'
+                          : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            {match.matchedSectionId ? (
+                              <Check className="h-4 w-4 text-emerald-600" />
+                            ) : (
+                              <HelpCircle className="h-4 w-4 text-amber-600" />
+                            )}
+                            <span className="font-medium">
+                              {match.parsedSection.headerRaw}
+                            </span>
+                          </div>
+                          {match.matchedSectionId && (
+                            <p className="text-xs text-muted-foreground mt-0.5 ml-6">
+                              → {match.matchedSectionTitle}
+                              {match.matchType === 'alias' && (
+                                <Badge variant="secondary" className="ml-1.5 text-[10px] py-0">
+                                  alias
+                                </Badge>
+                              )}
+                              {match.matchType === 'fuzzy' && (
+                                <Badge variant="secondary" className="ml-1.5 text-[10px] py-0">
+                                  fuzzy ({Math.round(match.confidence * 100)}%)
+                                </Badge>
+                              )}
+                            </p>
+                          )}
+                          {!match.matchedSectionId && match.alternativeMatches && match.alternativeMatches.length > 0 && (
+                            <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5 ml-6">
+                              Gali būti: {match.alternativeMatches.map(a => a.title).join(', ')}
+                            </p>
+                          )}
+                        </div>
+                        <Badge variant="outline" className="shrink-0">
+                          {match.parsedSection.questions.length} kl.
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {importPreview.unmatchedSections > 0 && (
+                  <p className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded">
+                    ⚠️ Neatpažintos sekcijos nebus importuotos. Patikrinkite ar sekcijų pavadinimai
+                    sutampa su esamomis sekcijomis.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {fullImportText.trim() && (!importPreview || importPreview.parsed.length === 0) && (
+              <div className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg">
+                <p className="font-medium">Nepavyko atpažinti sekcijų</p>
+                <p className="text-xs mt-1">
+                  Patikrinkite ar tekstas prasideda sekcijos antrašte (pvz., &quot;A. Pavadinimas&quot;)
+                  ir ar klausimai prasideda • arba - simboliu.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowFullImport(false)
+                setFullImportText('')
+              }}
+            >
+              Atšaukti
+            </Button>
+            <Button
+              onClick={handleFullImport}
+              disabled={!importPreview || importPreview.matchedSections === 0 || fullImporting}
+            >
+              {fullImporting ? 'Importuojama...' : `Importuoti ${importPreview?.matchedSections || 0} sekcijas`}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
