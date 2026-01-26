@@ -19,6 +19,7 @@ interface SlackConfig {
 interface CalConfig {
   embed_link: string
   webhook_secret: string
+  api_key: string
 }
 
 export default function IntegrationsPage() {
@@ -34,6 +35,7 @@ export default function IntegrationsPage() {
   const [calConfig, setCalConfig] = useState<CalConfig>({
     embed_link: '',
     webhook_secret: '',
+    api_key: '',
   })
 
   const supabase = createClient()
@@ -197,6 +199,22 @@ export default function IntegrationsPage() {
                 />
                 <p className="text-xs text-muted-foreground">
                   Used to verify incoming webhooks from Cal.com
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="cal_api_key">API Key</Label>
+                <Input
+                  id="cal_api_key"
+                  type="password"
+                  placeholder="cal_live_..."
+                  value={calConfig.api_key}
+                  onChange={(e) =>
+                    setCalConfig({ ...calConfig, api_key: e.target.value })
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Required to sync existing bookings. Get it from Cal.com Settings → Developer → API Keys
                 </p>
               </div>
             </CardContent>

@@ -14,7 +14,10 @@ import {
   Calendar as CalendarIcon,
   Video,
   ClipboardList,
-  ExternalLink
+  ExternalLink,
+  RefreshCw,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -72,6 +75,35 @@ export default function CalendarPage() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [syncResult, setSyncResult] = useState<{ success: boolean; message: string } | null>(null)
+
+  const syncFromCalcom = async () => {
+    setSyncing(true)
+    setSyncResult(null)
+
+    try {
+      const response = await fetch('/admin/api/cal/sync', {
+        method: 'POST',
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSyncResult({ success: true, message: data.message })
+        // Refresh the calendar
+        fetchEvents()
+      } else {
+        setSyncResult({ success: false, message: data.error || 'Sync failed' })
+      }
+    } catch {
+      setSyncResult({ success: false, message: 'Failed to connect to sync API' })
+    } finally {
+      setSyncing(false)
+      // Clear message after 5 seconds
+      setTimeout(() => setSyncResult(null), 5000)
+    }
+  }
 
   const fetchEvents = useCallback(async () => {
     const monthStart = startOfMonth(currentDate)
@@ -200,6 +232,16 @@ export default function CalendarPage() {
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
+                  size="sm"
+                  onClick={syncFromCalcom}
+                  disabled={syncing}
+                  className="gap-1.5"
+                >
+                  <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+                  {syncing ? 'Syncing...' : 'Sync Cal.com'}
+                </Button>
+                <Button
+                  variant="outline"
                   size="icon"
                   onClick={() => setCurrentDate(subMonths(currentDate, 1))}
                 >
@@ -222,6 +264,24 @@ export default function CalendarPage() {
               </div>
             </CardHeader>
             <CardContent className="px-6 pb-6">
+              {/* Sync result notification */}
+              {syncResult && (
+                <div
+                  className={`mb-4 p-3 rounded-lg flex items-center gap-2 text-sm ${
+                    syncResult.success
+                      ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                      : 'bg-red-500/10 text-red-600 border border-red-500/20'
+                  }`}
+                >
+                  {syncResult.success ? (
+                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  )}
+                  {syncResult.message}
+                </div>
+              )}
+
               {/* Week day headers */}
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {weekDays.map((day) => (
