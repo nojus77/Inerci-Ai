@@ -6,6 +6,7 @@ import CalWrapper from "@/components/cal/CalWrapper";
 import ExitIntentModal from "@/components/ExitIntentModal";
 import ClarityAnalytics from "@/components/ClarityAnalytics";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import MetaPixelBookingTracker from "@/components/MetaPixelBookingTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,6 +58,7 @@ export default function RootLayout({
         {/* Analytics */}
         <GoogleAnalytics />
         <ClarityAnalytics />
+        <MetaPixelBookingTracker />
 
         {/* Cal.com booking modal provider */}
         <CalWrapper>
