@@ -106,13 +106,15 @@ function verifySignature(payload: string, signature: string, secret: string): bo
 }
 
 export async function POST(request: NextRequest) {
-  console.log('Cal webhook: Received request')
+  console.log('Cal webhook: ========== WEBHOOK RECEIVED ==========')
+  console.log('Cal webhook: Headers:', JSON.stringify(Object.fromEntries(request.headers.entries())))
 
   try {
     const supabase = await createClient()
     const rawBody = await request.text()
 
     console.log('Cal webhook: Raw body length:', rawBody.length)
+    console.log('Cal webhook: Raw body preview:', rawBody.slice(0, 1000))
 
     // Get webhook secret from env
     const webhookSecret = process.env.CAL_WEBHOOK_SECRET
@@ -137,9 +139,23 @@ export async function POST(request: NextRequest) {
     let payload: CalWebhookPayload
     try {
       payload = JSON.parse(rawBody)
-      console.log('Cal webhook: Parsed payload, triggerEvent:', payload.triggerEvent)
+      console.log('Cal webhook: ===== PARSED PAYLOAD =====')
+      console.log('Cal webhook: triggerEvent:', payload.triggerEvent)
+      console.log('Cal webhook: createdAt:', payload.createdAt)
+      console.log('Cal webhook: Has payload.payload:', !!payload.payload)
+      if (payload.payload) {
+        console.log('Cal webhook: payload.payload.title:', payload.payload.title)
+        console.log('Cal webhook: payload.payload.startTime:', payload.payload.startTime)
+        console.log('Cal webhook: payload.payload.attendees:', JSON.stringify(payload.payload.attendees))
+        console.log('Cal webhook: payload.payload.bookingId:', payload.payload.bookingId)
+        console.log('Cal webhook: payload.payload.uid:', payload.payload.uid)
+      }
+      // Log full structure for debugging
+      console.log('Cal webhook: Full payload keys:', Object.keys(payload))
+      console.log('Cal webhook: Full payload (truncated):', JSON.stringify(payload).slice(0, 2000))
     } catch (e) {
       console.error('Cal webhook: Invalid JSON payload', e)
+      console.error('Cal webhook: Raw body was:', rawBody.slice(0, 500))
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
 
@@ -149,11 +165,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: 'Webhook is working!' })
     }
 
-    // Ensure we have the required payload structure
-    if (!payload.payload) {
-      console.log('Cal webhook: No payload data, might be a test - responding OK')
-      return NextResponse.json({ success: true, message: 'Webhook received' })
+    // Cal.com v2 might send data directly without nested payload
+    // Normalize the structure
+    let normalizedPayload = payload.payload
+    const rawPayload = payload as unknown as Record<string, unknown>
+    if (!normalizedPayload && rawPayload.title) {
+      // Payload is at root level (v2 format)
+      console.log('Cal webhook: Detected flat payload structure (v2 format)')
+      normalizedPayload = rawPayload as unknown as CalWebhookPayload['payload']
     }
+
+    // Ensure we have the required payload structure
+    if (!normalizedPayload) {
+      console.log('Cal webhook: No payload data found in either nested or flat format')
+      console.log('Cal webhook: Available top-level keys:', Object.keys(payload))
+      return NextResponse.json({ success: true, message: 'Webhook received but no payload data' })
+    }
+
+    // Replace payload.payload with normalized version
+    payload.payload = normalizedPayload
 
     const eventType = payload.triggerEvent
     if (!eventType) {
@@ -244,6 +274,11 @@ export async function POST(request: NextRequest) {
     switch (eventType) {
       case 'BOOKING_CREATED':
       case 'BOOKING_REQUESTED': {
+        console.log('Cal webhook: ===== PROCESSING BOOKING =====')
+        console.log('Cal webhook: clientId:', clientId)
+        console.log('Cal webhook: systemUserId:', systemUserId)
+        console.log('Cal webhook: attendee:', JSON.stringify(attendee))
+
         if (!clientId) {
           console.warn('Cal webhook: No client for booking event, skipping session/task creation')
           break
