@@ -81,7 +81,132 @@ interface SelectedQuestion {
   id: string
   text: string
   sectionTitle: string
+  sectionId: string
   isAdHoc: boolean
+}
+
+// Helper: Get next unanswered question
+interface GetNextQuestionParams {
+  sections: (AuditScriptSection & { questions: AuditScriptQuestion[] })[]
+  questionStates: Record<string, ScriptQuestionState>
+  adHocQuestions: AdHocQuestion[]
+  currentSectionId?: string
+  currentQuestionId?: string
+}
+
+interface NextQuestionResult {
+  question: SelectedQuestion | null
+  isAuditComplete: boolean
+}
+
+function getNextQuestion({
+  sections,
+  questionStates,
+  adHocQuestions,
+  currentSectionId,
+  currentQuestionId,
+}: GetNextQuestionParams): NextQuestionResult {
+  // Helper to check if question is unanswered
+  const isUnanswered = (questionId: string): boolean => {
+    const state = questionStates[questionId]
+    return !state || (state.status !== 'done' && state.status !== 'skipped')
+  }
+
+  // 1. Try to find next unanswered in CURRENT section first
+  if (currentSectionId) {
+    const currentSection = sections.find((s) => s.id === currentSectionId)
+    if (currentSection) {
+      const currentQuestionIndex = currentSection.questions.findIndex((q) => q.id === currentQuestionId)
+      // Start from current question + 1 (or 0 if not found)
+      const startIndex = currentQuestionIndex >= 0 ? currentQuestionIndex + 1 : 0
+
+      for (let i = startIndex; i < currentSection.questions.length; i++) {
+        const q = currentSection.questions[i]
+        if (isUnanswered(q.id)) {
+          return {
+            question: {
+              id: q.id,
+              text: q.text,
+              sectionTitle: currentSection.title,
+              sectionId: currentSection.id,
+              isAdHoc: false,
+            },
+            isAuditComplete: false,
+          }
+        }
+      }
+    }
+  }
+
+  // 2. Look in subsequent sections
+  const currentSectionIndex = currentSectionId
+    ? sections.findIndex((s) => s.id === currentSectionId)
+    : -1
+
+  for (let sIdx = currentSectionIndex + 1; sIdx < sections.length; sIdx++) {
+    const section = sections[sIdx]
+    for (const q of section.questions) {
+      if (isUnanswered(q.id)) {
+        return {
+          question: {
+            id: q.id,
+            text: q.text,
+            sectionTitle: section.title,
+            sectionId: section.id,
+            isAdHoc: false,
+          },
+          isAuditComplete: false,
+        }
+      }
+    }
+  }
+
+  // 3. Look in sections BEFORE current (wrap around)
+  for (let sIdx = 0; sIdx <= currentSectionIndex; sIdx++) {
+    const section = sections[sIdx]
+    const startQIdx = sIdx === currentSectionIndex ? 0 : 0
+    const endQIdx = sIdx === currentSectionIndex
+      ? section.questions.findIndex((q) => q.id === currentQuestionId)
+      : section.questions.length
+
+    for (let qIdx = startQIdx; qIdx < endQIdx; qIdx++) {
+      const q = section.questions[qIdx]
+      if (isUnanswered(q.id)) {
+        return {
+          question: {
+            id: q.id,
+            text: q.text,
+            sectionTitle: section.title,
+            sectionId: section.id,
+            isAdHoc: false,
+          },
+          isAuditComplete: false,
+        }
+      }
+    }
+  }
+
+  // 4. Check ad-hoc questions
+  for (const q of adHocQuestions) {
+    if (q.status !== 'done' && q.status !== 'skipped') {
+      return {
+        question: {
+          id: q.id,
+          text: q.text,
+          sectionTitle: 'Situaciniai klausimai',
+          sectionId: 'ad-hoc',
+          isAdHoc: true,
+        },
+        isAuditComplete: false,
+      }
+    }
+  }
+
+  // 5. All questions answered - audit complete!
+  return {
+    question: null,
+    isAuditComplete: true,
+  }
 }
 
 export default function AuditPage({ params }: AuditPageProps) {
@@ -109,11 +234,14 @@ export default function AuditPage({ params }: AuditPageProps) {
   // Quick notes
   const [showQuickNotes, setShowQuickNotes] = useState(false)
 
-  // Chat state
-  const [showChat, setShowChat] = useState(false)
+  // Chat state - default to visible
+  const [showChat, setShowChat] = useState(true)
   const [chatInput, setChatInput] = useState('')
   const [aiLoading, setAiLoading] = useState(false)
   const [streamingContent, setStreamingContent] = useState('')
+
+  // Audit complete state
+  const [isAuditComplete, setIsAuditComplete] = useState(false)
 
   // Right panel visibility
   const [showRightPanel, setShowRightPanel] = useState(true)
@@ -242,6 +370,28 @@ export default function AuditPage({ params }: AuditPageProps) {
     await saveScriptState(newState)
   }
 
+  // Auto-select first unanswered question when script loads or changes
+  useEffect(() => {
+    if (!activeScript || selectedQuestion) return
+
+    const { question: firstUnanswered, isAuditComplete: allDone } = getNextQuestion({
+      sections: activeScript.sections,
+      questionStates: scriptState.question_states,
+      adHocQuestions: scriptState.ad_hoc_questions || [],
+    })
+
+    if (allDone) {
+      setIsAuditComplete(true)
+    } else if (firstUnanswered) {
+      setSelectedQuestion(firstUnanswered)
+      setExpandedSections((prev) => new Set([...prev, firstUnanswered.sectionId]))
+      // Mark as asked
+      if (!firstUnanswered.isAdHoc) {
+        updateQuestionState(firstUnanswered.id, { status: 'asked', asked_at: new Date().toISOString() })
+      }
+    }
+  }, [activeScript?.id]) // Only run when script changes
+
   const getQuestionState = (questionId: string): ScriptQuestionState => {
     return (
       scriptState.question_states[questionId] || {
@@ -315,17 +465,21 @@ export default function AuditPage({ params }: AuditPageProps) {
   }
 
   // Select a question
-  const handleSelectQuestion = (question: AuditScriptQuestion, sectionTitle: string) => {
+  const handleSelectQuestion = (question: AuditScriptQuestion, sectionTitle: string, sectionId: string) => {
     setSelectedQuestion({
       id: question.id,
       text: question.text,
       sectionTitle,
+      sectionId,
       isAdHoc: false,
     })
     setAnswerInput('')
     setSkipReason('')
+    setIsAuditComplete(false)
     // Mark as asked
     updateQuestionState(question.id, { status: 'asked', asked_at: new Date().toISOString() })
+    // Ensure section is expanded
+    setExpandedSections((prev) => new Set([...prev, sectionId]))
   }
 
   const handleSelectAdHocQuestion = (question: AdHocQuestion) => {
@@ -333,33 +487,40 @@ export default function AuditPage({ params }: AuditPageProps) {
       id: question.id,
       text: question.text,
       sectionTitle: 'Situaciniai klausimai',
+      sectionId: 'ad-hoc',
       isAdHoc: true,
     })
     setAnswerInput('')
     setSkipReason('')
+    setIsAuditComplete(false)
     // Mark as asked
     const updatedQuestions = scriptState.ad_hoc_questions.map((q) =>
       q.id === question.id ? { ...q, status: 'asked' as QuestionStatus, asked_at: new Date().toISOString() } : q
     )
     saveScriptState({ ...scriptState, ad_hoc_questions: updatedQuestions })
+    // Ensure ad-hoc section is expanded
+    setExpandedSections((prev) => new Set([...prev, 'ad-hoc']))
   }
 
-  // Submit answer
+  // Submit answer with auto-advance
   const handleSubmitAnswer = async () => {
-    if (!selectedQuestion || !answerInput.trim()) return
+    if (!selectedQuestion || !answerInput.trim() || !activeScript) return
 
-    // Add to chat as user message
-    const userMessage: ChatMessage = {
+    const currentQuestionId = selectedQuestion.id
+    const currentSectionId = selectedQuestion.sectionId
+
+    // 1. Create structured chat message for AI Pokalbis
+    const qaLogMessage: ChatMessage = {
       id: generateId(),
       role: 'user',
-      content: `[${selectedQuestion.sectionTitle}] ${selectedQuestion.text}\n\nAtsakymas: ${answerInput.trim()}`,
+      content: `📝 **${selectedQuestion.sectionTitle}**\n\n**Klausimas:** ${selectedQuestion.text}\n\n**Atsakymas:** ${answerInput.trim()}`,
       timestamp: new Date().toISOString(),
     }
 
     const messages = session?.chat_messages || []
-    const updatedMessages = [...messages, userMessage]
+    const updatedMessages = [...messages, qaLogMessage]
 
-    // Save to session
+    // 2. Save chat message to DB
     if (session) {
       await supabase
         .from('audit_sessions')
@@ -369,46 +530,122 @@ export default function AuditPage({ params }: AuditPageProps) {
       setSession({ ...session, chat_messages: updatedMessages })
     }
 
-    // Mark question as done
+    // 3. Mark question as done
+    let updatedQuestionStates = { ...scriptState.question_states }
+    let updatedAdHocQuestions = [...(scriptState.ad_hoc_questions || [])]
+
     if (selectedQuestion.isAdHoc) {
-      const updatedQuestions = scriptState.ad_hoc_questions.map((q) =>
+      updatedAdHocQuestions = updatedAdHocQuestions.map((q) =>
         q.id === selectedQuestion.id
           ? { ...q, status: 'done' as QuestionStatus, completed_at: new Date().toISOString() }
           : q
       )
-      await saveScriptState({ ...scriptState, ad_hoc_questions: updatedQuestions })
+      await saveScriptState({ ...scriptState, ad_hoc_questions: updatedAdHocQuestions })
     } else {
-      await updateQuestionState(selectedQuestion.id, {
-        status: 'done',
-        completed_at: new Date().toISOString(),
-      })
+      updatedQuestionStates = {
+        ...updatedQuestionStates,
+        [selectedQuestion.id]: {
+          question_id: selectedQuestion.id,
+          status: 'done',
+          completed_at: new Date().toISOString(),
+        },
+      }
+      await saveScriptState({ ...scriptState, question_states: updatedQuestionStates })
     }
 
-    setSelectedQuestion(null)
+    // 4. Clear input
     setAnswerInput('')
+
+    // 5. Auto-advance to next unanswered question
+    const { question: nextQuestion, isAuditComplete: allDone } = getNextQuestion({
+      sections: activeScript.sections,
+      questionStates: updatedQuestionStates,
+      adHocQuestions: updatedAdHocQuestions,
+      currentSectionId,
+      currentQuestionId,
+    })
+
+    if (allDone) {
+      setSelectedQuestion(null)
+      setIsAuditComplete(true)
+    } else if (nextQuestion) {
+      setSelectedQuestion(nextQuestion)
+      setIsAuditComplete(false)
+      // Ensure the section is expanded
+      setExpandedSections((prev) => new Set([...prev, nextQuestion.sectionId]))
+      // Mark as asked
+      if (nextQuestion.isAdHoc) {
+        const updatedQ = updatedAdHocQuestions.map((q) =>
+          q.id === nextQuestion.id ? { ...q, status: 'asked' as QuestionStatus, asked_at: new Date().toISOString() } : q
+        )
+        await saveScriptState({ ...scriptState, question_states: updatedQuestionStates, ad_hoc_questions: updatedQ })
+      } else {
+        await updateQuestionState(nextQuestion.id, { status: 'asked', asked_at: new Date().toISOString() })
+      }
+    }
   }
 
-  // Skip question
+  // Skip question with auto-advance
   const handleSkipQuestion = async () => {
-    if (!selectedQuestion) return
+    if (!selectedQuestion || !activeScript) return
+
+    const currentQuestionId = selectedQuestion.id
+    const currentSectionId = selectedQuestion.sectionId
+
+    // 1. Mark question as skipped
+    let updatedQuestionStates = { ...scriptState.question_states }
+    let updatedAdHocQuestions = [...(scriptState.ad_hoc_questions || [])]
 
     if (selectedQuestion.isAdHoc) {
-      const updatedQuestions = scriptState.ad_hoc_questions.map((q) =>
+      updatedAdHocQuestions = updatedAdHocQuestions.map((q) =>
         q.id === selectedQuestion.id
           ? { ...q, status: 'skipped' as QuestionStatus, skip_reason: skipReason, completed_at: new Date().toISOString() }
           : q
       )
-      await saveScriptState({ ...scriptState, ad_hoc_questions: updatedQuestions })
+      await saveScriptState({ ...scriptState, ad_hoc_questions: updatedAdHocQuestions })
     } else {
-      await updateQuestionState(selectedQuestion.id, {
-        status: 'skipped',
-        skip_reason: skipReason,
-        completed_at: new Date().toISOString(),
-      })
+      updatedQuestionStates = {
+        ...updatedQuestionStates,
+        [selectedQuestion.id]: {
+          question_id: selectedQuestion.id,
+          status: 'skipped',
+          skip_reason: skipReason,
+          completed_at: new Date().toISOString(),
+        },
+      }
+      await saveScriptState({ ...scriptState, question_states: updatedQuestionStates })
     }
 
-    setSelectedQuestion(null)
+    // 2. Clear inputs
     setSkipReason('')
+
+    // 3. Auto-advance to next unanswered question
+    const { question: nextQuestion, isAuditComplete: allDone } = getNextQuestion({
+      sections: activeScript.sections,
+      questionStates: updatedQuestionStates,
+      adHocQuestions: updatedAdHocQuestions,
+      currentSectionId,
+      currentQuestionId,
+    })
+
+    if (allDone) {
+      setSelectedQuestion(null)
+      setIsAuditComplete(true)
+    } else if (nextQuestion) {
+      setSelectedQuestion(nextQuestion)
+      setIsAuditComplete(false)
+      // Ensure the section is expanded
+      setExpandedSections((prev) => new Set([...prev, nextQuestion.sectionId]))
+      // Mark as asked
+      if (nextQuestion.isAdHoc) {
+        const updatedQ = updatedAdHocQuestions.map((q) =>
+          q.id === nextQuestion.id ? { ...q, status: 'asked' as QuestionStatus, asked_at: new Date().toISOString() } : q
+        )
+        await saveScriptState({ ...scriptState, question_states: updatedQuestionStates, ad_hoc_questions: updatedQ })
+      } else {
+        await updateQuestionState(nextQuestion.id, { status: 'asked', asked_at: new Date().toISOString() })
+      }
+    }
   }
 
   // Add ad-hoc question
@@ -828,7 +1065,7 @@ export default function AuditPage({ params }: AuditPageProps) {
                                 className={`flex items-start gap-2 px-3 py-2.5 hover:bg-muted/30 cursor-pointer border-b border-muted/30 last:border-0 ${
                                   isSelected ? 'bg-primary/10 border-l-2 border-l-primary' : ''
                                 } ${qState.status === 'done' || qState.status === 'skipped' ? 'opacity-60' : ''}`}
-                                onClick={() => handleSelectQuestion(question, section.title)}
+                                onClick={() => handleSelectQuestion(question, section.title, section.id)}
                               >
                                 <div className="mt-0.5">{getStatusIcon(qState.status)}</div>
                                 <p className={`text-sm flex-1 ${qState.status === 'done' ? 'line-through' : ''}`}>
@@ -1030,6 +1267,36 @@ export default function AuditPage({ params }: AuditPageProps) {
                       </Button>
                     </div>
                   </div>
+                </div>
+              </div>
+            </div>
+          ) : isAuditComplete ? (
+            <div className="shrink-0 border-b bg-emerald-50 dark:bg-emerald-950/20 p-8 text-center">
+              <div className="max-w-md mx-auto">
+                <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-6 w-6 text-emerald-600" />
+                </div>
+                <h3 className="font-medium mb-2 text-emerald-800 dark:text-emerald-200">Auditas baigtas! 🎉</h3>
+                <p className="text-sm text-emerald-700 dark:text-emerald-300 mb-4">
+                  Visi klausimai atsakyti. Galite peržiūrėti rezultatus arba sukurti pasiūlymą.
+                </p>
+                <div className="flex items-center justify-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => {
+                    // Find any question to continue reviewing
+                    if (activeScript && activeScript.sections.length > 0) {
+                      const firstSection = activeScript.sections[0]
+                      if (firstSection.questions.length > 0) {
+                        handleSelectQuestion(firstSection.questions[0], firstSection.title, firstSection.id)
+                      }
+                    }
+                  }}>
+                    Peržiūrėti atsakymus
+                  </Button>
+                  <Button size="sm" asChild>
+                    <Link href={`/admin/proposals/new?session=${sessionId}`}>
+                      Kurti pasiūlymą
+                    </Link>
+                  </Button>
                 </div>
               </div>
             </div>
