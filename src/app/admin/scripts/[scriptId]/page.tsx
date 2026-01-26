@@ -45,13 +45,22 @@ import type {
 // Parsed section from pasted text
 interface ParsedSection {
   headerRaw: string        // Original header text as pasted
+  headerClean: string      // Clean title (letter prefix stripped, but casing preserved)
   headerNormalized: string // Normalized for matching (lowercase, no punctuation, no parentheses)
   questions: string[]      // List of questions
 }
 
+// Strip letter prefix (A., B., etc.) from header
+function stripLetterPrefix(str: string): string {
+  // Match patterns like "A.", "B.", "A)", "1.", "1)" at the start
+  return str.replace(/^[A-Za-z0-9][.)]\s*/, '').trim()
+}
+
 // Normalize a string for matching: lowercase, trim, remove punctuation, collapse spaces, remove parentheses content
 function normalizeForMatching(str: string): string {
-  return str
+  // First strip letter prefix, then normalize
+  const stripped = stripLetterPrefix(str)
+  return stripped
     .toLowerCase()
     .replace(/\([^)]*\)/g, '') // Remove text in parentheses
     .replace(/[^\p{L}\p{N}\s]/gu, ' ') // Remove punctuation, keep letters/numbers/spaces
@@ -174,6 +183,7 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
       if (questions.length > 0) {
         result.push({
           headerRaw: section.headerText,
+          headerClean: stripLetterPrefix(section.headerText),
           headerNormalized: normalizeForMatching(section.headerText),
           questions,
         })
@@ -293,30 +303,63 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
 
   // Apply the full import
   const handleFullImport = async () => {
-    if (!importPreview || importPreview.matchedSections === 0) return
+    if (!importPreview || importPreview.parsed.length === 0) return
 
     setFullImporting(true)
 
     try {
       let totalQuestionsImported = 0
       let sectionsUpdated = 0
+      let sectionsCreated = 0
+      const newSectionsToAdd: SectionWithQuestions[] = []
 
       for (const match of importPreview.matches) {
-        if (!match.matchedSectionId) continue
+        let targetSectionId: string
+        let targetSection: SectionWithQuestions | undefined
 
-        const section = sections.find(s => s.id === match.matchedSectionId)
-        if (!section) continue
+        if (match.matchedSectionId) {
+          // Existing section matched
+          targetSectionId = match.matchedSectionId
+          targetSection = sections.find(s => s.id === targetSectionId)
+          if (!targetSection) continue
+        } else {
+          // Create new section for unmatched header
+          const newSectionOrder = sections.length + sectionsCreated
+          const { data: newSectionData } = await supabase
+            .from('audit_script_sections')
+            .insert({
+              script_id: scriptId,
+              title: match.parsedSection.headerClean,
+              order: newSectionOrder,
+            } as never)
+            .select()
+            .single()
 
-        // If replace mode, delete existing questions first
-        if (fullImportReplaceMode) {
+          if (!newSectionData) {
+            console.error('Failed to create section:', match.parsedSection.headerClean)
+            continue
+          }
+
+          targetSectionId = (newSectionData as AuditScriptSection).id
+          targetSection = {
+            ...(newSectionData as AuditScriptSection),
+            questions: [],
+          }
+          newSectionsToAdd.push(targetSection)
+          sectionsCreated++
+        }
+
+        // If replace mode and existing section, delete existing questions first
+        if (fullImportReplaceMode && match.matchedSectionId && targetSection) {
           await supabase
             .from('audit_script_questions')
             .delete()
-            .eq('section_id', match.matchedSectionId)
+            .eq('section_id', targetSectionId)
+          targetSection.questions = []
         }
 
         // Calculate starting order
-        const startOrder = fullImportReplaceMode ? 0 : section.questions.length
+        const startOrder = (fullImportReplaceMode || !match.matchedSectionId) ? 0 : targetSection!.questions.length
 
         // Insert new questions
         const newQuestions: AuditScriptQuestion[] = []
@@ -327,7 +370,7 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
           const { data } = await supabase
             .from('audit_script_questions')
             .insert({
-              section_id: match.matchedSectionId,
+              section_id: targetSectionId,
               text: questionText.trim(),
               order: startOrder + i,
               tags: [],
@@ -341,23 +384,46 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
           }
         }
 
-        // Update local state
-        setSections(prev => prev.map(s => {
-          if (s.id === match.matchedSectionId) {
-            return {
-              ...s,
-              questions: fullImportReplaceMode ? newQuestions : [...s.questions, ...newQuestions],
+        // Update local state for existing sections
+        if (match.matchedSectionId) {
+          setSections(prev => prev.map(s => {
+            if (s.id === targetSectionId) {
+              return {
+                ...s,
+                questions: fullImportReplaceMode ? newQuestions : [...s.questions, ...newQuestions],
+              }
             }
+            return s
+          }))
+          sectionsUpdated++
+        } else {
+          // For new sections, add questions to the object we'll add to state
+          const newSection = newSectionsToAdd.find(s => s.id === targetSectionId)
+          if (newSection) {
+            newSection.questions = newQuestions
           }
-          return s
-        }))
+        }
+      }
 
-        sectionsUpdated++
+      // Add new sections to state
+      if (newSectionsToAdd.length > 0) {
+        setSections(prev => [...prev, ...newSectionsToAdd])
+        // Expand new sections
+        setExpandedSections(prev => {
+          const newSet = new Set(prev)
+          newSectionsToAdd.forEach(s => newSet.add(s.id))
+          return newSet
+        })
       }
 
       // Show success toast
+      const parts: string[] = []
+      parts.push(`${totalQuestionsImported} klausimų`)
+      if (sectionsUpdated > 0) parts.push(`${sectionsUpdated} atnaujinta`)
+      if (sectionsCreated > 0) parts.push(`${sectionsCreated} sukurta`)
+
       setImportToast({
-        message: `Importuota ${totalQuestionsImported} klausimų į ${sectionsUpdated} sekcijas`,
+        message: `Importuota: ${parts.join(', ')}`,
         type: 'success',
       })
 
@@ -1039,9 +1105,9 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
             {/* Instructions */}
             <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
               <p className="font-medium text-foreground mb-1">Formatas:</p>
-              <p>Sekcijos pradedamos raide ir tašku (pvz., &quot;A. Warm-up&quot;)</p>
+              <p>Sekcijos antraštės - bet kokia eilutė, po kurios seka klausimai</p>
               <p>Klausimai prasideda • arba - arba *</p>
-              <p className="mt-1 text-xs">Automatiškai atpažins sekcijas ir priskirs klausimus.</p>
+              <p className="mt-1 text-xs">Automatiškai atpažins sekcijas pagal pavadinimą. Naujos sekcijos bus sukurtos automatiškai.</p>
             </div>
 
             {/* Textarea */}
@@ -1049,16 +1115,16 @@ export default function ScriptEditorPage({ params }: ScriptEditorProps) {
               <Textarea
                 value={fullImportText}
                 onChange={(e) => setFullImportText(e.target.value)}
-                placeholder={`A. Warm-up
+                placeholder={`Warm-up
 • Kaip sekasi šiandien?
 • Kiek laiko turime pokalbiui?
 
-B. Įmonės snapshot
+Įmonės snapshot
 • Kuo užsiima jūsų įmonė?
 • Kiek darbuotojų turi kompanija?
 • Kokie pagrindiniai procesai?
 
-C. Įrankiai ir sistemos
+Įrankiai ir sistemos
 • Kokias sistemas naudojate?
 • Ar turite CRM?`}
                 className="min-h-[200px] text-sm font-mono"
@@ -1094,12 +1160,14 @@ C. Įrankiai ir sistemos
                     <span className="text-muted-foreground">
                       {importPreview.totalQuestions} klausimų
                     </span>
-                    <span className="text-emerald-600">
-                      {importPreview.matchedSections} atpažinta
-                    </span>
+                    {importPreview.matchedSections > 0 && (
+                      <span className="text-emerald-600">
+                        {importPreview.matchedSections} atpažinta
+                      </span>
+                    )}
                     {importPreview.unmatchedSections > 0 && (
-                      <span className="text-amber-600">
-                        {importPreview.unmatchedSections} neatpažinta
+                      <span className="text-blue-600">
+                        {importPreview.unmatchedSections} naujos
                       </span>
                     )}
                   </div>
@@ -1112,7 +1180,7 @@ C. Įrankiai ir sistemos
                       className={`p-3 rounded-lg border text-sm ${
                         match.matchedSectionId
                           ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800'
-                          : 'bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800'
+                          : 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800'
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
@@ -1121,18 +1189,23 @@ C. Įrankiai ir sistemos
                             {match.matchedSectionId ? (
                               <Check className="h-4 w-4 text-emerald-600" />
                             ) : (
-                              <HelpCircle className="h-4 w-4 text-amber-600" />
+                              <Plus className="h-4 w-4 text-blue-600" />
                             )}
                             <span className="font-medium">
-                              {match.parsedSection.headerRaw}
+                              {match.parsedSection.headerClean}
                             </span>
+                            {!match.matchedSectionId && (
+                              <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 text-[10px] py-0">
+                                nauja sekcija
+                              </Badge>
+                            )}
                           </div>
                           {match.matchedSectionId && (
                             <p className="text-xs text-muted-foreground mt-0.5 ml-6">
                               → {match.matchedSectionTitle}
                               {match.matchType === 'alias' && (
                                 <Badge variant="secondary" className="ml-1.5 text-[10px] py-0">
-                                  alias
+                                  panašus
                                 </Badge>
                               )}
                               {match.matchType === 'fuzzy' && (
@@ -1140,11 +1213,6 @@ C. Įrankiai ir sistemos
                                   fuzzy ({Math.round(match.confidence * 100)}%)
                                 </Badge>
                               )}
-                            </p>
-                          )}
-                          {!match.matchedSectionId && match.alternativeMatches && match.alternativeMatches.length > 0 && (
-                            <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5 ml-6">
-                              Gali būti: {match.alternativeMatches.map(a => a.title).join(', ')}
                             </p>
                           )}
                         </div>
@@ -1155,13 +1223,6 @@ C. Įrankiai ir sistemos
                     </div>
                   ))}
                 </div>
-
-                {importPreview.unmatchedSections > 0 && (
-                  <p className="text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded">
-                    ⚠️ Neatpažintos sekcijos nebus importuotos. Patikrinkite ar sekcijų pavadinimai
-                    sutampa su esamomis sekcijomis.
-                  </p>
-                )}
               </div>
             )}
 
@@ -1169,8 +1230,8 @@ C. Įrankiai ir sistemos
               <div className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-3 rounded-lg">
                 <p className="font-medium">Nepavyko atpažinti sekcijų</p>
                 <p className="text-xs mt-1">
-                  Patikrinkite ar tekstas prasideda sekcijos antrašte (pvz., &quot;A. Pavadinimas&quot;)
-                  ir ar klausimai prasideda • arba - simboliu.
+                  Patikrinkite ar tekstas turi sekcijos antraštę, po kurios seka klausimai
+                  su • arba - simboliu.
                 </p>
               </div>
             )}
@@ -1189,9 +1250,9 @@ C. Įrankiai ir sistemos
             </Button>
             <Button
               onClick={handleFullImport}
-              disabled={!importPreview || importPreview.matchedSections === 0 || fullImporting}
+              disabled={!importPreview || importPreview.parsed.length === 0 || fullImporting}
             >
-              {fullImporting ? 'Importuojama...' : `Importuoti ${importPreview?.matchedSections || 0} sekcijas`}
+              {fullImporting ? 'Importuojama...' : `Importuoti ${importPreview?.parsed.length || 0} sekcijas`}
             </Button>
           </div>
         </DialogContent>
