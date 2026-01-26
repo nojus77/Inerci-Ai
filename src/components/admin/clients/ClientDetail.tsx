@@ -14,6 +14,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { formatLithuanianPhone } from '@/lib/utils'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Building,
   Mail,
   Phone,
@@ -25,8 +33,12 @@ import {
   ClipboardList,
   Plus,
   MessageSquare,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { usePermissions } from '@/hooks/usePermissions'
 import { formatDistanceToNow, format } from 'date-fns'
 import type { Database, ClientStage } from '@/types/database'
 import { ActivityFeed } from './ActivityFeed'
@@ -79,7 +91,11 @@ export function ClientDetail({ client }: ClientDetailProps) {
   const [proposals, setProposals] = useState<ProposalRow[]>([])
   const [tasks, setTasks] = useState<TaskRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const supabase = createClient()
+  const router = useRouter()
+  const { isAdmin } = usePermissions()
 
   // Modal states
   const [selectedProposalId, setSelectedProposalId] = useState<string | null>(null)
@@ -133,6 +149,43 @@ export function ClientDetail({ client }: ClientDetailProps) {
   const handleClientUpdated = () => {
     fetchClientData()
     fetchRelatedData()
+  }
+
+  const handleDeleteClient = async () => {
+    if (!isAdmin) return
+
+    setDeleting(true)
+    try {
+      // Delete related records first (cascade)
+      // Delete tasks
+      await supabase.from('tasks').delete().eq('client_id', currentClient.id)
+
+      // Delete activity logs
+      await supabase.from('activity_log').delete().eq('client_id', currentClient.id)
+
+      // Delete proposals
+      await supabase.from('proposals').delete().eq('client_id', currentClient.id)
+
+      // Delete audit sessions
+      await supabase.from('audit_sessions').delete().eq('client_id', currentClient.id)
+
+      // Finally delete the client
+      const { error } = await supabase.from('clients').delete().eq('id', currentClient.id)
+
+      if (error) {
+        console.error('Error deleting client:', error)
+        alert('Failed to delete client: ' + error.message)
+      } else {
+        // Redirect to clients list
+        router.push('/admin/clients')
+      }
+    } catch (err) {
+      console.error('Error deleting client:', err)
+      alert('Failed to delete client')
+    } finally {
+      setDeleting(false)
+      setShowDeleteConfirm(false)
+    }
   }
 
   useEffect(() => {
@@ -214,6 +267,15 @@ export function ClientDetail({ client }: ClientDetailProps) {
                     <ClipboardList className="h-4 w-4 mr-2" />
                     Add Task
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Client
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -486,6 +548,45 @@ export function ClientDetail({ client }: ClientDetailProps) {
         client={currentClient}
         onSuccess={handleClientUpdated}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              Delete Client
+            </DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete <strong>{currentClient.company_name}</strong>?
+              This will permanently delete all associated data including:
+              <ul className="mt-2 ml-4 list-disc text-sm">
+                <li>{sessions.length} audit session(s)</li>
+                <li>{proposals.length} proposal(s)</li>
+                <li>{tasks.length} task(s)</li>
+                <li>All activity logs</li>
+              </ul>
+              <p className="mt-3 font-medium text-red-600">This action cannot be undone.</p>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteConfirm(false)}
+              disabled={deleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteClient}
+              disabled={deleting}
+            >
+              {deleting ? 'Deleting...' : 'Delete Client'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
