@@ -53,6 +53,11 @@ export async function updateSession(request: NextRequest) {
       return supabaseResponse
     }
 
+    // Allow access to webhook endpoints (called by external services like Cal.com)
+    if (request.nextUrl.pathname.startsWith('/admin/api/webhooks/')) {
+      return supabaseResponse
+    }
+
     // Redirect to login if not authenticated
     if (!user) {
       const url = request.nextUrl.clone()
