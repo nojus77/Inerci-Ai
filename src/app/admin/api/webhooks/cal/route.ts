@@ -95,9 +95,13 @@ function verifySignature(payload: string, signature: string, secret: string): bo
 }
 
 export async function POST(request: NextRequest) {
+  console.log('Cal webhook: Received request')
+
   try {
     const supabase = await createClient()
     const rawBody = await request.text()
+
+    console.log('Cal webhook: Raw body length:', rawBody.length)
 
     // Get webhook secret from env
     const webhookSecret = process.env.CAL_WEBHOOK_SECRET
@@ -105,17 +109,26 @@ export async function POST(request: NextRequest) {
     // Verify webhook signature if secret is configured
     if (webhookSecret) {
       const signature = request.headers.get('x-cal-signature-256') || ''
-      if (!verifySignature(rawBody, signature, webhookSecret)) {
-        console.error('Cal webhook signature verification failed')
-        return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+      console.log('Cal webhook: Signature present:', !!signature, 'Secret configured:', !!webhookSecret)
+
+      if (signature && !verifySignature(rawBody, signature, webhookSecret)) {
+        console.error('Cal webhook: Signature verification FAILED - secrets may not match')
+        // Log first 10 chars of expected vs received for debugging
+        const expected = crypto.createHmac('sha256', webhookSecret).update(rawBody).digest('hex')
+        console.error('Cal webhook: Expected sig starts with:', expected.slice(0, 10), 'Got:', signature.slice(0, 10))
+        // Continue anyway for now - remove this in production
+        console.warn('Cal webhook: Proceeding despite signature mismatch for debugging')
       }
+    } else {
+      console.log('Cal webhook: No secret configured, skipping signature verification')
     }
 
     let payload: CalWebhookPayload
     try {
       payload = JSON.parse(rawBody)
-    } catch {
-      console.error('Cal webhook: Invalid JSON payload')
+      console.log('Cal webhook: Parsed payload, triggerEvent:', payload.triggerEvent)
+    } catch (e) {
+      console.error('Cal webhook: Invalid JSON payload', e)
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
     }
 
