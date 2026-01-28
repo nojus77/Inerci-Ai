@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { services, hero } from "@/content/copy.lt";
 import { servicesMotion, scrollReveal, easing, buttonMotion } from "@/content/socioMotion";
@@ -14,11 +13,9 @@ import ScrollConnector from "@/components/socio/ScrollConnector";
 const serviceKeys = ["voiceAgent", "platform", "consulting"] as const;
 
 export default function HowItWorks() {
-  const router = useRouter();
-
   const handleBookingClick = () => {
     markCtaClicked();
-    router.push("/booking");
+    document.getElementById("cta")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (

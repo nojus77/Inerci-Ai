@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { footer } from "@/content/copy.lt";
 import Logo from "@/components/Logo";
@@ -63,11 +62,10 @@ function FooterLink({ href, children }: { href: string; children: React.ReactNod
 
 export default function Footer() {
   const [isCtaHovered, setIsCtaHovered] = useState(false);
-  const router = useRouter();
 
   const handleBookingClick = () => {
     markCtaClicked();
-    router.push("/booking");
+    document.getElementById("cta")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (

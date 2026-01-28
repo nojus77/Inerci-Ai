@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { hero } from "@/content/copy.lt";
 import {
@@ -88,11 +87,9 @@ function FlipWords({ words }: { words: string[] }) {
 }
 
 export default function Hero() {
-  const router = useRouter();
-
   const handleAuditClick = () => {
     markCtaClicked();
-    router.push("/booking");
+    document.getElementById("cta")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
